@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     X,
@@ -60,7 +61,7 @@ const SubjectImportModal = ({ isOpen, onClose, onImportComplete }) => {
         e.preventDefault();
         e.stopPropagation();
         setDragActive(false);
-        
+
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
             handleFileSelect(e.dataTransfer.files[0]);
         }
@@ -85,7 +86,7 @@ const SubjectImportModal = ({ isOpen, onClose, onImportComplete }) => {
         }
 
         setFile(selectedFile);
-        
+
         // Get preview
         await loadPreview(selectedFile);
     };
@@ -170,282 +171,303 @@ const SubjectImportModal = ({ isOpen, onClose, onImportComplete }) => {
         return <FileText className="w-8 h-8 text-blue-500" />;
     };
 
-    if (!isOpen) return null;
 
-    return (
+
+    return createPortal(
         <AnimatePresence>
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
-                {/* Backdrop */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                    onClick={handleClose}
-                />
+            {isOpen && (
+                <>
+                    {/* Backdrop */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999]"
+                        onClick={handleClose}
+                    />
 
-                {/* Modal */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="relative w-full max-w-3xl max-h-[90vh] overflow-hidden bg-white dark:bg-gray-800 rounded-2xl shadow-2xl m-4"
-                >
-                    {/* Header */}
-                    <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-                        <div>
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                                Import Subjects
-                            </h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                Upload a CSV, Excel, or PDF file containing subject data
-                            </p>
-                        </div>
-                        <button
-                            onClick={handleClose}
-                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                        >
-                            <X className="w-5 h-5 text-gray-500" />
-                        </button>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-6 overflow-y-auto max-h-[60vh]">
-                        {/* File Upload Area */}
-                        {!result && (
-                            <div
-                                onDragEnter={handleDrag}
-                                onDragLeave={handleDrag}
-                                onDragOver={handleDrag}
-                                onDrop={handleDrop}
-                                className={`
-                                    relative border-2 border-dashed rounded-xl p-8 text-center transition-all
-                                    ${dragActive 
-                                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' 
-                                        : 'border-gray-300 dark:border-gray-600 hover:border-primary-400'
-                                    }
-                                `}
+                    {/* Modal */}
+                    <div className="fixed inset-0 z-[10000] overflow-y-auto">
+                        <div className="flex min-h-full items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                className="relative w-full max-w-3xl glass-card bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-indigo-500/10"
+                                onClick={e => e.stopPropagation()}
                             >
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept={acceptedTypes}
-                                    onChange={handleFileChange}
-                                    className="hidden"
-                                />
-
-                                {file ? (
-                                    <div className="flex items-center justify-center gap-4">
-                                        {getFileIcon(file.name)}
-                                        <div className="text-left">
-                                            <p className="font-medium text-gray-900 dark:text-white">{file.name}</p>
-                                            <p className="text-sm text-gray-500">
-                                                {(file.size / 1024).toFixed(1)} KB
-                                            </p>
-                                        </div>
-                                        <button
-                                            onClick={() => {
-                                                setFile(null);
-                                                setPreview(null);
-                                            }}
-                                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-                                        >
-                                            <X className="w-4 h-4 text-gray-500" />
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                                        <p className="text-gray-600 dark:text-gray-400 mb-2">
-                                            Drag and drop your file here, or{' '}
-                                            <button
-                                                onClick={() => fileInputRef.current?.click()}
-                                                className="text-primary-500 hover:text-primary-600 font-medium"
-                                            >
-                                                browse
-                                            </button>
-                                        </p>
-                                        <p className="text-sm text-gray-500">
-                                            Supports CSV, XLSX, XLS, and PDF files
-                                        </p>
-                                    </>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Loading State */}
-                        {loading && (
-                            <div className="flex items-center justify-center py-8">
-                                <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
-                                <span className="ml-3 text-gray-600 dark:text-gray-400">Parsing file...</span>
-                            </div>
-                        )}
-
-                        {/* Error State */}
-                        {error && (
-                            <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3">
-                                <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                                <div>
-                                    <p className="font-medium text-red-700 dark:text-red-400">Error</p>
-                                    <p className="text-sm text-red-600 dark:text-red-300">{error}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Preview */}
-                        {preview && !result && (
-                            <div className="mt-6">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
-                                        <Eye className="w-5 h-5 text-primary-500" />
-                                        Preview ({preview.total} subjects found)
-                                    </h3>
-                                </div>
-
-                                {/* Programme Selector */}
-                                <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                                    <label className="block text-sm font-medium text-green-700 dark:text-green-400 mb-2">
-                                        📚 Select Programme for All Subjects
-                                    </label>
-                                    <select
-                                        value={selectedProgramme}
-                                        onChange={(e) => setSelectedProgramme(e.target.value)}
-                                        className="w-full px-3 py-2 border border-green-300 dark:border-green-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
-                                    >
-                                        {programmes.map(prog => (
-                                            <option key={prog.code} value={prog.code}>
-                                                {prog.code} - {prog.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <p className="mt-2 text-sm text-green-600 dark:text-green-400">
-                                        All subjects will be assigned to: {selectedProgramme}
-                                    </p>
-                                </div>
-
-                                <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-                                    <table className="w-full text-sm">
-                                        <thead className="bg-gray-50 dark:bg-gray-700">
-                                            <tr>
-                                                <th className="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Code</th>
-                                                <th className="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Name</th>
-                                                <th className="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Credits</th>
-                                                <th className="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Semester</th>
-                                                <th className="px-4 py-2 text-left font-medium text-gray-500 dark:text-gray-400">Programme</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                            {preview.subjects.map((subject, idx) => (
-                                                <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                                    <td className="px-4 py-2 font-mono text-gray-900 dark:text-white">{subject.code}</td>
-                                                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{subject.name}</td>
-                                                    <td className="px-4 py-2 text-gray-600 dark:text-gray-400">{subject.credit_hours}</td>
-                                                    <td className="px-4 py-2 text-gray-600 dark:text-gray-400">{subject.semester}</td>
-                                                    <td className="px-4 py-2 text-gray-600 dark:text-gray-400">{subject.programme}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Import Result */}
-                        {result && (
-                            <div className="space-y-4">
-                                <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-start gap-3">
-                                    <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
+                                {/* Header */}
+                                <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
                                     <div>
-                                        <p className="font-medium text-green-700 dark:text-green-400">Import Complete!</p>
-                                        <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                                            <div>
-                                                <span className="text-gray-600 dark:text-gray-400">Total:</span>
-                                                <span className="ml-1 font-bold text-gray-900 dark:text-white">{result.total}</span>
-                                            </div>
-                                            <div>
-                                                <span className="text-gray-600 dark:text-gray-400">Created:</span>
-                                                <span className="ml-1 font-bold text-green-600">{result.created}</span>
-                                            </div>
-                                            <div>
-                                                <span className="text-gray-600 dark:text-gray-400">Updated:</span>
-                                                <span className="ml-1 font-bold text-yellow-600">{result.updated}</span>
-                                            </div>
-                                            <div>
-                                                <span className="text-gray-600 dark:text-gray-400">Errors:</span>
-                                                <span className="ml-1 font-bold text-red-600">{result.errors?.length || 0}</span>
-                                            </div>
-                                        </div>
+                                        <h2 className="text-xl font-bold text-white tracking-tight">
+                                            Import Subjects
+                                        </h2>
+                                        <p className="text-sm text-white/50 mt-1">
+                                            Upload a CSV, Excel, or PDF file containing subject data
+                                        </p>
                                     </div>
+                                    <button
+                                        onClick={handleClose}
+                                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all transform hover:rotate-90"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
                                 </div>
 
-                                {result.errors?.length > 0 && (
-                                    <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                                        <p className="font-medium text-red-700 dark:text-red-400 mb-2">Errors:</p>
-                                        <ul className="text-sm text-red-600 dark:text-red-300 space-y-1">
-                                            {result.errors.slice(0, 5).map((err, idx) => (
-                                                <li key={idx}>• {err.subject?.code}: {err.error}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                {/* Content */}
+                                <div className="p-6">
+                                    {/* File Upload Area */}
+                                    {!result && (
+                                        <div
+                                            onDragEnter={handleDrag}
+                                            onDragLeave={handleDrag}
+                                            onDragOver={handleDrag}
+                                            onDrop={handleDrop}
+                                            className={`
+                                                relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200
+                                                ${dragActive
+                                                    ? 'border-indigo-500 bg-indigo-500/10'
+                                                    : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
+                                                }
+                                            `}
+                                        >
+                                            <input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                accept={acceptedTypes}
+                                                onChange={handleFileChange}
+                                                className="hidden"
+                                            />
 
-                        {/* File Format Help */}
-                        {!preview && !result && !loading && (
-                            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                                <h4 className="font-medium text-blue-700 dark:text-blue-400 mb-2">Expected Format</h4>
-                                <p className="text-sm text-blue-600 dark:text-blue-300 mb-2">
-                                    Your file should contain columns for:
-                                </p>
-                                <ul className="text-sm text-blue-600 dark:text-blue-300 list-disc list-inside space-y-1">
-                                    <li><strong>Code</strong> - Subject code (e.g., CT206, STA2133)</li>
-                                    <li><strong>Name</strong> - Subject name</li>
-                                    <li><strong>Credit Hours</strong> - Number of credits (optional, default: 3)</li>
-                                    <li><strong>Semester</strong> - Semester number (optional, default: 1)</li>
-                                    <li><strong>Programme</strong> - Programme code (optional, auto-detected)</li>
-                                </ul>
-                            </div>
-                        )}
-                    </div>
+                                            {file ? (
+                                                <div className="flex items-center justify-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
+                                                    {getFileIcon(file.name)}
+                                                    <div className="text-left">
+                                                        <p className="font-medium text-white">{file.name}</p>
+                                                        <p className="text-sm text-white/50">
+                                                            {(file.size / 1024).toFixed(1)} KB
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setFile(null);
+                                                            setPreview(null);
+                                                        }}
+                                                        className="p-2 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-colors ml-4"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+                                                        <Upload className={`w-8 h-8 ${dragActive ? 'text-indigo-400' : 'text-white/40'}`} />
+                                                    </div>
+                                                    <h3 className="text-lg font-semibold text-white mb-2">
+                                                        {dragActive ? 'Drop file here' : 'Upload File'}
+                                                    </h3>
+                                                    <p className="text-white/40 text-sm mb-6 max-w-xs mx-auto">
+                                                        Drag and drop your file here, or click to browse
+                                                    </p>
+                                                    <button
+                                                        onClick={() => fileInputRef.current?.click()}
+                                                        className="px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-indigo-500/20"
+                                                    >
+                                                        Browse Files
+                                                    </button>
+                                                    <p className="mt-4 text-xs text-white/30">
+                                                        Supports CSV, XLSX, XLS, and PDF
+                                                    </p>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
 
-                    {/* Footer */}
-                    <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
-                        <button
-                            onClick={handleClose}
-                            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                        >
-                            {result ? 'Close' : 'Cancel'}
-                        </button>
-                        {preview && !result && (
-                            <button
-                                onClick={handleImport}
-                                disabled={importing || !preview?.subjects?.length}
-                                className={`
-                                    flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all
-                                    ${importing 
-                                        ? 'bg-gray-300 cursor-not-allowed' 
-                                        : 'bg-primary-500 text-white hover:bg-primary-600'
-                                    }
-                                `}
-                            >
-                                {importing ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        Importing...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Download className="w-4 h-4" />
-                                        Import {preview?.total} Subjects
-                                    </>
-                                )}
-                            </button>
-                        )}
+                                    {/* Loading State */}
+                                    {loading && (
+                                        <div className="flex flex-col items-center justify-center py-12">
+                                            <Loader2 className="w-10 h-10 animate-spin text-indigo-500 mb-4" />
+                                            <span className="text-white/60">Parsing file...</span>
+                                        </div>
+                                    )}
+
+                                    {/* Error State */}
+                                    {error && (
+                                        <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3">
+                                            <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="font-medium text-red-400">Error</p>
+                                                <p className="text-sm text-red-300/80">{error}</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Preview */}
+                                    {preview && !result && (
+                                        <div className="mt-6 space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <h3 className="font-medium text-white flex items-center gap-2">
+                                                    <Eye className="w-5 h-5 text-indigo-400" />
+                                                    Preview ({preview.total} subjects found)
+                                                </h3>
+                                            </div>
+
+                                            {/* Programme Selector */}
+                                            <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                                                <label className="block text-sm font-medium text-emerald-400 mb-2">
+                                                    📚 Select Programme for All Subjects
+                                                </label>
+                                                <select
+                                                    value={selectedProgramme}
+                                                    onChange={(e) => setSelectedProgramme(e.target.value)}
+                                                    className="w-full px-3 py-2.5 border border-emerald-500/30 rounded-xl bg-black/40 text-white focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all"
+                                                >
+                                                    {programmes.map(prog => (
+                                                        <option key={prog.code} value={prog.code} className="bg-gray-900">
+                                                            {prog.code} - {prog.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <p className="mt-2 text-xs text-emerald-400/70">
+                                                    All subjects will be assigned to: {selectedProgramme}
+                                                </p>
+                                            </div>
+
+                                            <div className="rounded-xl border border-white/10 overflow-hidden">
+                                                <div className="overflow-x-auto max-h-[40vh]">
+                                                    <table className="w-full text-sm text-left">
+                                                        <thead className="bg-white/5 border-b border-white/10 sticky top-0 z-10 backdrop-blur-md">
+                                                            <tr>
+                                                                <th className="px-4 py-3 font-medium text-white/50">Code</th>
+                                                                <th className="px-4 py-3 font-medium text-white/50">Name</th>
+                                                                <th className="px-4 py-3 font-medium text-white/50">Credits</th>
+                                                                <th className="px-4 py-3 font-medium text-white/50">Semester</th>
+                                                                <th className="px-4 py-3 font-medium text-white/50">Programme</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-white/5 text-white/70">
+                                                            {preview.subjects.map((subject, idx) => (
+                                                                <tr key={idx} className="hover:bg-white/5 transition-colors">
+                                                                    <td className="px-4 py-2 font-mono text-white">{subject.code}</td>
+                                                                    <td className="px-4 py-2">{subject.name}</td>
+                                                                    <td className="px-4 py-2 text-white/50">{subject.credit_hours}</td>
+                                                                    <td className="px-4 py-2 text-white/50">{subject.semester}</td>
+                                                                    <td className="px-4 py-2 text-white/50">{subject.programme}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Import Result */}
+                                    {result && (
+                                        <div className="space-y-4">
+                                            <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start gap-3">
+                                                <CheckCircle className="w-6 h-6 text-emerald-500 flex-shrink-0" />
+                                                <div className="w-full">
+                                                    <p className="font-bold text-emerald-400 text-lg">Import Complete!</p>
+                                                    <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                                                        <div className="bg-black/20 p-3 rounded-lg">
+                                                            <span className="text-white/50 block text-xs uppercase tracking-wider">Total</span>
+                                                            <span className="font-bold text-white text-xl">{result.total}</span>
+                                                        </div>
+                                                        <div className="bg-emerald-500/10 p-3 rounded-lg border border-emerald-500/20">
+                                                            <span className="text-emerald-400/70 block text-xs uppercase tracking-wider">Created</span>
+                                                            <span className="font-bold text-emerald-400 text-xl">{result.created}</span>
+                                                        </div>
+                                                        <div className="bg-yellow-500/10 p-3 rounded-lg border border-yellow-500/20">
+                                                            <span className="text-yellow-400/70 block text-xs uppercase tracking-wider">Updated</span>
+                                                            <span className="font-bold text-yellow-400 text-xl">{result.updated}</span>
+                                                        </div>
+                                                        <div className="bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+                                                            <span className="text-red-400/70 block text-xs uppercase tracking-wider">Errors</span>
+                                                            <span className="font-bold text-red-400 text-xl">{result.errors?.length || 0}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {result.errors?.length > 0 && (
+                                                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                                                    <p className="font-medium text-red-400 mb-2">Error Details:</p>
+                                                    <div className="max-h-40 overflow-y-auto">
+                                                        <ul className="text-sm text-red-300/80 space-y-1">
+                                                            {result.errors.map((err, idx) => (
+                                                                <li key={idx} className="flex gap-2">
+                                                                    <span className="font-mono text-red-200 bg-red-500/20 px-1 rounded">{err.subject?.code}</span>
+                                                                    <span>{err.error}</span>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* File Format Help */}
+                                    {!preview && !result && !loading && (
+                                        <div className="mt-8 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
+                                            <h4 className="font-medium text-indigo-400 mb-2 flex items-center gap-2">
+                                                <FileText className="w-4 h-4" /> Expected Format
+                                            </h4>
+                                            <div className="text-sm text-indigo-300/80">
+                                                <p className="mb-2">Your file should contain columns for:</p>
+                                                <ul className="list-disc list-inside space-y-1 ml-2">
+                                                    <li><strong className="text-indigo-200">Code</strong> - Subject code (e.g., CT206)</li>
+                                                    <li><strong className="text-indigo-200">Name</strong> - Subject name</li>
+                                                    <li><strong className="text-indigo-200">Credit Hours</strong> - (Optional, default: 3)</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Footer */}
+                                <div className="flex items-center justify-end gap-3 px-6 py-5 border-t border-white/10">
+                                    <button
+                                        onClick={handleClose}
+                                        className="px-4 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                                    >
+                                        {result ? 'Close' : 'Cancel'}
+                                    </button>
+                                    {preview && !result && (
+                                        <button
+                                            onClick={handleImport}
+                                            disabled={importing || !preview?.subjects?.length}
+                                            className={`
+                                                flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all shadow-lg
+                                                ${importing
+                                                    ? 'bg-white/10 text-white/50 cursor-not-allowed'
+                                                    : 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-emerald-500/20'
+                                                }
+                                            `}
+                                        >
+                                            {importing ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    Importing...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Download className="w-4 h-4" />
+                                                    Import {preview?.total} Subjects
+                                                </>
+                                            )}
+                                        </button>
+                                    )}
+                                </div>
+                            </motion.div>
+                        </div>
                     </div>
-                </motion.div>
-            </div>
-        </AnimatePresence>
+                </>
+            )}
+        </AnimatePresence>,
+        document.body
     );
 };
 

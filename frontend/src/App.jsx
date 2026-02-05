@@ -36,9 +36,15 @@ function App() {
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
 
-            {/* Toast Notifications */}
+            {/* Toast Notifications - placed at root for fixed positioning */}
             <Toaster
               position="top-right"
+              containerStyle={{
+                position: 'fixed',
+                top: 20,
+                right: 20,
+                zIndex: 99999
+              }}
               toastOptions={{
                 duration: 4000,
                 style: {

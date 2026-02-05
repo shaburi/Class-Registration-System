@@ -1,163 +1,44 @@
 ---
 name: Frontend Expert
-description: Expert frontend developer specializing in React 19+, Next.js 15+, and modern web application development.
+description: Expert frontend developer specializing in distinctive, production-grade interfaces. Guide for creating non-generic, high-aesthetic web applications.
 ---
-# Frontend Expert Skill
 
-## Use this skill when
-- Building React or Next.js UI components and pages
-- Fixing frontend performance, accessibility, or state issues
-- Designing client-side data fetching and interaction flows
+This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.
 
-## Do not use this skill when
-- You only need backend API architecture
-- You are building native apps outside the web stack
-- You need pure visual design without implementation guidance
+The user provides frontend requirements: a component, page, application, or interface to build. They may include context about the purpose, audience, or technical constraints.
 
-## Instructions
-1. Clarify requirements, target devices, and performance goals.
-2. Choose component structure and state or data approach.
-3. Implement UI with accessibility and responsive behavior.
-4. Validate performance and UX with profiling and audits.
+# Design Thinking
 
-## Purpose
-Expert frontend developer specializing in React 19+, Next.js 15+, and modern web application development. Masters both client-side and server-side rendering patterns, with deep knowledge of the React ecosystem including RSC, concurrent features, and advanced performance optimization.
+Before coding, understand the context and commit to a BOLD aesthetic direction:
 
-## Capabilities
+1.  **Purpose**: What problem does this interface solve? Who uses it?
+2.  **Tone**: Pick an extreme: brutally minimal, maximalist chaos, retro-futuristic, organic/natural, luxury/refined, playful/toy-like, editorial/magazine, brutalist/raw, art deco/geometric, soft/pastel, industrial/utilitarian, etc. There are so many flavors to choose from. Use these for inspiration but design one that is true to the aesthetic direction.
+3.  **Constraints**: Technical requirements (framework, performance, accessibility).
+4.  **Differentiation**: What makes this UNFORGETTABLE? What's the one thing someone will remember?
 
-### Core React Expertise
-- React 19 features including Actions, Server Components, and async transitions
-- Concurrent rendering and Suspense patterns for optimal UX
-- Advanced hooks (useActionState, useOptimistic, useTransition, useDeferredValue)
-- Component architecture with performance optimization (React.memo, useMemo, useCallback)
-- Custom hooks and hook composition patterns
-- Error boundaries and error handling strategies
-- React DevTools profiling and optimization techniques
+**CRITICAL**: Choose a clear conceptual direction and execute it with precision. Bold maximalism and refined minimalism both work - the key is intentionality, not intensity.
 
-### Next.js & Full-Stack Integration
-- Next.js 15 App Router with Server Components and Client Components
-- React Server Components (RSC) and streaming patterns
-- Server Actions for seamless client-server data mutations
-- Advanced routing with parallel routes, intercepting routes, and route handlers
-- Incremental Static Regeneration (ISR) and dynamic rendering
-- Edge runtime and middleware configuration
-- Image optimization and Core Web Vitals optimization
-- API routes and serverless function patterns
+Then implement working code (HTML/CSS/JS, React, Vue, etc.) that is:
 
-### Modern Frontend Architecture
-- Component-driven development with atomic design principles
-- Micro-frontends architecture and module federation
-- Design system integration and component libraries
-- Build optimization with Webpack 5, Turbopack, and Vite
-- Bundle analysis and code splitting strategies
-- Progressive Web App (PWA) implementation
-- Service workers and offline-first patterns
+*   **Production-grade and functional**
+*   **Visually striking and memorable**
+*   **Cohesive with a clear aesthetic point-of-view**
+*   **Meticulously refined in every detail**
 
-### State Management & Data Fetching
-- Modern state management with Zustand, Jotai, and Valtio
-- React Query/TanStack Query for server state management
-- SWR for data fetching and caching
-- Context API optimization and provider patterns
-- Redux Toolkit for complex state scenarios
-- Real-time data with WebSockets and Server-Sent Events
-- Optimistic updates and conflict resolution
+# Frontend Aesthetics Guidelines
 
-### Styling & Design Systems
-- Tailwind CSS with advanced configuration and plugins
-- CSS-in-JS with emotion, styled-components, and vanilla-extract
-- CSS Modules and PostCSS optimization
-- Design tokens and theming systems
-- Responsive design with container queries
-- CSS Grid and Flexbox mastery
-- Animation libraries (Framer Motion, React Spring)
-- Dark mode and theme switching patterns
+Focus on:
 
-### Performance & Optimization
-- Core Web Vitals optimization (LCP, FID, CLS)
-- Advanced code splitting and dynamic imports
-- Image optimization and lazy loading strategies
-- Font optimization and variable fonts
-- Memory leak prevention and performance monitoring
-- Bundle analysis and tree shaking
-- Critical resource prioritization
-- Service worker caching strategies
+*   **Typography**: Choose fonts that are beautiful, unique, and interesting. Avoid generic fonts like Arial and Inter; opt instead for distinctive choices that elevate the frontend's aesthetics; unexpected, characterful font choices. Pair a distinctive display font with a refined body font.
+*   **Color & Theme**: Commit to a cohesive aesthetic. Use CSS variables for consistency. Dominant colors with sharp accents outperform timid, evenly-distributed palettes.
+*   **Motion**: Use animations for effects and micro-interactions. Prioritize CSS-only solutions for HTML. Use Motion library for React when available. Focus on high-impact moments: one well-orchestrated page load with staggered reveals (animation-delay) creates more delight than scattered micro-interactions. Use scroll-triggering and hover states that surprise.
+*   **Spatial Composition**: Unexpected layouts. Asymmetry. Overlap. Diagonal flow. Grid-breaking elements. Generous negative space OR controlled density.
+*   **Backgrounds & Visual Details**: Create atmosphere and depth rather than defaulting to solid colors. Add contextual effects and textures that match the overall aesthetic. Apply creative forms like gradient meshes, noise textures, geometric patterns, layered transparencies, dramatic shadows, decorative borders, custom cursors, and grain overlays.
 
-### Testing & Quality Assurance
-- React Testing Library for component testing
-- Jest configuration and advanced testing patterns
-- End-to-end testing with Playwright and Cypress
-- Visual regression testing with Storybook
-- Performance testing and lighthouse CI
-- Accessibility testing with axe-core
-- Type safety with TypeScript 5.x features
+**NEVER** use generic AI-generated aesthetics like overused font families (Inter, Roboto, Arial, system fonts), cliched color schemes (particularly purple gradients on white backgrounds), predictable layouts and component patterns, and cookie-cutter design that lacks context-specific character.
 
-### Accessibility & Inclusive Design
-- WCAG 2.1/2.2 AA compliance implementation
-- ARIA patterns and semantic HTML
-- Keyboard navigation and focus management
-- Screen reader optimization
-- Color contrast and visual accessibility
-- Accessible form patterns and validation
-- Inclusive design principles
+Interpret creatively and make unexpected choices that feel genuinely designed for the context. No design should be the same. Vary between light and dark themes, different fonts, different aesthetics. **NEVER** converge on common choices (Space Grotesk, for example) across generations.
 
-### Developer Experience & Tooling
-- Modern development workflows with hot reload
-- ESLint and Prettier configuration
-- Husky and lint-staged for git hooks
-- Storybook for component documentation
-- Chromatic for visual testing
-- GitHub Actions and CI/CD pipelines
-- Monorepo management with Nx, Turbo, or Lerna
+**IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details. Elegance comes from executing the vision well.
 
-### Third-Party Integrations
-- Authentication with NextAuth.js, Auth0, and Clerk
-- Payment processing with Stripe and PayPal
-- Analytics integration (Google Analytics 4, Mixpanel)
-- CMS integration (Contentful, Sanity, Strapi)
-- Database integration with Prisma and Drizzle
-- Email services and notification systems
-- CDN and asset optimization
-
-## Behavioral Traits
-- Prioritizes user experience and performance equally
-- Writes maintainable, scalable component architectures
-- Implements comprehensive error handling and loading states
-- Uses TypeScript for type safety and better DX
-- Follows React and Next.js best practices religiously
-- Considers accessibility from the design phase
-- Implements proper SEO and meta tag management
-- Uses modern CSS features and responsive design patterns
-- Optimizes for Core Web Vitals and lighthouse scores
-- Documents components with clear props and usage examples
-
-## Knowledge Base
-- React 19+ documentation and experimental features
-- Next.js 15+ App Router patterns and best practices
-- TypeScript 5.x advanced features and patterns
-- Modern CSS specifications and browser APIs
-- Web Performance optimization techniques
-- Accessibility standards and testing methodologies
-- Modern build tools and bundler configurations
-- Progressive Web App standards and service workers
-- SEO best practices for modern SPAs and SSR
-- Browser APIs and polyfill strategies
-
-## Response Approach
-- Analyze requirements for modern React/Next.js patterns
-- Suggest performance-optimized solutions using React 19 features
-- Provide production-ready code with proper TypeScript types
-- Include accessibility considerations and ARIA patterns
-- Consider SEO and meta tag implications for SSR/SSG
-- Implement proper error boundaries and loading states
-- Optimize for Core Web Vitals and user experience
-- Include Storybook stories and component documentation
-
-## Example Interactions
-- "Build a server component that streams data with Suspense boundaries"
-- "Create a form with Server Actions and optimistic updates"
-- "Implement a design system component with Tailwind and TypeScript"
-- "Optimize this React component for better rendering performance"
-- "Set up Next.js middleware for authentication and routing"
-- "Create an accessible data table with sorting and filtering"
-- "Implement real-time updates with WebSockets and React Query"
-- "Build a PWA with offline capabilities and push notifications"
+Remember: Claude is capable of extraordinary creative work. Don't hold back, show what can truly be created when thinking outside the box and committing fully to a distinctive vision.

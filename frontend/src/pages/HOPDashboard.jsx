@@ -32,6 +32,7 @@ import CSVImportModal from '../components/CSVImportModal';
 import SubjectImportModal from '../components/SubjectImportModal';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import EdupageDataView from '../components/EdupageDataView';
+import StudentLogsTab from '../components/hop/StudentLogsTab';
 
 
 export default function HOPDashboard() {
@@ -683,6 +684,10 @@ export default function HOPDashboard() {
                     {activeTab === 'edupage' && (
                         <EdupageDataView />
                     )}
+
+                    {activeTab === 'student-logs' && (
+                        <StudentLogsTab />
+                    )}
                 </div>
 
                 {/* Subject Modal */}
@@ -693,26 +698,26 @@ export default function HOPDashboard() {
                 >
                     <form onSubmit={handleSaveSubject} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Subject Code</label>
+                            <label className="block text-sm font-medium text-white/60 mb-1.5">Subject Code</label>
                             <input
                                 name="code"
                                 defaultValue={editingSubject?.code}
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Subject Name</label>
+                            <label className="block text-sm font-medium text-white/60 mb-1.5">Subject Name</label>
                             <input
                                 name="name"
                                 defaultValue={editingSubject?.name}
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                             />
                         </div>
                         <div className="grid grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Credit Hours</label>
+                                <label className="block text-sm font-medium text-white/60 mb-1.5">Credit Hours</label>
                                 <input
                                     name="credit_hours"
                                     type="number"
@@ -720,16 +725,16 @@ export default function HOPDashboard() {
                                     required
                                     min="1"
                                     max="6"
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Semester</label>
+                                <label className="block text-sm font-medium text-white/60 mb-1.5">Semester</label>
                                 <select
                                     name="semester"
                                     defaultValue={editingSubject?.semester || 1}
                                     disabled={!!editingSubject}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 disabled:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:disabled:bg-gray-600"
+                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3 disabled:bg-white/5 disabled:text-white/30"
                                 >
                                     {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => (
                                         <option key={sem} value={sem}>Sem {sem}</option>
@@ -737,12 +742,12 @@ export default function HOPDashboard() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Programme</label>
+                                <label className="block text-sm font-medium text-white/60 mb-1.5">Programme</label>
                                 <select
                                     name="programme"
                                     defaultValue={editingSubject?.programme || 'CT206'}
                                     disabled={!!editingSubject}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 disabled:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:disabled:bg-gray-600"
+                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3 disabled:bg-white/5 disabled:text-white/30"
                                 >
                                     <option value="CT206">CT206 - Bachelor of IT (Cyber Security)</option>
                                     <option value="CT204">CT204 - Bachelor of IT (Computer App Development)</option>
@@ -766,19 +771,19 @@ export default function HOPDashboard() {
                 >
                     <form onSubmit={handleSaveSection} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Subject Code</label>
+                            <label className="block text-sm font-medium text-white/60 mb-1.5">Subject Code</label>
                             {editingSection ? (
                                 <input
                                     name="subject_code"
                                     defaultValue={editingSection.subject_code}
-                                    className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:ring-0 sm:text-sm border p-2 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200"
+                                    className="mt-1 block w-full rounded-xl border-white/10 bg-white/5 shadow-sm focus:ring-0 sm:text-sm border p-3 text-white/50"
                                     readOnly
                                 />
                             ) : (
                                 <select
                                     name="subject_code"
                                     required
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                                 >
                                     <option value="">Select a subject</option>
                                     {subjects.map(subject => (
@@ -790,22 +795,22 @@ export default function HOPDashboard() {
                             )}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Section Number</label>
+                            <label className="block text-sm font-medium text-white/60 mb-1.5">Section Number</label>
                             <input
                                 name="section_number"
                                 defaultValue={editingSection?.section_number || ''}
                                 placeholder="e.g., 01, 02, A, B"
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Day</label>
+                                <label className="block text-sm font-medium text-white/60 mb-1.5">Day</label>
                                 <select
                                     name="day"
                                     defaultValue={editingSection?.day || 'monday'}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                                 >
                                     {['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].map(d => (
                                         <option key={d} value={d} className="capitalize">{d}</option>
@@ -815,62 +820,62 @@ export default function HOPDashboard() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Time</label>
+                                <label className="block text-sm font-medium text-white/60 mb-1.5">Start Time</label>
                                 <input
                                     name="start_time"
                                     type="time"
                                     defaultValue={editingSection?.start_time || '08:00'}
                                     required
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End Time</label>
+                                <label className="block text-sm font-medium text-white/60 mb-1.5">End Time</label>
                                 <input
                                     name="end_time"
                                     type="time"
                                     defaultValue={editingSection?.end_time || '10:00'}
                                     required
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                                 />
                             </div>
                         </div>
                         <div className="grid grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Room</label>
+                                <label className="block text-sm font-medium text-white/60 mb-1.5">Room</label>
                                 <input
                                     name="room"
                                     defaultValue={editingSection?.room || ''}
                                     required
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Building</label>
+                                <label className="block text-sm font-medium text-white/60 mb-1.5">Building</label>
                                 <input
                                     name="building"
                                     defaultValue={editingSection?.building || ''}
                                     placeholder="Optional"
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Capacity</label>
+                                <label className="block text-sm font-medium text-white/60 mb-1.5">Capacity</label>
                                 <input
                                     name="capacity"
                                     type="number"
                                     defaultValue={editingSection?.capacity || 30}
                                     required
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                                 />
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Lecturer (optional)</label>
+                            <label className="block text-sm font-medium text-white/60 mb-1.5">Lecturer (optional)</label>
                             <select
                                 name="lecturer_id"
                                 defaultValue={editingSection?.lecturer_id || ''}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm border p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                             >
                                 <option value="">-- No Lecturer Assigned --</option>
                                 {lecturers.map(lecturer => (
@@ -1117,78 +1122,129 @@ function OverviewTab({ subjects, sections }) {
 // Subjects Tab
 function SubjectsTab({ subjects, onRefresh, onAdd, onEdit, onDelete, onDeleteAll, onImport, onImportFile }) {
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="font-bold text-xl text-gray-800 dark:text-white">All Subjects</h3>
-                <div className="flex gap-2">
+        <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h3 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+                        <BookOpen className="text-indigo-400" size={24} />
+                        Manage Subjects
+                    </h3>
+                    <p className="text-white/40 text-sm mt-1">View and manage all academic subjects</p>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
                     {onDeleteAll && subjects.length > 0 && (
                         <button
                             onClick={onDeleteAll}
-                            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl transition-all hover:scale-105 active:scale-95"
                         >
-                            <Trash2 className="w-4 h-4" />
-                            Delete All
+                            <Trash2 size={16} />
+                            <span>Delete All</span>
                         </button>
                     )}
                     {onImportFile && (
                         <button
                             onClick={onImportFile}
-                            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-xl transition-all hover:scale-105 active:scale-95"
                         >
-                            <Upload className="w-4 h-4" />
-                            Import File
+                            <FileSpreadsheet size={16} />
+                            <span>Import File</span>
                         </button>
                     )}
                     {onImport && (
                         <button
                             onClick={onImport}
-                            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded-xl transition-all hover:scale-105 active:scale-95"
                         >
-                            <Upload className="w-4 h-4" />
-                            Import CSV
+                            <Upload size={16} />
+                            <span>Import CSV</span>
                         </button>
                     )}
                     <button
                         onClick={onAdd}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition"
+                        className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105 active:scale-95 transition-all"
                     >
-                        <Plus className="w-4 h-4" />
-                        Add Subject
+                        <Plus size={18} />
+                        <span className="font-semibold">Add Subject</span>
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {subjects.map(subject => (
-                    <div key={subject.id} className="bg-white border border-gray-200 rounded-lg p-4 dark:bg-gray-800 dark:border-gray-700">
-                        <div className="flex justify-between items-start mb-2">
-                            <div>
-                                <h4 className="font-bold text-gray-800 dark:text-white">{subject.code}</h4>
-                                <p className="text-gray-600 dark:text-gray-300">{subject.name}</p>
-                            </div>
-                            <div className="flex gap-2">
+            {subjects.length === 0 ? (
+                <div className="glass-card p-12 rounded-3xl border border-white/10 text-center flex flex-col items-center justify-center">
+                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 relative group">
+                        <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-xl group-hover:bg-indigo-500/30 transition-colors" />
+                        <BookOpen size={32} className="text-white/40 relative z-10 group-hover:text-white/60 transition-colors" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">No Subjects Found</h3>
+                    <p className="text-white/40 max-w-sm mb-8">
+                        Get started by adding a new subject manually or importing them via CSV/Excel.
+                    </p>
+                    <button
+                        onClick={onAdd}
+                        className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all border border-white/10 flex items-center gap-2"
+                    >
+                        <Plus size={18} />
+                        Add First Subject
+                    </button>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {subjects.map((subject, index) => (
+                        <motion.div
+                            key={subject.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className="group relative glass-card p-5 rounded-2xl border border-white/5 bg-black/20 hover:bg-black/40 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:shadow-xl hover:shadow-indigo-500/10"
+                        >
+                            <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                     onClick={() => onEdit(subject.id)}
-                                    className="p-2 hover:bg-gray-100 rounded-lg transition dark:hover:bg-gray-700"
+                                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+                                    title="Edit Subject"
                                 >
-                                    <Edit className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                                    <Edit size={14} />
                                 </button>
                                 <button
                                     onClick={() => onDelete(subject.id)}
-                                    className="p-2 hover:bg-red-100 rounded-lg transition dark:hover:bg-red-900/30"
+                                    className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
+                                    title="Delete Subject"
                                 >
-                                    <Trash2 className="w-4 h-4 text-red-600" />
+                                    <Trash2 size={14} />
                                 </button>
                             </div>
-                        </div>
-                        <div className="text-sm text-gray-600 space-y-1 dark:text-gray-400">
-                            <p>Credit Hours: {subject.credit_hours}</p>
-                            <p>Semester: {subject.semester || 'N/A'}</p>
-                            <p>Programme: {subject.programme}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
+
+                            <div className="mb-4">
+                                <span className={`inline-block text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r ${index % 3 === 0 ? 'from-indigo-400 to-purple-400' :
+                                    index % 3 === 1 ? 'from-emerald-400 to-teal-400' :
+                                        'from-pink-400 to-rose-400'
+                                    }`}>
+                                    {subject.code}
+                                </span>
+                                <h4 className="text-white/90 font-medium leading-tight mt-1 group-hover:text-white transition-colors">
+                                    {subject.name}
+                                </h4>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 mt-auto">
+                                <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-xs text-white/50 flex items-center gap-1.5">
+                                    <Clock size={12} className="text-indigo-400" />
+                                    {subject.credit_hours} Credits
+                                </span>
+                                <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-xs text-white/50 flex items-center gap-1.5">
+                                    <Calendar size={12} className="text-purple-400" />
+                                    Sem {subject.semester || '?'}
+                                </span>
+                                <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-xs text-white/50 flex items-center gap-1.5">
+                                    <Users size={12} className="text-pink-400" />
+                                    {subject.programme}
+                                </span>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
@@ -1514,7 +1570,7 @@ function TimetableTab({ sections, subjects }) {
                         <select
                             value={selectedSemester}
                             onChange={(e) => setSelectedSemester(e.target.value)}
-                            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white font-medium focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                            className="px-4 py-2 rounded-xl text-sm font-medium text-white/70 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
                         >
                             <option value="all">All Semesters</option>
                             {availableSemesters.map(sem => (

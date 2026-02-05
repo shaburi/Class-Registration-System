@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, X } from 'lucide-react';
 
@@ -11,7 +12,7 @@ export default function ConfirmDialog({
     cancelText = 'Cancel',
     variant = 'danger' // 'danger' | 'warning' | 'info'
 }) {
-    if (!isOpen) return null;
+
 
     const variants = {
         danger: {
@@ -30,67 +31,76 @@ export default function ConfirmDialog({
 
     const styles = variants[variant] || variants.danger;
 
-    return (
+    return createPortal(
         <AnimatePresence>
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
-                {/* Backdrop */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                    onClick={onClose}
-                />
-
-                {/* Dialog */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    transition={{ type: 'spring', duration: 0.3 }}
-                    className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4 border border-gray-200 dark:border-gray-700"
-                >
-                    {/* Close button */}
-                    <button
+            {isOpen && (
+                <div className="fixed inset-0 z-[11000] flex items-center justify-center pointer-events-none">
+                    {/* Backdrop */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/80 backdrop-blur-sm pointer-events-auto"
                         onClick={onClose}
-                        className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
+                    />
+
+                    {/* Dialog */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        transition={{ type: 'spring', duration: 0.3 }}
+                        className="relative glass-card bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-indigo-500/10 p-6 max-w-md w-full mx-4 pointer-events-auto"
                     >
-                        <X className="w-5 h-5" />
-                    </button>
-
-                    {/* Icon */}
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${styles.icon}`}>
-                        <AlertTriangle className="w-6 h-6" />
-                    </div>
-
-                    {/* Content */}
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                        {title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
-                        {message}
-                    </p>
-
-                    {/* Actions */}
-                    <div className="flex gap-3 justify-end">
+                        {/* Close button */}
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 rounded-lg font-medium transition"
+                            className="absolute top-4 right-4 p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all transform hover:rotate-90"
                         >
-                            {cancelText}
+                            <X className="w-4 h-4" />
                         </button>
-                        <button
-                            onClick={() => {
-                                onConfirm();
-                                onClose();
-                            }}
-                            className={`px-4 py-2 rounded-lg font-medium transition ${styles.button}`}
-                        >
-                            {confirmText}
-                        </button>
-                    </div>
-                </motion.div>
-            </div>
-        </AnimatePresence>
+
+                        {/* Icon */}
+                        <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-6 border border-white/5 shadow-inner ${variant === 'danger' ? 'bg-red-500/10 text-red-500 shadow-red-500/20' :
+                                variant === 'warning' ? 'bg-amber-500/10 text-amber-500 shadow-amber-500/20' :
+                                    'bg-blue-500/10 text-blue-500 shadow-blue-500/20'
+                            }`}>
+                            <AlertTriangle className="w-7 h-7" />
+                        </div>
+
+                        {/* Content */}
+                        <h3 className="text-xl font-bold text-white mb-2 tracking-tight">
+                            {title}
+                        </h3>
+                        <p className="text-white/60 mb-8 leading-relaxed">
+                            {message}
+                        </p>
+
+                        {/* Actions */}
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={onClose}
+                                className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-xl font-medium transition-colors border border-white/5"
+                            >
+                                {cancelText}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    onConfirm();
+                                    onClose();
+                                }}
+                                className={`px-5 py-2.5 rounded-xl font-medium text-white shadow-lg transition-all ${variant === 'danger' ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-red-500/20' :
+                                        variant === 'warning' ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-amber-500/20' :
+                                            'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-blue-500/20'
+                                    }`}
+                            >
+                                {confirmText}
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>,
+        document.body
     );
 }

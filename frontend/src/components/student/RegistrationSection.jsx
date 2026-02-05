@@ -111,8 +111,8 @@ const RegistrationSection = ({
                 </div>
 
                 {subjects.length === 0 ? (
-                    <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                        <div className="w-20 h-20 bg-gray-50 dark:bg-gray-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="text-center py-16 glass-card rounded-3xl border border-[var(--glass-border)]">
+                        <div className="w-20 h-20 bg-[var(--bg-secondary)]/50 rounded-full flex items-center justify-center mx-auto mb-4">
                             <BookOpen className="w-10 h-10 text-gray-300 dark:text-gray-500" />
                         </div>
                         <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
@@ -143,12 +143,12 @@ const RegistrationSection = ({
                                 <motion.div
                                     layout
                                     key={subject.code}
-                                    className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow"
+                                    className="glass-card rounded-2xl overflow-hidden hover:shadow-lg transition-all"
                                 >
                                     {/* Subject Header - Clickable */}
                                     <button
                                         onClick={() => setExpandedSubject(isExpanded ? null : subject.code)}
-                                        className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors text-left"
+                                        className="w-full flex items-center justify-between p-4 hover:bg-[var(--glass-border)] transition-colors text-left"
                                     >
                                         <div className="flex items-center gap-4">
                                             <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white bg-gradient-to-br shadow-inner ${hasRegistration
@@ -202,9 +202,9 @@ const RegistrationSection = ({
                                                 animate={{ height: 'auto', opacity: 1 }}
                                                 exit={{ height: 0, opacity: 0 }}
                                                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                                                className="border-t border-gray-100 dark:border-gray-700"
+                                                className="border-t border-[var(--glass-border)]"
                                             >
-                                                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50/50 dark:bg-gray-800/50">
+                                                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-[var(--bg-secondary)]/30">
                                                     {subject.sections.map(section => {
                                                         const alreadyRegistered = isRegistered(section.section_id);
                                                         const isFull = section.enrolled_count >= section.capacity;
@@ -213,8 +213,8 @@ const RegistrationSection = ({
                                                             <div
                                                                 key={section.section_id}
                                                                 className={`bg-white dark:bg-gray-800 border rounded-xl p-5 shadow-sm transition-all hover:shadow-md ${alreadyRegistered
-                                                                    ? 'border-green-300 dark:border-green-700 ring-1 ring-green-100 dark:ring-green-900/20'
-                                                                    : 'border-gray-200 dark:border-gray-700'
+                                                                    ? 'border-green-500/50 ring-1 ring-green-500/20 bg-green-500/5'
+                                                                    : 'glass-card border-[var(--glass-border)]'
                                                                     }`}
                                                             >
                                                                 <div className="flex justify-between items-start mb-4">

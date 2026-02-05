@@ -49,15 +49,16 @@ const GoogleSignInButton = ({ onSuccess, onError }) => {
         <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3.5 glass-button bg-white/40 dark:bg-white/5 hover:bg-white/60 dark:hover:bg-white/10 border border-gray-200 dark:border-[var(--glass-border)] rounded-xl transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed"
         >
             {loading ? (
-                <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-[var(--neon-accent)] border-t-transparent rounded-full animate-spin" />
             ) : (
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
                     <path
-                        fill="#4285F4"
+                        fill="currentColor"
                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        className="text-[#4285F4]"
                     />
                     <path
                         fill="#34A853"
@@ -73,7 +74,7 @@ const GoogleSignInButton = ({ onSuccess, onError }) => {
                     />
                 </svg>
             )}
-            <span className="font-medium text-gray-700 dark:text-gray-200">
+            <span className="font-heading font-semibold text-[var(--text-primary)] group-hover:text-[var(--neon-accent)] transition-colors">
                 {loading ? 'Signing in...' : 'Sign in with Google'}
             </span>
         </button>

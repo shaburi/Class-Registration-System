@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Sparkles, Search, Trash2, Building2, GripVertical, X,
@@ -86,6 +86,55 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
             if (userClass) setSelectedSourceClass(userClass);
         }
     }, [classList, user, selectedSourceClass]);
+
+    // Load existing registrations into plannedCourses on mount
+    useEffect(() => {
+        const loadRegistrations = async () => {
+            try {
+                const res = await api.get('/student/registrations');
+                const registrations = res.data?.data || res.data || [];
+
+                if (registrations.length === 0) return;
+
+                // Transform registrations into plannedCourses format
+                const courses = [];
+                registrations.forEach(reg => {
+                    // Get all schedules for this registration
+                    const schedules = reg.schedules && reg.schedules.length > 0
+                        ? reg.schedules
+                        : [{ day: reg.day, start_time: reg.start_time, end_time: reg.end_time, room: reg.room }];
+
+                    // Create a planned course for each schedule (handles multi-day courses)
+                    schedules.forEach((schedule, idx) => {
+                        if (!schedule.day) return;
+
+                        const startH = parseInt(schedule.start_time?.split(':')[0]) || 8;
+                        const endH = parseInt(schedule.end_time?.split(':')[0]) || startH + 1;
+
+                        courses.push({
+                            id: `reg-${reg.registration_id}-${idx}`,
+                            registrationId: reg.registration_id,
+                            sectionId: reg.section_id,
+                            dayName: schedule.day.charAt(0).toUpperCase() + schedule.day.slice(1).toLowerCase(),
+                            startIndex: startH - 8, // 8 is our startHour
+                            duration: Math.max(1, endH - startH),
+                            subjectCode: `${reg.subject_code}_${reg.section_number}`,
+                            subjectName: reg.subject_name,
+                            room: schedule.room || '',
+                            teacherName: reg.lecturer_name || '',
+                            isRegistered: true // Mark as already registered
+                        });
+                    });
+                });
+
+                setPlannedCourses(courses);
+            } catch (error) {
+                console.error('Failed to load registrations:', error);
+            }
+        };
+
+        loadRegistrations();
+    }, []);
 
     // Build source timetable for selected class
     const sourceTimetable = useMemo(() => {
@@ -397,12 +446,12 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
             >
                 <div className="min-w-[900px] relative">
                     {/* Header */}
-                    <div className="flex border-b border-gray-200 dark:border-gray-700 mb-2 sticky top-0 bg-white dark:bg-gray-800 z-20">
-                        <div className="w-16 flex-shrink-0 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700"></div>
+                    <div className="flex border-b border-[var(--glass-border)] mb-2 sticky top-0 bg-[var(--bg-primary)]/80 backdrop-blur-xl z-20">
+                        <div className="w-16 flex-shrink-0 bg-[rgba(255,255,255,0.05)] border-r border-[var(--glass-border)]"></div>
                         <div className="flex-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${totalPeriods}, 1fr)` }}>
                             {periods.map(period => (
-                                <div key={period.id} className="text-center p-1 border-l border-gray-100 dark:border-gray-700">
-                                    <div className="font-bold text-xs text-gray-700 dark:text-gray-300">{period.name}</div>
+                                <div key={period.id} className="text-center p-1 border-l border-[var(--glass-border)]">
+                                    <div className="font-bold text-xs text-[var(--text-primary)]">{period.name}</div>
                                     <div className="text-[9px] text-gray-500">{period.starttime}</div>
                                 </div>
                             ))}
@@ -426,19 +475,19 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                             const rowHeight = Math.max(trackHeight, neededTracks * trackHeight);
 
                             return (
-                                <div key={day} className="flex border-b border-gray-100 dark:border-gray-700">
-                                    <div className="w-16 flex-shrink-0 flex items-center justify-center font-bold text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-l border-y border-l border-gray-200 dark:border-gray-700">
+                                <div key={day} className="flex border-b border-[var(--glass-border)]">
+                                    <div className="w-16 flex-shrink-0 flex items-center justify-center font-bold text-xs text-[var(--text-secondary)] bg-[rgba(255,255,255,0.05)] rounded-l border-y border-l border-[var(--glass-border)]">
                                         {day.substring(0, 3)}
                                     </div>
                                     <div
-                                        className={`flex-1 relative rounded-r border border-gray-200 dark:border-gray-700 ${hasDropZone && draggedEvent ? 'bg-indigo-50 dark:bg-indigo-900/20 border-dashed border-indigo-300' : 'bg-gray-50/50 dark:bg-gray-800/30'
+                                        className={`flex-1 relative rounded-r border border-[var(--glass-border)] ${hasDropZone && draggedEvent ? 'bg-indigo-500/10 border-dashed border-indigo-500' : 'bg-[rgba(255,255,255,0.02)]'
                                             }`}
                                         style={{ height: `${rowHeight}px` }}
                                     >
                                         {/* Grid lines */}
                                         <div className="absolute inset-0 pointer-events-none grid" style={{ gridTemplateColumns: `repeat(${totalPeriods}, 1fr)` }}>
                                             {periods.map((_, i) => (
-                                                <div key={i} className={`border-l ${i === 0 ? 'border-transparent' : 'border-gray-200/50 dark:border-gray-700/30'} h-full`}></div>
+                                                <div key={i} className={`border-l ${i === 0 ? 'border-transparent' : 'border-[var(--glass-border)]'} h-full`}></div>
                                             ))}
                                         </div>
 
@@ -578,7 +627,7 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
             )}
 
             {/* TOP: Programme Schedule Source */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div className="glass-card rounded-3xl border border-[var(--glass-border)] p-6">
                 <div className="flex items-center justify-between mb-4">
                     <h4 className="font-semibold text-gray-800 dark:text-white flex items-center gap-2">
                         <GripVertical className="w-4 h-4 text-gray-400" />
@@ -597,7 +646,7 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                                 placeholder="Search class..."
                                 value={classSearch}
                                 onChange={(e) => setClassSearch(e.target.value)}
-                                className="pl-8 pr-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white w-40"
+                                className="pl-8 pr-3 py-1.5 text-sm glass-input text-[var(--text-primary)] w-40"
                             />
                         </div>
                         <select
@@ -606,7 +655,7 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                                 const cls = classList.find(c => c.id === e.target.value);
                                 setSelectedSourceClass(cls || null);
                             }}
-                            className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white max-w-[200px]"
+                            className="px-3 py-1.5 text-sm glass-input text-[var(--text-primary)] max-w-[200px]"
                         >
                             <option value="">Select class...</option>
                             {filteredClasses.map(c => (
@@ -627,7 +676,7 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
             </div>
 
             {/* BOTTOM: Personal Timetable (Drop Zone) */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 p-4">
+            <div className="glass-card rounded-3xl border-2 border-dashed border-[var(--glass-border)] p-6 bg-[var(--glass-bg)]/50">
                 <h4 className="font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-indigo-500" />
                     Your Timetable

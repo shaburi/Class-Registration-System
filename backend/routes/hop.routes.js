@@ -28,7 +28,7 @@ const upload = multer({
         ];
         const allowedExtensions = ['.csv', '.xls', '.xlsx', '.pdf'];
         const ext = path.extname(file.originalname).toLowerCase();
-        
+
         if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
             cb(null, true);
         } else {
@@ -254,6 +254,36 @@ router.get('/schedule-heatmap', async (req, res) => {
 });
 
 /**
+ * GET /api/hop/students
+ * Get all students for the student logs sidebar
+ */
+router.get('/students', async (req, res) => {
+    try {
+        const result = await query(`
+            SELECT 
+                id,
+                student_id,
+                student_name,
+                email,
+                programme,
+                semester,
+                created_at
+            FROM users
+            WHERE role = 'student' AND is_active = true
+            ORDER BY student_name ASC
+        `);
+
+        res.json({
+            success: true,
+            data: result.rows
+        });
+    } catch (error) {
+        console.error('[STUDENTS] Error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+/**
  * GET /api/hop/activity-log
  * Get recent registration activity for timeline
  */
@@ -306,6 +336,344 @@ router.get('/activity-log', async (req, res) => {
         });
     } catch (error) {
         console.error('Activity log error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ============================================================================
+// STUDENT LOGS (Comprehensive Activity Tracking)
+// ============================================================================
+
+/**
+ * GET /api/hop/student-logs
+ * Get comprehensive student activity logs with filtering
+ * Query params: student_search, action_type, start_date, end_date, limit, page
+ */
+router.get('/student-logs', async (req, res) => {
+    try {
+        const {
+            student_search,
+            action_type,
+            start_date,
+            end_date,
+            limit = 50,
+            page = 1
+        } = req.query;
+
+        const offset = (parseInt(page) - 1) * parseInt(limit);
+        const logs = [];
+
+        // Build base WHERE clauses
+        let studentFilter = '';
+        const filterParams = [];
+        let paramCount = 1;
+
+        if (student_search) {
+            studentFilter = ` AND (LOWER(u.student_name) LIKE LOWER($${paramCount}) OR LOWER(u.student_id) LIKE LOWER($${paramCount}))`;
+            filterParams.push(`%${student_search}%`);
+            paramCount++;
+        }
+
+        let dateFilter = '';
+        if (start_date) {
+            dateFilter += ` AND r.registered_at >= $${paramCount}`;
+            filterParams.push(start_date);
+            paramCount++;
+        }
+        if (end_date) {
+            dateFilter += ` AND r.registered_at <= $${paramCount}`;
+            filterParams.push(end_date);
+            paramCount++;
+        }
+
+        // Get registrations if action_type is 'all' or 'registration'
+        if (!action_type || action_type === 'all' || action_type === 'registration') {
+            const registrationQuery = `
+                SELECT 
+                    r.id,
+                    'registration' as action_type,
+                    u.id as user_id,
+                    u.student_id as student_number,
+                    u.student_name,
+                    u.email as student_email,
+                    u.programme as student_programme,
+                    sub.code as subject_code,
+                    sub.name as subject_name,
+                    sec.section_number,
+                    sec.day,
+                    sec.start_time,
+                    sec.end_time,
+                    sec.room,
+                    r.registration_type,
+                    r.registered_at as created_at,
+                    NULL as status,
+                    NULL as reason
+                FROM registrations r
+                JOIN users u ON r.student_id = u.id
+                JOIN sections sec ON r.section_id = sec.id
+                JOIN subjects sub ON sec.subject_id = sub.id
+                WHERE 1=1 ${studentFilter} ${dateFilter}
+                ORDER BY r.registered_at DESC
+            `;
+            const registrations = await query(registrationQuery, filterParams);
+            logs.push(...registrations.rows);
+        }
+
+        // Get drops if action_type is 'all' or 'drop'
+        if (!action_type || action_type === 'all' || action_type === 'drop') {
+            // Reset param count for drop query
+            let dropParams = [];
+            let dropParamCount = 1;
+            let dropStudentFilter = '';
+            let dropDateFilter = '';
+
+            if (student_search) {
+                dropStudentFilter = ` AND (LOWER(u.student_name) LIKE LOWER($${dropParamCount}) OR LOWER(u.student_id) LIKE LOWER($${dropParamCount}))`;
+                dropParams.push(`%${student_search}%`);
+                dropParamCount++;
+            }
+            if (start_date) {
+                dropDateFilter += ` AND dr.created_at >= $${dropParamCount}`;
+                dropParams.push(start_date);
+                dropParamCount++;
+            }
+            if (end_date) {
+                dropDateFilter += ` AND dr.created_at <= $${dropParamCount}`;
+                dropParams.push(end_date);
+                dropParamCount++;
+            }
+
+            const dropQuery = `
+                SELECT 
+                    dr.id,
+                    'drop' as action_type,
+                    u.id as user_id,
+                    u.student_id as student_number,
+                    u.student_name,
+                    u.email as student_email,
+                    u.programme as student_programme,
+                    sub.code as subject_code,
+                    sub.name as subject_name,
+                    sec.section_number,
+                    COALESCE(ss.day, sec.day) as day,
+                    COALESCE(ss.start_time, sec.start_time) as start_time,
+                    COALESCE(ss.end_time, sec.end_time) as end_time,
+                    COALESCE(ss.room, sec.room) as room,
+                    NULL as registration_type,
+                    dr.created_at,
+                    dr.status,
+                    dr.reason
+                FROM drop_requests dr
+                JOIN users u ON dr.student_id = u.id
+                JOIN sections sec ON dr.section_id = sec.id
+                JOIN subjects sub ON sec.subject_id = sub.id
+                LEFT JOIN LATERAL (
+                    SELECT day, start_time, end_time, room 
+                    FROM section_schedules 
+                    WHERE section_id = sec.id 
+                    ORDER BY day, start_time 
+                    LIMIT 1
+                ) ss ON true
+                WHERE 1=1 ${dropStudentFilter} ${dropDateFilter}
+                ORDER BY dr.created_at DESC
+            `;
+            const drops = await query(dropQuery, dropParams);
+            logs.push(...drops.rows);
+        }
+
+        // Get swaps if action_type is 'all' or 'swap'
+        if (!action_type || action_type === 'all' || action_type === 'swap') {
+            let swapParams = [];
+            let swapParamCount = 1;
+            let swapStudentFilter1 = '';
+            let swapDateFilter1 = '';
+
+            // Build filters for first part of UNION
+            if (student_search) {
+                swapStudentFilter1 = ` AND (LOWER(u.student_name) LIKE LOWER($${swapParamCount}) OR LOWER(u.student_id) LIKE LOWER($${swapParamCount}))`;
+                swapParams.push(`%${student_search}%`);
+                swapParamCount++;
+            }
+            if (start_date) {
+                swapDateFilter1 += ` AND sr.created_at >= $${swapParamCount}`;
+                swapParams.push(start_date);
+                swapParamCount++;
+            }
+            if (end_date) {
+                swapDateFilter1 += ` AND sr.created_at <= $${swapParamCount}`;
+                swapParams.push(end_date);
+                swapParamCount++;
+            }
+
+            // Build filters for second part of UNION with offset param indices
+            let swapStudentFilter2 = '';
+            let swapDateFilter2 = '';
+
+            if (student_search) {
+                swapStudentFilter2 = ` AND (LOWER(u.student_name) LIKE LOWER($${swapParamCount}) OR LOWER(u.student_id) LIKE LOWER($${swapParamCount}))`;
+                swapParams.push(`%${student_search}%`);
+                swapParamCount++;
+            }
+            if (start_date) {
+                swapDateFilter2 += ` AND sr.created_at >= $${swapParamCount}`;
+                swapParams.push(start_date);
+                swapParamCount++;
+            }
+            if (end_date) {
+                swapDateFilter2 += ` AND sr.created_at <= $${swapParamCount}`;
+                swapParams.push(end_date);
+                swapParamCount++;
+            }
+
+            // Use UNION to get swap logs for BOTH requester and target students
+            const swapQuery = `
+                SELECT 
+                    sr.id,
+                    'swap' as action_type,
+                    u.id as user_id,
+                    u.student_id as student_number,
+                    u.student_name,
+                    u.email as student_email,
+                    u.programme as student_programme,
+                    sub.code as subject_code,
+                    sub.name as subject_name,
+                    sec.section_number,
+                    COALESCE(ss.day, sec.day) as day,
+                    COALESCE(ss.start_time, sec.start_time) as start_time,
+                    COALESCE(ss.end_time, sec.end_time) as end_time,
+                    COALESCE(ss.room, sec.room) as room,
+                    'requester' as swap_role,
+                    sr.created_at,
+                    sr.status,
+                    sr.response_reason as reason
+                FROM swap_requests sr
+                JOIN users u ON sr.requester_id = u.id
+                JOIN sections sec ON sr.requester_section_id = sec.id
+                JOIN subjects sub ON sec.subject_id = sub.id
+                LEFT JOIN LATERAL (
+                    SELECT day, start_time, end_time, room 
+                    FROM section_schedules 
+                    WHERE section_id = sec.id 
+                    ORDER BY day, start_time 
+                    LIMIT 1
+                ) ss ON true
+                WHERE 1=1 ${swapStudentFilter1} ${swapDateFilter1}
+                
+                UNION ALL
+                
+                SELECT 
+                    sr.id,
+                    'swap' as action_type,
+                    u.id as user_id,
+                    u.student_id as student_number,
+                    u.student_name,
+                    u.email as student_email,
+                    u.programme as student_programme,
+                    sub.code as subject_code,
+                    sub.name as subject_name,
+                    sec.section_number,
+                    COALESCE(ss.day, sec.day) as day,
+                    COALESCE(ss.start_time, sec.start_time) as start_time,
+                    COALESCE(ss.end_time, sec.end_time) as end_time,
+                    COALESCE(ss.room, sec.room) as room,
+                    'target' as swap_role,
+                    sr.created_at,
+                    sr.status,
+                    sr.response_reason as reason
+                FROM swap_requests sr
+                JOIN users u ON sr.target_id = u.id
+                JOIN sections sec ON sr.target_section_id = sec.id
+                JOIN subjects sub ON sec.subject_id = sub.id
+                LEFT JOIN LATERAL (
+                    SELECT day, start_time, end_time, room 
+                    FROM section_schedules 
+                    WHERE section_id = sec.id 
+                    ORDER BY day, start_time 
+                    LIMIT 1
+                ) ss ON true
+                WHERE 1=1 ${swapStudentFilter2} ${swapDateFilter2}
+                
+                ORDER BY created_at DESC
+            `;
+            const swaps = await query(swapQuery, swapParams);
+            logs.push(...swaps.rows);
+        }
+
+        // Get manual joins if action_type is 'all' or 'manual_join'
+        if (!action_type || action_type === 'all' || action_type === 'manual_join') {
+            let mjParams = [];
+            let mjParamCount = 1;
+            let mjStudentFilter = '';
+            let mjDateFilter = '';
+
+            if (student_search) {
+                mjStudentFilter = ` AND (LOWER(u.student_name) LIKE LOWER($${mjParamCount}) OR LOWER(u.student_id) LIKE LOWER($${mjParamCount}))`;
+                mjParams.push(`%${student_search}%`);
+                mjParamCount++;
+            }
+            if (start_date) {
+                mjDateFilter += ` AND mj.created_at >= $${mjParamCount}`;
+                mjParams.push(start_date);
+                mjParamCount++;
+            }
+            if (end_date) {
+                mjDateFilter += ` AND mj.created_at <= $${mjParamCount}`;
+                mjParams.push(end_date);
+                mjParamCount++;
+            }
+
+            const manualJoinQuery = `
+                SELECT 
+                    mj.id,
+                    'manual_join' as action_type,
+                    u.id as user_id,
+                    u.student_id as student_number,
+                    u.student_name,
+                    u.email as student_email,
+                    u.programme as student_programme,
+                    sub.code as subject_code,
+                    sub.name as subject_name,
+                    sec.section_number,
+                    sec.day,
+                    sec.start_time,
+                    sec.end_time,
+                    sec.room,
+                    NULL as registration_type,
+                    mj.created_at,
+                    mj.status,
+                    mj.reason
+                FROM manual_join_requests mj
+                JOIN users u ON mj.student_id = u.id
+                JOIN sections sec ON mj.section_id = sec.id
+                JOIN subjects sub ON sec.subject_id = sub.id
+                WHERE 1=1 ${mjStudentFilter} ${mjDateFilter}
+                ORDER BY mj.created_at DESC
+            `;
+            const manualJoins = await query(manualJoinQuery, mjParams);
+            logs.push(...manualJoins.rows);
+        }
+
+        // Sort all logs by created_at descending
+        logs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        // Apply pagination
+        const totalCount = logs.length;
+        const paginatedLogs = logs.slice(offset, offset + parseInt(limit));
+
+        res.json({
+            success: true,
+            data: {
+                logs: paginatedLogs,
+                pagination: {
+                    total: totalCount,
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    totalPages: Math.ceil(totalCount / parseInt(limit))
+                }
+            }
+        });
+    } catch (error) {
+        console.error('[STUDENT-LOGS] Error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
@@ -694,7 +1062,7 @@ router.post('/subjects/bulk-create', async (req, res) => {
 
                 // Handle "/" in codes - split into multiple subjects
                 const codes = subject.code.split(/\s*\/\s*/).map(c => c.trim()).filter(c => c.length >= 4);
-                
+
                 for (const code of codes) {
                     // Check if subject already exists
                     const existing = await query('SELECT id FROM subjects WHERE code = $1', [code]);
@@ -728,7 +1096,7 @@ router.post('/subjects/bulk-create', async (req, res) => {
                             subject.programme || 'UNKNOWN'
                         ]
                     );
-                    
+
                     results.created++;
                     results.created_subjects.push(newSubject.rows[0]);
                 }
@@ -999,7 +1367,7 @@ router.post('/edupage/sync', async (req, res) => {
     try {
         const userId = req.user.id;
         const result = await edupageService.syncAndStore(userId);
-        
+
         res.json({
             success: true,
             message: `Timetable synced successfully. ${result.recordCount} records fetched.`,
@@ -1024,7 +1392,7 @@ router.post('/edupage/sync', async (req, res) => {
 router.get('/edupage/data', async (req, res) => {
     try {
         const result = await edupageService.getStoredData();
-        
+
         res.json({
             success: true,
             data: result.data,
@@ -1051,7 +1419,7 @@ router.get('/edupage/logs', async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 10;
         const logs = await edupageService.getSyncLogs(limit);
-        
+
         res.json({
             success: true,
             data: logs
@@ -1075,9 +1443,9 @@ router.post('/edupage/import-sections', async (req, res) => {
     try {
         // Optional: allow specifying which class prefixes to import
         const targetPrefixes = req.body.prefixes || ['CT206', 'CT204', 'CC101'];
-        
+
         const result = await edupageService.importSectionsFromTimetable(targetPrefixes);
-        
+
         // Check if there are missing subjects that need to be added first
         if (result.hasMissingSubjects) {
             return res.json({
@@ -1089,7 +1457,7 @@ router.post('/edupage/import-sections', async (req, res) => {
                 skipped: result.skipped
             });
         }
-        
+
         res.json({
             success: true,
             message: `Import complete: ${result.summary.created} created, ${result.summary.updated} updated`,

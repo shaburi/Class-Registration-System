@@ -100,8 +100,8 @@ const registerForSection = async (studentId, sectionId, registrationType = 'norm
             throw new Error('Section is at full capacity');
         }
 
-        // 7. Check for schedule clashes
-        const hasClash = await detectScheduleClash(client, studentId, section.day, section.start_time, section.end_time);
+        // 7. Check for schedule clashes using section_schedules table
+        const hasClash = await detectScheduleClashBySectionId(client, studentId, sectionId);
 
         if (hasClash.hasClash) {
             throw new Error(`Schedule clash detected: ${hasClash.details}`);
@@ -329,7 +329,73 @@ const checkCapacity = async (sectionId) => {
 };
 
 /**
- * Detect schedule clash for a student
+ * Detect schedule clash for a student by checking section_schedules
+ * @param {Object} client - Database client (for transactions)
+ * @param {string} studentId - Student UUID
+ * @param {string} newSectionId - Section UUID to register for
+ * @returns {Promise<Object>} - Clash detection result
+ */
+const detectScheduleClashBySectionId = async (client, studentId, newSectionId) => {
+    // Get ALL schedules for the new section being registered
+    const newSectionSchedules = await client.query(`
+        SELECT ss.day, ss.start_time, ss.end_time, sub.code, sub.name, sec.section_number
+        FROM section_schedules ss
+        JOIN sections sec ON ss.section_id = sec.id
+        JOIN subjects sub ON sec.subject_id = sub.id
+        WHERE ss.section_id = $1
+    `, [newSectionId]);
+
+    // If no schedules found in section_schedules, fall back to sections table
+    let schedulesToCheck = newSectionSchedules.rows;
+
+    if (schedulesToCheck.length === 0) {
+        const fallback = await client.query(`
+            SELECT s.day, s.start_time, s.end_time, sub.code, sub.name, s.section_number
+            FROM sections s
+            JOIN subjects sub ON s.subject_id = sub.id
+            WHERE s.id = $1 AND s.day IS NOT NULL AND s.start_time IS NOT NULL
+        `, [newSectionId]);
+        schedulesToCheck = fallback.rows;
+    }
+
+    // For each schedule of the new section, check for clashes with existing registrations
+    for (const newSchedule of schedulesToCheck) {
+        const result = await client.query(`
+            SELECT 
+                sub.code,
+                sub.name,
+                s.section_number,
+                COALESCE(ss.day, s.day) as day,
+                COALESCE(ss.start_time, s.start_time) as start_time,
+                COALESCE(ss.end_time, s.end_time) as end_time
+            FROM registrations r
+            JOIN sections s ON r.section_id = s.id
+            JOIN subjects sub ON s.subject_id = sub.id
+            LEFT JOIN section_schedules ss ON ss.section_id = s.id
+            WHERE r.student_id = $1
+                AND COALESCE(ss.day, s.day) = $2
+                AND (
+                    -- New section starts during existing section
+                    (COALESCE(ss.start_time, s.start_time) < $4 AND COALESCE(ss.end_time, s.end_time) > $3) OR
+                    -- Existing section starts during new section
+                    ($3 < COALESCE(ss.end_time, s.end_time) AND $4 > COALESCE(ss.start_time, s.start_time))
+                )
+        `, [studentId, newSchedule.day, newSchedule.start_time, newSchedule.end_time]);
+
+        if (result.rows.length > 0) {
+            const clash = result.rows[0];
+            return {
+                hasClash: true,
+                details: `${newSchedule.code} (${newSchedule.day} ${newSchedule.start_time}-${newSchedule.end_time}) clashes with ${clash.code} ${clash.name} (Section ${clash.section_number}) on ${clash.day} ${clash.start_time}-${clash.end_time}`
+            };
+        }
+    }
+
+    return { hasClash: false };
+};
+
+/**
+ * Detect schedule clash for a student (legacy - kept for backwards compatibility)
  * @param {Object} client - Database client (for transactions)
  * @param {string} studentId - Student UUID
  * @param {string} day - Day of week
@@ -338,23 +404,27 @@ const checkCapacity = async (sectionId) => {
  * @returns {Promise<Object>} - Clash detection result
  */
 const detectScheduleClash = async (client, studentId, day, startTime, endTime) => {
+    if (!day || !startTime || !endTime) {
+        return { hasClash: false }; // Skip if no schedule data
+    }
+
     const result = await client.query(`
         SELECT 
             sub.code,
             sub.name,
             s.section_number,
-            s.day,
-            s.start_time,
-            s.end_time
+            COALESCE(ss.day, s.day) as day,
+            COALESCE(ss.start_time, s.start_time) as start_time,
+            COALESCE(ss.end_time, s.end_time) as end_time
         FROM registrations r
         JOIN sections s ON r.section_id = s.id
         JOIN subjects sub ON s.subject_id = sub.id
+        LEFT JOIN section_schedules ss ON ss.section_id = s.id
         WHERE r.student_id = $1
-            AND s.day = $2
+            AND COALESCE(ss.day, s.day) = $2
             AND (
-                (s.start_time <= $3 AND s.end_time > $3) OR
-                (s.start_time < $4 AND s.end_time >= $4) OR
-                (s.start_time >= $3 AND s.end_time <= $4)
+                (COALESCE(ss.start_time, s.start_time) < $4 AND COALESCE(ss.end_time, s.end_time) > $3) OR
+                ($3 < COALESCE(ss.end_time, s.end_time) AND $4 > COALESCE(ss.start_time, s.start_time))
             )
     `, [studentId, day, startTime, endTime]);
 
@@ -375,5 +445,6 @@ module.exports = {
     getStudentRegistrations,
     getAvailableSections,
     checkCapacity,
-    detectScheduleClash
+    detectScheduleClash,
+    detectScheduleClashBySectionId
 };

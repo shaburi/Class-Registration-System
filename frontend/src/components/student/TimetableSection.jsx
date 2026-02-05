@@ -95,7 +95,7 @@ const TimetableSection = ({ registrations, onUnregister, onSwap }) => {
                     day: schedule.day,
                     start_time: schedule.start_time,
                     end_time: schedule.end_time,
-                    room: schedule.room || reg.room,
+                    room: schedule.room,
                     startIndex,
                     duration,
                     trackIndex: 0,
@@ -155,16 +155,16 @@ const TimetableSection = ({ registrations, onUnregister, onSwap }) => {
                 />
             </div>
 
-            <div id="student-timetable" className="pb-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-x-auto">
+            <div id="student-timetable" className="pb-4 rounded-xl border border-[var(--glass-border)] bg-[rgba(255,255,255,0.3)] dark:bg-[rgba(0,0,0,0.2)] backdrop-blur-md overflow-x-auto">
                 <div className="min-w-[1000px] relative">
                     {/* Header Row - HOP STYLE */}
-                    <div className="flex border-b border-gray-200 dark:border-gray-700 mb-2 sticky top-0 bg-white dark:bg-gray-800 z-20">
-                        <div className="w-16 md:w-24 flex-shrink-0 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700"></div>
+                    <div className="flex border-b border-[var(--glass-border)] mb-2 sticky top-0 bg-[var(--bg-primary)]/80 backdrop-blur-xl z-20">
+                        <div className="w-16 md:w-24 flex-shrink-0 bg-[rgba(255,255,255,0.1)] border-r border-[var(--glass-border)]"></div>
                         <div className="flex-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${totalPeriods}, 1fr)` }}>
                             {periods.map(period => (
-                                <div key={period.id} className="text-center p-2 border-l border-gray-100 dark:border-gray-700">
-                                    <div className="font-bold text-sm text-gray-700 dark:text-gray-300">{period.name}</div>
-                                    <div className="text-[10px] text-gray-500">{period.starttime}-{period.endtime}</div>
+                                <div key={period.id} className="text-center p-2 border-l border-[var(--glass-border)]">
+                                    <div className="font-bold text-sm text-[var(--text-primary)]">{period.name}</div>
+                                    <div className="text-[10px] text-[var(--text-secondary)]">{period.starttime}-{period.endtime}</div>
                                 </div>
                             ))}
                         </div>
@@ -182,13 +182,13 @@ const TimetableSection = ({ registrations, onUnregister, onSwap }) => {
                             return (
                                 <div key={day} className="flex border-b border-gray-100 dark:border-gray-700 pb-2">
                                     {/* Day Name Label */}
-                                    <div className="w-16 md:w-24 flex-shrink-0 flex items-center justify-center font-bold text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-l-lg border-y border-l border-gray-200 dark:border-gray-700 z-10">
+                                    <div className="w-16 md:w-24 flex-shrink-0 flex items-center justify-center font-bold text-[var(--text-secondary)] bg-[rgba(255,255,255,0.05)] rounded-l-lg border-y border-l border-[var(--glass-border)] z-10">
                                         {day.substring(0, 3)}
                                     </div>
 
                                     {/* Events Container */}
                                     <div
-                                        className="flex-1 relative bg-gray-50/50 dark:bg-gray-800/30 rounded-r-lg border border-gray-200 dark:border-gray-700"
+                                        className="flex-1 relative bg-[rgba(255,255,255,0.02)] rounded-r-lg border border-[var(--glass-border)]"
                                         style={{ height: `${rowHeight}px` }}
                                     >
                                         {/* Grid Lines */}
@@ -197,7 +197,7 @@ const TimetableSection = ({ registrations, onUnregister, onSwap }) => {
                                             style={{ gridTemplateColumns: `repeat(${totalPeriods}, 1fr)` }}
                                         >
                                             {periods.map((_, i) => (
-                                                <div key={i} className={`border-l ${i === 0 ? 'border-transparent' : 'border-gray-200 dark:border-gray-700/50'} h-full`}></div>
+                                                <div key={i} className={`border-l ${i === 0 ? 'border-transparent' : 'border-[var(--glass-border)]'} h-full`}></div>
                                             ))}
                                         </div>
 
@@ -214,7 +214,9 @@ const TimetableSection = ({ registrations, onUnregister, onSwap }) => {
                                                     key={event.id || idx}
                                                     initial={{ opacity: 0, scale: 0.9 }}
                                                     animate={{ opacity: 1, scale: 1 }}
-                                                    className="absolute p-0.5 transition-all duration-200 hover:z-30 group/card"
+                                                    whileHover={{ scale: 1.02, y: -2, zIndex: 50 }}
+                                                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                                    className="absolute p-0.5 group/card"
                                                     style={{
                                                         left: `${leftPercent}%`,
                                                         width: `${widthPercent}%`,

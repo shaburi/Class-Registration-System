@@ -160,7 +160,7 @@ const SwapRequestCard = ({ req, currentUserId, onResponse }) => {
     const canRespond = isTarget && isPending;
 
     return (
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+        <div className="glass-card border border-[var(--glass-border)] rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
             <div className="flex justify-between items-start mb-3">
                 <StatusBadge status={req.status} />
                 <span className="text-xs text-gray-400">{new Date(req.created_at).toLocaleDateString()}</span>
@@ -212,7 +212,7 @@ const SwapRequestCard = ({ req, currentUserId, onResponse }) => {
 };
 
 const ManualRequestCard = ({ req }) => (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm relative overflow-hidden">
+    <div className="glass-card border border-[var(--glass-border)] rounded-2xl p-5 shadow-sm relative overflow-hidden hover:shadow-md transition-all">
         <div className={`absolute left-0 top-0 bottom-0 w-1 ${req.status === 'approved' ? 'bg-green-500' : req.status === 'rejected' ? 'bg-red-500' : 'bg-amber-500'}`}></div>
         <div className="flex justify-between items-start mb-2 pl-2">
             <div>
@@ -235,7 +235,7 @@ const ManualRequestCard = ({ req }) => (
 );
 
 const DropRequestCard = ({ req }) => (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm relative overflow-hidden">
+    <div className="glass-card border border-[var(--glass-border)] rounded-2xl p-5 shadow-sm relative overflow-hidden hover:shadow-md transition-all">
         <div className={`absolute left-0 top-0 bottom-0 w-1 ${req.status === 'approved' ? 'bg-green-500' : req.status === 'rejected' ? 'bg-red-500' : 'bg-red-400'}`}></div>
         <div className="flex justify-between items-start mb-2 pl-2">
             <div>
