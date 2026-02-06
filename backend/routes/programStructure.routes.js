@@ -273,29 +273,58 @@ router.post('/import-excel', authenticate, requireRole('hop'), upload.single('fi
                 if (firstCell === 'COURSE CODE' || firstCell === 'CODE' || firstCell === 'TOTAL' || firstCell === '' || firstCell === '#') continue;
 
                 // Parse course row - handle alternatives like "UCS3143 / UCS3153 / UCS3163"
+                // Parse course row - handle alternatives like "UCS3143 / UCS3153 / UCS3163"
                 const rawCode = String(row[columnMap.code] || '').trim();
-                // Split by "/" or space and find the first valid course code pattern
-                const codeParts = rawCode.split(/[\s\/]+/).filter(p => p.length > 0);
-                // Find the first part that looks like a course code (letters followed by numbers)
-                const courseCode = codeParts.find(p => /^[A-Z]{2,4}\d{3,4}$/i.test(p))?.toUpperCase() || '';
+                const rawName = String(row[columnMap.name] || '').trim();
 
-                const courseName = String(row[columnMap.name] || '').trim();
+                // Split code by "/" or newline to finding multiple codes
+                const potentialCodes = rawCode.split(/[\/\n]+/).map(c => c.trim()).filter(c => c.length > 0);
+
+                const validCourses = [];
+                // Try to split names too, to match the codes if possible
+                const potentialNames = rawName.split(/[\/\n]+/).map(n => n.trim()).filter(n => n.length > 0);
+
+                for (let k = 0; k < potentialCodes.length; k++) {
+                    const rawPart = potentialCodes[k];
+                    // Extract clean code
+                    const codeMatch = rawPart.match(/([A-Z]{2,4}\d{3,4})/i);
+
+                    if (codeMatch) {
+                        const cleanCode = codeMatch[1].toUpperCase();
+
+                        // Determine name: use corresponding split name, or fallback to full name
+                        let cleanName = rawName;
+                        if (potentialNames.length >= potentialCodes.length) {
+                            cleanName = potentialNames[k];
+                        } else if (potentialNames.length > 0) {
+                            // If unmatched (e.g. 3 codes, 1 name), use the full name or first part
+                            cleanName = rawName.replace(/\//g, ' / '); // make it readable
+                        }
+
+                        validCourses.push({
+                            code: cleanCode,
+                            name: cleanName,
+                        });
+                    }
+                }
+
+                if (validCourses.length === 0) continue;
+
                 const creditHours = parseInt(row[columnMap.credit]) || 3;
                 const status = String(row[columnMap.status] || 'Core Computing').trim();
                 const prereq = String(row[columnMap.prereq] || '').trim();
 
-                // Skip if no valid course code
-                if (!courseCode || courseCode.length < 5 || courseName === '') continue;
-
                 // Only add if we have a valid semester
                 if (currentSemester > 0) {
-                    courses.push({
-                        code: courseCode,
-                        name: courseName,
-                        semester: currentSemester,
-                        status: status,
-                        credit_hours: creditHours,
-                        prerequisite: prereq !== 'None' && prereq !== '' ? prereq : null
+                    validCourses.forEach(c => {
+                        courses.push({
+                            code: c.code,
+                            name: c.name,
+                            semester: currentSemester,
+                            status: status,
+                            credit_hours: creditHours,
+                            prerequisite: prereq !== 'None' && prereq !== '' ? prereq : null
+                        });
                     });
                 }
             }
@@ -324,26 +353,23 @@ router.post('/import-excel', authenticate, requireRole('hop'), upload.single('fi
             for (const course of courses) {
                 let subject = subjectMap[course.code];
 
-                // If subject doesn't exist, create it
-                if (!subject) {
-                    try {
-                        const insertResult = await query(`
-                            INSERT INTO subjects (code, name, credit_hours, programme, semester, is_active)
-                            VALUES ($1, $2, $3, $4, $5, true)
-                            ON CONFLICT (code) DO UPDATE SET 
-                                name = EXCLUDED.name,
-                                credit_hours = EXCLUDED.credit_hours
-                            RETURNING id, code, name
-                        `, [course.code, course.name, course.credit_hours, programme, course.semester]);
+                // Always create or update subject to ensure we have the latest name/details
+                try {
+                    const insertResult = await query(`
+                        INSERT INTO subjects (code, name, credit_hours, programme, semester, is_active)
+                        VALUES ($1, $2, $3, $4, $5, true)
+                        ON CONFLICT (code) DO UPDATE SET 
+                            name = EXCLUDED.name,
+                            credit_hours = EXCLUDED.credit_hours
+                        RETURNING id, code, name
+                    `, [course.code, course.name, course.credit_hours, programme, course.semester]);
 
-                        subject = insertResult.rows[0];
-                        subjectMap[course.code] = subject; // Cache it for other sheets
-                        createdSubjects.push({ code: course.code, name: course.name });
-                        console.log('[EXCEL IMPORT] Auto-created subject:', course.code);
-                    } catch (err) {
-                        results.errors.push(`Failed to create subject ${course.code}: ${err.message}`);
-                        continue;
-                    }
+                    subject = insertResult.rows[0];
+                    subjectMap[course.code] = subject;
+                    if (!subjectMap[course.code]) createdSubjects.push({ code: course.code, name: course.name });
+                } catch (err) {
+                    results.errors.push(`Failed to upsert subject ${course.code}: ${err.message}`);
+                    if (!subject) continue;
                 }
 
                 coursesToAdd.push({
