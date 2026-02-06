@@ -91,16 +91,14 @@ export default function AnalyticsDashboard() {
     };
 
     if (loading) {
-        // ... loading skeleton (kept simple for brevity as it's fine)
         return (
             <div className="space-y-6">
-                {/* Loading skeletons */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {[...Array(4)].map((_, i) => (
-                        <div key={i} className="h-32 bg-gray-100/50 dark:bg-gray-800/50 rounded-2xl animate-pulse" />
+                        <div key={i} className="h-40 glass-card rounded-2xl animate-pulse bg-white/5" />
                     ))}
                 </div>
-                <div className="h-96 bg-gray-100/50 dark:bg-gray-800/50 rounded-2xl animate-pulse" />
+                <div className="h-96 glass-card rounded-2xl animate-pulse bg-white/5" />
             </div>
         );
     }
@@ -109,16 +107,24 @@ export default function AnalyticsDashboard() {
 
     const { utilizationStats, sectionStats, subjectPopularity, enrollmentTrend, dayActivity, utilizationBreakdown } = analytics;
 
-    // Prepare pie chart data
+    // Define Neon Colors
+    const NEON_COLORS = {
+        primary: '#6366f1', // Indigo
+        secondary: '#06b6d4', // Cyan
+        tertiary: '#10b981', // Emerald
+        quaternary: '#f59e0b', // Amber
+        pink: '#ec4899', // Pink
+    };
+
     const sectionPieData = [
-        { name: 'Full', value: sectionStats.full, color: UTILIZATION_COLORS.full },
-        { name: 'Available', value: sectionStats.available, color: UTILIZATION_COLORS.low }
+        { name: 'Full', value: sectionStats.full, color: '#f43f5e' }, // Rose
+        { name: 'Available', value: sectionStats.available, color: '#10b981' } // Emerald
     ];
 
     const utilizationPieData = utilizationBreakdown?.map(item => ({
         name: item.category === 'full' ? 'High (>90%)' : item.category === 'moderate' ? 'Mod (50-90%)' : 'Low (<50%)',
         value: item.count,
-        color: UTILIZATION_COLORS[item.category]
+        color: item.category === 'full' ? '#f43f5e' : item.category === 'moderate' ? '#f59e0b' : '#10b981'
     })) || [];
 
     const statsCards = [
@@ -127,166 +133,171 @@ export default function AnalyticsDashboard() {
             value: utilizationStats.currentEnrollment,
             subtext: 'active students',
             icon: Users,
-            gradient: "from-indigo-500 to-purple-600",
-            shadow: "shadow-indigo-200 dark:shadow-indigo-900/20"
+            color: "text-indigo-400",
+            bg: "bg-indigo-500/10",
+            border: "border-indigo-500/20",
+            glow: "shadow-[0_0_20px_rgba(99,102,241,0.2)]"
         },
         {
             title: 'Total Sections',
             value: sectionStats.total,
             subtext: `${sectionStats.full} full • ${sectionStats.available} open`,
             icon: BookOpen,
-            gradient: "from-cyan-500 to-blue-600",
-            shadow: "shadow-cyan-200 dark:shadow-cyan-900/20"
+            color: "text-cyan-400",
+            bg: "bg-cyan-500/10",
+            border: "border-cyan-500/20",
+            glow: "shadow-[0_0_20px_rgba(6,182,212,0.2)]"
         },
         {
             title: 'Capacity Used',
             value: `${utilizationStats.utilization}%`,
             subtext: `${utilizationStats.currentEnrollment}/${utilizationStats.totalCapacity} seats`,
             icon: Activity,
-            gradient: "from-emerald-500 to-teal-600",
-            shadow: "shadow-emerald-200 dark:shadow-emerald-900/20"
+            color: "text-emerald-400",
+            bg: "bg-emerald-500/10",
+            border: "border-emerald-500/20",
+            glow: "shadow-[0_0_20px_rgba(16,185,129,0.2)]"
         },
         {
             title: 'Available Seats',
             value: utilizationStats.totalCapacity - utilizationStats.currentEnrollment,
             subtext: 'across all sections',
             icon: TrendingUp,
-            gradient: "from-amber-500 to-orange-600",
-            shadow: "shadow-amber-200 dark:shadow-amber-900/20"
+            color: "text-amber-400",
+            bg: "bg-amber-500/10",
+            border: "border-amber-500/20",
+            glow: "shadow-[0_0_20px_rgba(245,158,11,0.2)]"
         },
     ];
 
     return (
-        <div className="space-y-6 pb-10">
+        <div className="space-y-8 pb-10">
             {/* Header */}
-            <div>
-                <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-purple-800 to-gray-900 dark:from-white dark:via-purple-200 dark:to-white">
+            <div className="relative">
+                <div className="absolute -top-10 -left-10 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+                <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-indigo-600 to-gray-900 dark:from-white dark:via-purple-200 dark:to-white relative z-10">
                     Analytics Overview
                 </h2>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">Real-time insights into scheduling performance</p>
+                <p className="text-gray-600 dark:text-white/60 mt-2 relative z-10">Real-time scheduling performance and capacity insights.</p>
             </div>
 
             {/* Premium Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {statsCards.map((stat, i) => (
                     <motion.div
                         key={i}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
-                        className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-xl bg-gradient-to-br ${stat.gradient} ${stat.shadow} hover:scale-[1.02] transition-transform duration-300`}
+                        className={`glass-card p-6 rounded-3xl relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300 ${stat.glow}`}
                     >
-                        <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-                        <div className="absolute -left-4 -bottom-4 w-24 h-24 bg-black/5 rounded-full blur-xl" />
+                        {/* Radial Gradient Background */}
+                        <div className={`absolute -right-10 -top-10 w-40 h-40 rounded-full blur-3xl opacity-20 transition-opacity duration-300 group-hover:opacity-40 ${stat.bg.replace('/10', '')} dark:opacity-20`} />
 
                         <div className="relative z-10">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                                    <stat.icon className="w-5 h-5 text-white" />
-                                </div>
-                                <div className="p-1 bg-white/10 rounded-full cursor-pointer hover:bg-white/20 transition-colors">
-                                    <MoreHorizontal className="w-4 h-4 text-white/70" />
+                                <div className={`p-3 rounded-2xl ${stat.bg} ${stat.border} border backdrop-blur-md`}>
+                                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
                                 </div>
                             </div>
-                            <h3 className="text-sm font-medium text-white/80 mb-1">{stat.title}</h3>
-                            <div className="text-3xl font-bold tracking-tight mb-1">
-                                {typeof stat.value === 'number' ? <AnimatedCounter value={stat.value} /> : stat.value}
+                            <div className="space-y-1">
+                                <h3 className="text-sm font-medium text-gray-500 dark:text-white/50">{stat.title}</h3>
+                                <div className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+                                    {typeof stat.value === 'number' ? <AnimatedCounter value={stat.value} /> : stat.value}
+                                </div>
+                                <p className="text-xs text-gray-400 dark:text-white/40 font-medium tracking-wide">{stat.subtext}</p>
                             </div>
-                            <p className="text-xs text-white/60 font-medium">{stat.subtext}</p>
                         </div>
                     </motion.div>
                 ))}
             </div>
 
-            {/* Main Charts Section - Grid Layout */}
+            {/* Main Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                {/* Enrollment Trend - Takes up 2 columns */}
+                {/* Enrollment Trend */}
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700/50 hover:shadow-md transition-shadow"
+                    className="lg:col-span-2 glass-card rounded-3xl p-1 overflow-hidden"
                 >
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="bg-gray-50/50 dark:bg-white/5 p-6 border-b border-gray-100 dark:border-white/10 flex justify-between items-center">
                         <div>
-                            <h3 className="font-bold text-lg text-gray-800 dark:text-white flex items-center gap-2">
-                                Enrollment Growth
-                            </h3>
-                            <p className="text-sm text-gray-400">Daily registration activity</p>
+                            <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">Enrollment Growth</h3>
+                            <p className="text-xs text-gray-500 dark:text-white/40">Daily registration activity</p>
                         </div>
-                        <div className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 text-xs font-bold rounded-full">
+                        <div className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-300 text-xs font-bold rounded-full">
                             Last 7 Days
                         </div>
                     </div>
-
-                    <div className="h-[300px] w-full">
+                    <div className="p-6 h-[320px] w-full bg-white/40 dark:bg-black/20">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={enrollmentTrend}>
                                 <defs>
                                     <linearGradient id="colorEnrollment" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0} />
+                                        <stop offset="5%" stopColor={NEON_COLORS.primary} stopOpacity={0.4} />
+                                        <stop offset="95%" stopColor={NEON_COLORS.primary} stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} opacity={0.5} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" vertical={false} />
                                 <XAxis
                                     dataKey="date"
-                                    stroke="#9ca3af"
+                                    stroke="var(--text-secondary)"
                                     tickLine={false}
                                     axisLine={false}
-                                    tick={{ fontSize: 12 }}
+                                    tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
                                     tickFormatter={(val) => new Date(val).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                                     dy={10}
                                 />
                                 <YAxis
-                                    stroke="#9ca3af"
+                                    stroke="var(--text-secondary)"
                                     tickLine={false}
                                     axisLine={false}
-                                    tick={{ fontSize: 12 }}
+                                    tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
                                     dx={-10}
                                 />
-                                <Tooltip content={<CustomTooltip />} cursor={{ stroke: CHART_COLORS.primary, strokeWidth: 1, strokeDasharray: '4 4' }} />
+                                <Tooltip content={<CustomTooltip />} cursor={{ stroke: NEON_COLORS.primary, strokeWidth: 1, strokeDasharray: '4 4' }} />
                                 <Area
                                     type="monotone"
                                     dataKey="count"
-                                    stroke={CHART_COLORS.primary}
+                                    stroke={NEON_COLORS.primary}
                                     strokeWidth={3}
                                     fill="url(#colorEnrollment)"
                                     animationDuration={2000}
-                                    name="Registrations"
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </motion.div>
 
-                {/* Section Status - 1 Column */}
+                {/* Section Status */}
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.5 }}
-                    className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700/50 hover:shadow-md transition-shadow relative overflow-hidden"
+                    className="glass-card rounded-3xl p-1 overflow-hidden flex flex-col"
                 >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50 dark:bg-gray-700/30 rounded-full -translate-y-1/2 translate-x-1/2" />
-                    <h3 className="font-bold text-lg text-gray-800 dark:text-white mb-2 relative z-10">Section Status</h3>
-                    <p className="text-sm text-gray-400 mb-6 relative z-10">Ratio of full to available sections</p>
-
-                    <div className="h-[250px] relative z-10">
+                    <div className="bg-gray-50/50 dark:bg-white/5 p-6 border-b border-gray-100 dark:border-white/10">
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white">Section Status</h3>
+                        <p className="text-xs text-gray-500 dark:text-white/40">Full vs Available</p>
+                    </div>
+                    <div className="p-6 flex-1 bg-white/40 dark:bg-black/20 relative">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
                                     data={sectionPieData}
                                     cx="50%"
                                     cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
+                                    innerRadius={70}
+                                    outerRadius={90}
                                     paddingAngle={5}
                                     dataKey="value"
-                                    cornerRadius={6}
+                                    cornerRadius={8}
+                                    stroke="none"
                                 >
                                     {sectionPieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
                                 <Tooltip content={<CustomTooltip />} />
@@ -294,15 +305,13 @@ export default function AnalyticsDashboard() {
                                     verticalAlign="bottom"
                                     height={36}
                                     iconType="circle"
-                                    formatter={(value) => <span className="text-sm font-medium text-gray-600 dark:text-gray-300 ml-1">{value}</span>}
+                                    formatter={(value) => <span className="text-sm font-medium text-gray-600 dark:text-white/60 ml-1">{value}</span>}
                                 />
                             </PieChart>
                         </ResponsiveContainer>
-
-                        {/* Center text */}
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none -mt-4">
-                            <p className="text-3xl font-bold text-gray-800 dark:text-white">{sectionStats.total}</p>
-                            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Total</p>
+                            <p className="text-4xl font-bold text-gray-900 dark:text-white tracking-tighter">{sectionStats.total}</p>
+                            <p className="text-[10px] text-gray-500 dark:text-white/40 font-bold uppercase tracking-widest">Total</p>
                         </div>
                     </div>
                 </motion.div>
@@ -316,13 +325,15 @@ export default function AnalyticsDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
-                    className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700/50 hover:shadow-md transition-shadow"
+                    className="glass-card rounded-3xl p-1 overflow-hidden"
                 >
-                    <h3 className="font-bold text-lg text-gray-800 dark:text-white mb-6">Subject Popularity</h3>
-                    <div className="h-[250px]">
+                    <div className="bg-gray-50/50 dark:bg-white/5 p-6 border-b border-gray-100 dark:border-white/10">
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white">Subject Popularity</h3>
+                    </div>
+                    <div className="p-6 h-[250px] bg-white/40 dark:bg-black/20">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={subjectPopularity} layout="vertical" margin={{ left: 10 }}>
-                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e5e7eb" opacity={0.5} />
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--glass-border)" />
                                 <XAxis type="number" hide />
                                 <YAxis
                                     dataKey="code"
@@ -330,15 +341,12 @@ export default function AnalyticsDashboard() {
                                     width={70}
                                     tickLine={false}
                                     axisLine={false}
-                                    tick={{ fontSize: 11, fontWeight: 600, fill: '#6b7280' }}
+                                    tick={{ fontSize: 11, fontWeight: 700, fill: 'var(--text-secondary)' }}
                                 />
-                                <Tooltip
-                                    cursor={{ fill: 'transparent' }}
-                                    content={<CustomTooltip />}
-                                />
+                                <Tooltip cursor={{ fill: 'transparent' }} content={<CustomTooltip />} />
                                 <Bar dataKey="students" radius={[0, 4, 4, 0]} barSize={20} animationDuration={1500}>
                                     {subjectPopularity.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={CHART_COLORS.gradient[index % CHART_COLORS.gradient.length]} />
+                                        <Cell key={`cell-${index}`} fill={index % 2 === 0 ? NEON_COLORS.primary : NEON_COLORS.secondary} />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -351,30 +359,28 @@ export default function AnalyticsDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.7 }}
-                    className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700/50 hover:shadow-md transition-shadow"
+                    className="glass-card rounded-3xl p-1 overflow-hidden"
                 >
-                    <h3 className="font-bold text-lg text-gray-800 dark:text-white mb-6">Activity by Day</h3>
-                    <div className="h-[250px]">
+                    <div className="bg-gray-50/50 dark:bg-white/5 p-6 border-b border-gray-100 dark:border-white/10">
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white">Activity by Day</h3>
+                    </div>
+                    <div className="p-6 h-[250px] bg-white/40 dark:bg-black/20">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={dayActivity}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" opacity={0.5} />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--glass-border)" />
                                 <XAxis
                                     dataKey="day"
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fontSize: 12, fill: '#6b7280' }}
+                                    tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
                                     dy={10}
                                 />
                                 <YAxis hide />
-                                <Tooltip
-                                    cursor={{ fill: '#f3f4f6', opacity: 0.4 }}
-                                    content={<CustomTooltip />}
-                                />
+                                <Tooltip cursor={{ fill: 'white', opacity: 0.05 }} content={<CustomTooltip />} />
                                 <Bar
                                     dataKey="count"
-                                    fill={CHART_COLORS.quaternary}
+                                    fill={NEON_COLORS.quaternary}
                                     radius={[8, 8, 8, 8]}
-                                    name="Registrations"
                                     barSize={24}
                                 />
                             </BarChart>
@@ -387,11 +393,13 @@ export default function AnalyticsDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8 }}
-                    className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700/50 hover:shadow-md transition-shadow"
+                    className="glass-card rounded-3xl p-1 overflow-hidden"
                 >
-                    <h3 className="font-bold text-lg text-gray-800 dark:text-white mb-2">Capacity Health</h3>
-                    <p className="text-sm text-gray-400 mb-4">Utilization distribution</p>
-                    <div className="h-[220px]">
+                    <div className="bg-gray-50/50 dark:bg-white/5 p-6 border-b border-gray-100 dark:border-white/10">
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white">Capacity Health</h3>
+                        <p className="text-xs text-gray-500 dark:text-white/40">Utilization distribution</p>
+                    </div>
+                    <div className="p-6 h-[250px] bg-white/40 dark:bg-black/20">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
@@ -402,9 +410,10 @@ export default function AnalyticsDashboard() {
                                     paddingAngle={3}
                                     dataKey="value"
                                     cornerRadius={4}
+                                    stroke="none"
                                 >
                                     {utilizationPieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
                                 <Tooltip content={<CustomTooltip />} />
@@ -412,7 +421,7 @@ export default function AnalyticsDashboard() {
                                     verticalAlign="bottom"
                                     height={36}
                                     iconType="circle"
-                                    formatter={(value) => <span className="text-xs font-medium text-gray-500 ml-1">{value}</span>}
+                                    formatter={(value) => <span className="text-xs font-medium text-gray-600 dark:text-white/60 ml-1">{value}</span>}
                                 />
                             </PieChart>
                         </ResponsiveContainer>
@@ -420,36 +429,25 @@ export default function AnalyticsDashboard() {
                 </motion.div>
             </div>
 
-            {/* Row 3 - Heatmap takes 2/3, Seat Availability 1/3 */}
+            {/* Row 3 */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8 }}
-                    className="lg:col-span-2"
-                >
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} className="lg:col-span-2">
                     <ScheduleHeatmap />
                 </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9 }}
-                >
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}>
                     <SeatAvailability />
                 </motion.div>
             </div>
 
-            {/* Row 4 - Activity Timeline in the middle, or full width if preferred */}
+            {/* Row 4 */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="hidden lg:block">
-                    {/* Spacer or another widget could go here in future */}
-                    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-6 text-white h-full shadow-lg relative overflow-hidden flex flex-col justify-center items-center text-center">
-                        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-                        <Calendar className="w-16 h-16 mb-4 text-white/80" />
-                        <h3 className="text-xl font-bold mb-2">Academic Calendar</h3>
-                        <p className="text-white/80 text-sm">Fall 2024 Semester</p>
-                        <button className="mt-6 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl text-sm font-bold transition-colors">
+                    <div className="glass-card rounded-3xl p-6 h-full relative overflow-hidden flex flex-col justify-center items-center text-center group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <Calendar className="w-16 h-16 mb-4 text-gray-400 dark:text-white/80 group-hover:scale-110 transition-transform duration-300" />
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Academic Calendar</h3>
+                        <p className="text-gray-500 dark:text-white/60 text-sm">Fall 2024 Semester</p>
+                        <button className="mt-8 px-6 py-3 glass-button text-sm text-gray-700 dark:text-white">
                             View Full Calendar
                         </button>
                     </div>

@@ -20,6 +20,7 @@ const studentRoutes = require('./routes/student.routes');
 const lecturerRoutes = require('./routes/lecturer.routes');
 const hopRoutes = require('./routes/hop.routes');
 const sessionRoutes = require('./routes/session.routes');
+const programStructureRoutes = require('./routes/programStructure.routes');
 
 // Initialize Express app
 const app = express();
@@ -141,6 +142,7 @@ app.use(`/api/${API_VERSION}/student`, studentRoutes);
 app.use(`/api/${API_VERSION}/lecturer`, lecturerRoutes);
 app.use(`/api/${API_VERSION}/hop`, hopRoutes);
 app.use(`/api/${API_VERSION}/sessions`, sessionRoutes);
+app.use(`/api/${API_VERSION}/program-structures`, programStructureRoutes);
 
 // ============================================================================
 // ERROR HANDLING

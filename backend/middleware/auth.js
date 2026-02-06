@@ -83,7 +83,8 @@ const authenticate = async (req, res, next) => {
                                 lecturerName: u.lecturer_name,
                                 semester: u.semester,
                                 programme: u.programme,
-                                photoURL: payload.picture, // Google profile picture
+                                intake_session: u.intake_session,
+                                photoURL: payload.picture,
                                 displayName: payload.name
                             };
                             console.log('[AUTH] ✓ Email fallback succeeded for', u.email, 'role:', u.role);
@@ -152,7 +153,8 @@ const authenticate = async (req, res, next) => {
             lecturerName: user.lecturer_name,
             semester: user.semester,
             programme: user.programme,
-            photoURL: decodedToken.picture, // Google profile picture
+            intake_session: user.intake_session,
+            photoURL: decodedToken.picture,
             displayName: decodedToken.name
         };
 
@@ -291,15 +293,42 @@ const devAuth = async (req, res, next) => {
         studentId: user.student_id,
         lecturerId: user.lecturer_id,
         semester: user.semester,
-        programme: user.programme
+        programme: user.programme,
+        intake_session: user.intake_session
     };
 
     next();
+};
+
+/**
+ * Role-based access control middleware
+ * Restricts access to users with specific roles
+ * @param {...string} allowedRoles - Roles that are allowed to access the route
+ */
+const requireRole = (...allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: 'Authentication required'
+            });
+        }
+
+        if (!allowedRoles.includes(req.user.role)) {
+            return res.status(403).json({
+                success: false,
+                message: `Access denied. Required role: ${allowedRoles.join(' or ')}`
+            });
+        }
+
+        next();
+    };
 };
 
 module.exports = {
     authenticate,
     optionalAuth,
     verifyMFA,
-    devAuth
+    devAuth,
+    requireRole
 };

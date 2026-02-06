@@ -264,7 +264,7 @@ const getManualJoinRequestsForStudent = async (studentId, status = null) => {
         JOIN subjects sub ON s.subject_id = sub.id
         LEFT JOIN users approver ON mjr.approved_by = approver.id
         LEFT JOIN users rejecter ON mjr.rejected_by = rejecter.id
-        WHERE mjr.student_id = $1
+        WHERE mjr.student_id = $1 AND (mjr.hidden_by_student = FALSE OR mjr.hidden_by_student IS NULL)
     `;
 
     const params = [studentId];

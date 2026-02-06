@@ -32,8 +32,9 @@ import {
 import ThemeToggle from './ThemeToggle';
 import SettingsModal from './SettingsModal';
 import StaggeredText from './Anime/StaggeredText';
+import NotificationBell from './hop/NotificationBell';
 
-const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGreeting = false, headerContent }) => {
+const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGreeting = false, headerContent, notifications, onNotificationClick }) => {
     const { user, logout } = useAuth();
     const { accent: userAccent } = useTheme();
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -94,6 +95,7 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                 { id: 'timetable', icon: <CalendarRange size={20} />, label: 'Global Timetable' },
                 { id: 'edupage', icon: <CloudDownload size={20} />, label: 'aSc Timetable' },
                 { id: 'sessions', icon: <Clock size={20} />, label: 'Sessions' },
+                { id: 'program-structures', icon: <Layers size={20} />, label: 'Program Structures' },
                 { id: 'drop-requests', icon: <FileMinus size={20} />, label: 'Drop Requests' },
                 { id: 'manual-requests', icon: <UserPlus size={20} />, label: 'Manual Requests' },
                 { id: 'student-logs', icon: <FileText size={20} />, label: 'Student Logs' },
@@ -133,7 +135,7 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                 <div className="h-24 flex items-center justify-center px-4 border-b border-[var(--glass-border)]">
                     <motion.div
                         whileHover={{ rotate: 10, scale: 1.1 }}
-                        className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${getRoleGradient()} flex items-center justify-center shadow-lg shadow-indigo-500/20`}
+                        className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${userAccent?.gradient || getRoleGradient()} flex items-center justify-center shadow-lg ${userAccent?.shadow || 'shadow-indigo-500/20'}`}
                     >
                         <Sparkles className="w-6 h-6 text-white" />
                     </motion.div>
@@ -157,7 +159,7 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                             className={`
                                 w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group
                                 ${activeTab === item.id
-                                    ? `bg-gradient-to-r ${getRoleGradient()} text-white shadow-lg shadow-indigo-500/25`
+                                    ? `bg-gradient-to-r ${userAccent?.gradient || getRoleGradient()} text-white shadow-lg ${userAccent?.shadow || 'shadow-indigo-500/25'}`
                                     : `text-[var(--text-secondary)] hover:bg-[var(--glass-border)] hover:text-[var(--text-primary)]`
                                 }
                             `}
@@ -214,15 +216,13 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                             transition={{ duration: 0.15 }}
                             className="absolute bottom-20 left-4 right-4 bg-[var(--bg-secondary)] border border-[var(--glass-border)] shadow-xl rounded-2xl p-2 z-50 backdrop-blur-3xl"
                         >
-                            {role === 'student' && (
-                                <button
-                                    onClick={handleSettingsClick}
-                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[var(--glass-border)] text-[var(--text-primary)] transition-colors text-left"
-                                >
-                                    <Settings size={18} />
-                                    <span className="text-sm font-medium">Settings</span>
-                                </button>
-                            )}
+                            <button
+                                onClick={handleSettingsClick}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[var(--glass-border)] text-[var(--text-primary)] transition-colors text-left"
+                            >
+                                <Settings size={18} />
+                                <span className="text-sm font-medium">Settings</span>
+                            </button>
                             <button
                                 onClick={handleLogout}
                                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-red-500 hover:text-red-600 transition-colors text-left"
@@ -251,7 +251,7 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                         <motion.div
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 glass-card p-6 rounded-3xl"
+                            className="relative z-50 flex flex-col md:flex-row md:items-end md:justify-between gap-4 glass-card p-6 rounded-3xl"
                         >
                             <div className="flex-1">
                                 {headerContent ? headerContent : (
@@ -267,7 +267,15 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                                     </>
                                 )}
                             </div>
-                            <SessionSelector />
+                            <div className="flex items-center gap-3">
+                                {role === 'hop' && notifications && (
+                                    <NotificationBell
+                                        notifications={notifications}
+                                        onNotificationClick={onNotificationClick}
+                                    />
+                                )}
+                                <SessionSelector />
+                            </div>
                         </motion.div>
 
                         {/* Page Content */}
@@ -326,10 +334,10 @@ const SessionSelector = () => {
     };
 
     return (
-        <div className="relative z-30" ref={dropdownRef}>
+        <div className="relative z-[60]" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-3 px-5 py-3 glass-input rounded-xl hover:translate-y-[-2px] hover:shadow-lg transition-all"
+                className="flex items-center gap-3 px-5 py-3 glass-input rounded-xl hover:translate-y-[-2px] hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700"
             >
                 <div className="bg-indigo-500/10 p-2 rounded-lg">
                     <CalendarDays size={20} className="text-indigo-500" />
@@ -352,7 +360,7 @@ const SessionSelector = () => {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 top-full mt-3 w-80 glass-card rounded-2xl overflow-hidden shadow-2xl ring-1 ring-black/5"
+                        className="absolute right-0 top-full mt-3 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-black/5"
                     >
                         <div className="p-3 bg-[var(--bg-primary)]/50 border-b border-[var(--glass-border)]">
                             <p className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider px-2">Select Academic Session</p>

@@ -69,22 +69,34 @@ export default function ActivityTimeline() {
         await loadActivities();
     };
 
+    // Premium Glass Modifiers
+    const getActivityStyle = (type) => {
+        switch (type) {
+            case 'registration':
+                return 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]';
+            case 'drop':
+                return 'bg-rose-500/10 border border-rose-500/20 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.1)]';
+            case 'swap':
+                return 'bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.1)]';
+            default:
+                return 'bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 dark:text-white/60';
+        }
+    };
+
     if (loading) {
         return (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
-                <div className="animate-pulse">
-                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-48 mb-4"></div>
-                    <div className="space-y-4">
-                        {[...Array(5)].map((_, i) => (
-                            <div key={i} className="flex gap-3">
-                                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
-                                <div className="flex-1">
-                                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                                </div>
+            <div className="glass-card rounded-3xl p-6 h-full animate-pulse bg-white/40 dark:bg-white/5">
+                <div className="h-6 bg-gray-200 dark:bg-white/10 rounded w-48 mb-4"></div>
+                <div className="space-y-4">
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="flex gap-3">
+                            <div className="w-10 h-10 bg-gray-100 dark:bg-white/5 rounded-xl"></div>
+                            <div className="flex-1 space-y-2">
+                                <div className="h-4 bg-gray-100 dark:bg-white/5 rounded w-3/4"></div>
+                                <div className="h-3 bg-gray-100 dark:bg-white/5 rounded w-1/2"></div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         );
@@ -94,34 +106,34 @@ export default function ActivityTimeline() {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700/50 hover:shadow-md transition-shadow h-full"
+            className="glass-card rounded-3xl p-1 overflow-hidden h-full flex flex-col"
         >
-            <div className="flex items-center justify-between mb-6">
-                <h3 className="font-bold text-lg text-gray-800 dark:text-white flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-amber-500" />
+            <div className="bg-gray-50/50 dark:bg-white/5 p-6 border-b border-gray-100 dark:border-white/10 flex items-center justify-between">
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-amber-500 dark:text-amber-400" />
                     Student Activity
                 </h3>
                 <button
                     onClick={handleRefresh}
                     disabled={refreshing}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all hover:scale-105 active:scale-95"
+                    className="p-2 hover:bg-white/10 rounded-xl transition-all hover:scale-105 active:scale-95 text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white"
                 >
-                    <RefreshCw className={`w-4 h-4 text-gray-500 ${refreshing ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                 </button>
             </div>
 
             {activities.length === 0 ? (
-                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700/50 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Activity className="w-8 h-8 opacity-40" />
+                <div className="flex-1 flex flex-col items-center justify-center py-12 text-gray-400 dark:text-white/40 bg-white/40 dark:bg-black/20">
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mb-4 border border-gray-200 dark:border-white/5">
+                        <Activity className="w-8 h-8 opacity-50" />
                     </div>
                     <p className="font-medium">No recent activity</p>
                     <p className="text-sm opacity-60">New registrations will appear here</p>
                 </div>
             ) : (
-                <div className="relative pl-4 space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="flex-1 relative pl-6 space-y-6 overflow-y-auto pr-4 custom-scrollbar bg-white/40 dark:bg-black/20 p-6">
                     {/* Vertical Connectivity Line */}
-                    <div className="absolute left-[27px] top-4 bottom-4 w-[2px] bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                    <div className="absolute left-[39px] top-6 bottom-6 w-[1px] bg-gray-300 dark:bg-white/10 rounded-full"></div>
 
                     <AnimatePresence>
                         {activities.map((activity, index) => (
@@ -134,28 +146,31 @@ export default function ActivityTimeline() {
                                 className="relative flex items-start gap-4 group"
                             >
                                 {/* Icon Bubble */}
-                                <div className={`relative z-10 p-2 rounded-xl shadow-sm border-2 border-white dark:border-gray-800 ${getActivityBg(activity.type)} transition-transform group-hover:scale-110`}>
+                                <div className={`relative z-10 w-8 h-8 flex items-center justify-center rounded-xl backdrop-blur-md transition-transform group-hover:scale-110 ${getActivityStyle(activity.type)}`}>
                                     {getActivityIcon(activity.type)}
                                 </div>
 
-                                <div className="flex-1 min-w-0 bg-gray-50 dark:bg-gray-900/30 rounded-xl p-3 hover:bg-white dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all shadow-sm">
-                                    <div className="flex justify-between items-start mb-1">
-                                        <p className="text-sm text-gray-800 dark:text-gray-200 line-clamp-2">
+                                <div className="flex-1 min-w-0 bg-gray-50/80 dark:bg-white/5 rounded-2xl p-4 hover:bg-white dark:hover:bg-white/10 border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10 transition-all shadow-sm group-hover:shadow-lg group-hover:shadow-black/20">
+                                    <div className="flex justify-between items-start mb-1 gap-2">
+                                        <p className="text-sm text-gray-800 dark:text-white/90 line-clamp-2 leading-relaxed">
                                             <span className="font-bold text-gray-900 dark:text-white">{activity.student_name || 'Student'}</span>
-                                            <span className="opacity-80">
-                                                {activity.type === 'registration' && ' registered for '}
-                                                {activity.type === 'drop' && ' dropped '}
-                                                {activity.type === 'swap' && ' swapped to '}
+                                            <span className="opacity-60 mx-1">
+                                                {activity.type === 'registration' && 'registered for'}
+                                                {activity.type === 'drop' && 'dropped'}
+                                                {activity.type === 'swap' && 'swapped to'}
                                             </span>
-                                            <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/40 px-1.5 rounded text-xs ml-1 inline-block border border-indigo-100 dark:border-indigo-800/50">
+                                            <span className={`font-bold px-1.5 py-0.5 rounded text-xs inline-block border ${activity.type === 'registration' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-300' :
+                                                activity.type === 'drop' ? 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-300' :
+                                                    'bg-cyan-500/10 border-cyan-500/20 text-cyan-600 dark:text-cyan-300'
+                                                }`}>
                                                 {activity.subject_code}
                                             </span>
-                                            {activity.section_number && <span className="text-xs text-gray-500 ml-1">(Sec {activity.section_number})</span>}
+                                            {activity.section_number && <span className="text-xs text-gray-500 dark:text-white/40 ml-1 font-mono tracking-tight">(Sec {activity.section_number})</span>}
                                         </p>
                                     </div>
-                                    <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+                                    <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-white/30 font-medium uppercase tracking-wider mt-2">
                                         <Clock className="w-3 h-3" />
-                                        <span className="font-medium">{formatTimeAgo(activity.created_at)}</span>
+                                        <span>{formatTimeAgo(activity.created_at)}</span>
                                     </div>
                                 </div>
                             </motion.div>

@@ -50,7 +50,8 @@ async function traditionalLogin(email, password) {
                 lecturer_id: user.lecturer_id,
                 lecturer_name: user.lecturer_name,
                 semester: user.semester,
-                programme: user.programme
+                programme: user.programme,
+                intake_session: user.intake_session
             },
             process.env.JWT_SECRET,
             { expiresIn: '7d' }
@@ -69,7 +70,8 @@ async function traditionalLogin(email, password) {
                 lecturerName: user.lecturer_name,
                 semester: user.semester,
                 programme: user.programme,
-                department: user.department
+                department: user.department,
+                intake_session: user.intake_session
             }
         };
     } catch (error) {

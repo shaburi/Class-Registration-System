@@ -62,6 +62,8 @@ export default function StudentDashboard() {
         dropRequests,
         subjectFilter,
         importing,
+        semesterFilter,
+        setSemesterFilter,
         registerCourse,
         dropCourse,
         requestSwap,
@@ -650,6 +652,9 @@ export default function StudentDashboard() {
                             importSubjects={importSubjects}
                             clearFilter={clearFilter}
                             importing={importing}
+                            semesterFilter={semesterFilter}
+                            setSemesterFilter={setSemesterFilter}
+                            currentSemester={user?.semester || 3}
                         />
                     )}
 

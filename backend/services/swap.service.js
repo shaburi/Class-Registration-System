@@ -255,6 +255,7 @@ const getSwapRequests = async (studentId, status = null) => {
         JOIN subjects req_sub ON req_sec.subject_id = req_sub.id
         JOIN subjects target_sub ON target_sec.subject_id = target_sub.id
         WHERE (sr.requester_id = $1 OR sr.target_id = $1)
+            AND (sr.hidden_by_student = FALSE OR sr.hidden_by_student IS NULL)
     `;
 
     const params = [studentId];
@@ -331,8 +332,10 @@ const cancelSwapRequest = async (swapRequestId, requesterId) => {
  * @returns {Promise<Object>} - Deletion result
  */
 const deleteSwapRequest = async (swapRequestId, studentId) => {
+    // Soft delete - hide from student but keep for HOP
     const result = await query(`
-        DELETE FROM swap_requests
+        UPDATE swap_requests
+        SET hidden_by_student = TRUE
         WHERE id = $1 
             AND (requester_id = $2 OR target_id = $2)
             AND status IN ('approved', 'rejected', 'cancelled')
@@ -345,7 +348,7 @@ const deleteSwapRequest = async (swapRequestId, studentId) => {
 
     return {
         success: true,
-        message: 'Swap request deleted successfully'
+        message: 'Swap request cleared successfully'
     };
 };
 

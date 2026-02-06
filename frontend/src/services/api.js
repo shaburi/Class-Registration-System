@@ -17,6 +17,12 @@ api.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+        // Don't set Content-Type for FormData - let browser set it with boundary
+        if (config.data instanceof FormData) {
+            delete config.headers['Content-Type'];
+            // Increase timeout for file uploads
+            config.timeout = 60000; // 60 seconds for uploads
+        }
         return config;
     },
     (error) => {

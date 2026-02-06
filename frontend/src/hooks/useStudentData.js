@@ -14,13 +14,14 @@ export const useStudentData = () => {
     // Filter State
     const [subjectFilter, setSubjectFilter] = useState([]);
     const [importing, setImporting] = useState(false);
+    const [semesterFilter, setSemesterFilter] = useState('current'); // 'current', 'all', or number
 
     const loadData = useCallback(async () => {
         try {
             setLoading(true);
             const [regsRes, sectionsRes, swapsRes, manualRes, dropRes] = await Promise.all([
                 api.get(`/student/registrations`).catch(err => ({ data: { data: [] } })),
-                api.get(`/student/subjects`).catch(err => ({ data: { data: [] } })),
+                api.get(`/student/subjects${semesterFilter !== 'current' ? `?filterSemester=${semesterFilter}` : ''}`).catch(err => ({ data: { data: [] } })),
                 api.get(`/student/swap-requests`).catch(err => ({ data: { data: [] } })),
                 api.get(`/student/manual-join-requests`).catch(err => ({ data: { data: [] } })),
                 api.get(`/student/drop-requests`).catch(err => ({ data: { data: [] } }))
@@ -38,11 +39,11 @@ export const useStudentData = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [semesterFilter]);
 
     useEffect(() => {
         loadData();
-    }, [loadData]);
+    }, [loadData, semesterFilter]);
 
     // Actions
     const registerCourse = async (sectionId) => {
@@ -169,9 +170,12 @@ export const useStudentData = () => {
         // Filter
         subjectFilter,
         importing,
+        semesterFilter,
+        setSemesterFilter,
 
         // Actions
         loadData,
+        refreshData: loadData,
         registerCourse,
         dropCourse,
         requestSwap,

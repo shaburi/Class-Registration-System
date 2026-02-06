@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Calendar, Clock, Filter, Upload, X, ChevronDown, RefreshCw, User } from 'lucide-react';
+import { BookOpen, Calendar, Clock, Filter, Upload, X, ChevronDown, RefreshCw, User, Search } from 'lucide-react';
 import CourseRecommendations from '../CourseRecommendations';
 import CSVImportModal from '../CSVImportModal';
 import { useAuth } from '../../contexts/AuthContext'; // Assuming context path
@@ -13,10 +13,14 @@ const RegistrationSection = ({
     onRequestJoin,
     importSubjects,
     clearFilter,
-    importing
+    importing,
+    semesterFilter,
+    setSemesterFilter,
+    currentSemester = 3 // Default to 3 if not provided
 }) => {
     const [showSubjectImport, setShowSubjectImport] = useState(false);
     const [expandedSubject, setExpandedSubject] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Filter sections based on imported subject codes if filter is active
     const filteredSections = subjectFilter.length > 0
@@ -44,6 +48,24 @@ const RegistrationSection = ({
     }, {});
 
     const subjects = Object.values(groupedSections);
+
+    // Sort subjects: registered ones first
+    const sortedSubjects = [...subjects].sort((a, b) => {
+        const aHasRegistration = a.sections.some(s => isRegistered(s.section_id));
+        const bHasRegistration = b.sections.some(s => isRegistered(s.section_id));
+        if (aHasRegistration && !bHasRegistration) return -1;
+        if (!aHasRegistration && bHasRegistration) return 1;
+        return 0;
+    });
+
+    // Filter subjects by search query
+    const searchFilteredSubjects = searchQuery.trim()
+        ? sortedSubjects.filter(subject =>
+            subject.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            subject.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        : sortedSubjects;
+
     const filterActive = subjectFilter.length > 0;
     const filterCount = subjectFilter.length;
 
@@ -110,31 +132,106 @@ const RegistrationSection = ({
                     </div>
                 </div>
 
-                {subjects.length === 0 ? (
+                {/* Semester Filter */}
+                {setSemesterFilter && (
+                    <div className="flex flex-wrap items-center gap-3 mb-4">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">Show subjects from:</span>
+                        <div className="flex flex-wrap gap-2">
+                            <button
+                                onClick={() => setSemesterFilter('current')}
+                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${semesterFilter === 'current'
+                                        ? 'bg-indigo-600 text-white'
+                                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-indigo-500'
+                                    }`}
+                            >
+                                Semester {currentSemester} (Current)
+                            </button>
+                            <button
+                                onClick={() => setSemesterFilter('all')}
+                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${semesterFilter === 'all'
+                                        ? 'bg-indigo-600 text-white'
+                                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-indigo-500'
+                                    }`}
+                            >
+                                All Semesters
+                            </button>
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].filter(s => s !== currentSemester).map(sem => (
+                                <button
+                                    key={sem}
+                                    onClick={() => setSemesterFilter(sem.toString())}
+                                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${semesterFilter === sem.toString()
+                                            ? 'bg-indigo-600 text-white'
+                                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-indigo-500'
+                                        }`}
+                                >
+                                    Sem {sem}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Search Bar */}
+                <div className="relative mb-6">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Search className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search courses by code or name..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    )}
+                </div>
+
+                {searchFilteredSubjects.length === 0 ? (
                     <div className="text-center py-16 glass-card rounded-3xl border border-[var(--glass-border)]">
                         <div className="w-20 h-20 bg-[var(--bg-secondary)]/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <BookOpen className="w-10 h-10 text-gray-300 dark:text-gray-500" />
+                            {searchQuery ? <Search className="w-10 h-10 text-gray-300 dark:text-gray-500" /> : <BookOpen className="w-10 h-10 text-gray-300 dark:text-gray-500" />}
                         </div>
                         <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                            {filterActive ? 'No subjects matched your filter' : 'No subjects available'}
+                            {searchQuery ? `No courses found for "${searchQuery}"` : filterActive ? 'No subjects matched your filter' : 'No subjects available'}
                         </h4>
                         <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                            {filterActive
-                                ? 'Try clearing your filter to see all available courses or import a different list.'
-                                : 'All courses might be full or registration is currently closed.'}
+                            {searchQuery
+                                ? 'Try a different search term or clear the search.'
+                                : filterActive
+                                    ? 'Try clearing your filter to see all available courses or import a different list.'
+                                    : 'All courses might be full or registration is currently closed.'}
                         </p>
-                        {filterActive && (
-                            <button
-                                onClick={clearFilter}
-                                className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 font-medium hover:underline"
-                            >
-                                Clear filter to see all subjects
-                            </button>
+                        {(filterActive || searchQuery) && (
+                            <div className="flex justify-center gap-3">
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => setSearchQuery('')}
+                                        className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 font-medium hover:underline"
+                                    >
+                                        Clear search
+                                    </button>
+                                )}
+                                {filterActive && (
+                                    <button
+                                        onClick={clearFilter}
+                                        className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 font-medium hover:underline"
+                                    >
+                                        Clear filter
+                                    </button>
+                                )}
+                            </div>
                         )}
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {subjects.map(subject => {
+                        {searchFilteredSubjects.map(subject => {
                             const isExpanded = expandedSubject === subject.code;
                             const registeredSections = subject.sections.filter(s => isRegistered(s.section_id));
                             const hasRegistration = registeredSections.length > 0;

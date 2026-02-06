@@ -11,6 +11,7 @@ export const ACCENT_COLORS = {
         text: 'text-indigo-400',
         hover: 'hover:bg-indigo-500/10',
         ring: 'ring-indigo-500',
+        shadow: 'shadow-indigo-500/25',
         primary: '#6366f1',
     },
     purple: {
@@ -20,6 +21,7 @@ export const ACCENT_COLORS = {
         text: 'text-purple-400',
         hover: 'hover:bg-purple-500/10',
         ring: 'ring-purple-500',
+        shadow: 'shadow-purple-500/25',
         primary: '#a855f7',
     },
     pink: {
@@ -29,6 +31,7 @@ export const ACCENT_COLORS = {
         text: 'text-pink-400',
         hover: 'hover:bg-pink-500/10',
         ring: 'ring-pink-500',
+        shadow: 'shadow-pink-500/25',
         primary: '#ec4899',
     },
     blue: {
@@ -38,6 +41,7 @@ export const ACCENT_COLORS = {
         text: 'text-blue-400',
         hover: 'hover:bg-blue-500/10',
         ring: 'ring-blue-500',
+        shadow: 'shadow-blue-500/25',
         primary: '#3b82f6',
     },
     green: {
@@ -47,6 +51,7 @@ export const ACCENT_COLORS = {
         text: 'text-green-400',
         hover: 'hover:bg-green-500/10',
         ring: 'ring-green-500',
+        shadow: 'shadow-green-500/25',
         primary: '#22c55e',
     },
     teal: {
@@ -56,6 +61,7 @@ export const ACCENT_COLORS = {
         text: 'text-teal-400',
         hover: 'hover:bg-teal-500/10',
         ring: 'ring-teal-500',
+        shadow: 'shadow-teal-500/25',
         primary: '#14b8a6',
     },
     orange: {
@@ -65,6 +71,7 @@ export const ACCENT_COLORS = {
         text: 'text-orange-400',
         hover: 'hover:bg-orange-500/10',
         ring: 'ring-orange-500',
+        shadow: 'shadow-orange-500/25',
         primary: '#f97316',
     },
     red: {
@@ -74,6 +81,7 @@ export const ACCENT_COLORS = {
         text: 'text-red-400',
         hover: 'hover:bg-red-500/10',
         ring: 'ring-red-500',
+        shadow: 'shadow-red-500/25',
         primary: '#ef4444',
     },
 };

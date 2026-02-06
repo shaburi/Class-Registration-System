@@ -33,6 +33,7 @@ import SubjectImportModal from '../components/SubjectImportModal';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import EdupageDataView from '../components/EdupageDataView';
 import StudentLogsTab from '../components/hop/StudentLogsTab';
+import ProgramStructureManager from '../components/hop/ProgramStructureManager';
 
 
 export default function HOPDashboard() {
@@ -463,7 +464,31 @@ export default function HOPDashboard() {
     }
 
     return (
-        <DashboardLayout role="hop" title="Head of Programme Dashboard" activeTab={activeTab} onTabChange={setActiveTab}>
+        <DashboardLayout
+            role="hop"
+            title="Head of Programme Dashboard"
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            notifications={[
+                ...(dropRequests.length > 0 ? [{
+                    id: 'drop-requests',
+                    title: 'Drop Requests',
+                    message: `${dropRequests.length} pending drop request${dropRequests.length > 1 ? 's' : ''} awaiting review`,
+                    type: 'warning',
+                    read: false,
+                    tabId: 'drop-requests'
+                }] : []),
+                ...(manualRequests.length > 0 ? [{
+                    id: 'manual-requests',
+                    title: 'Manual Join Requests',
+                    message: `${manualRequests.length} pending manual join request${manualRequests.length > 1 ? 's' : ''} awaiting approval`,
+                    type: 'info',
+                    read: false,
+                    tabId: 'manual-requests'
+                }] : [])
+            ]}
+            onNotificationClick={(notification) => setActiveTab(notification.tabId)}
+        >
             {/* Main Content */}
             <div className="space-y-6">
                 {/* Statistics Cards */}
@@ -687,6 +712,10 @@ export default function HOPDashboard() {
 
                     {activeTab === 'student-logs' && (
                         <StudentLogsTab />
+                    )}
+
+                    {activeTab === 'program-structures' && (
+                        <ProgramStructureManager />
                     )}
                 </div>
 
@@ -1125,18 +1154,18 @@ function SubjectsTab({ subjects, onRefresh, onAdd, onEdit, onDelete, onDeleteAll
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h3 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-                        <BookOpen className="text-indigo-400" size={24} />
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+                        <BookOpen className="text-indigo-500 dark:text-indigo-400" size={24} />
                         Manage Subjects
                     </h3>
-                    <p className="text-white/40 text-sm mt-1">View and manage all academic subjects</p>
+                    <p className="text-gray-500 dark:text-white/40 text-sm mt-1">View and manage all academic subjects</p>
                 </div>
 
                 <div className="flex flex-wrap gap-3">
                     {onDeleteAll && subjects.length > 0 && (
                         <button
                             onClick={onDeleteAll}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl transition-all hover:scale-105 active:scale-95"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 rounded-xl transition-all hover:scale-105 active:scale-95"
                         >
                             <Trash2 size={16} />
                             <span>Delete All</span>
@@ -1145,7 +1174,7 @@ function SubjectsTab({ subjects, onRefresh, onAdd, onEdit, onDelete, onDeleteAll
                     {onImportFile && (
                         <button
                             onClick={onImportFile}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-xl transition-all hover:scale-105 active:scale-95"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-xl transition-all hover:scale-105 active:scale-95"
                         >
                             <FileSpreadsheet size={16} />
                             <span>Import File</span>
@@ -1154,7 +1183,7 @@ function SubjectsTab({ subjects, onRefresh, onAdd, onEdit, onDelete, onDeleteAll
                     {onImport && (
                         <button
                             onClick={onImport}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded-xl transition-all hover:scale-105 active:scale-95"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-xl transition-all hover:scale-105 active:scale-95"
                         >
                             <Upload size={16} />
                             <span>Import CSV</span>
@@ -1171,18 +1200,18 @@ function SubjectsTab({ subjects, onRefresh, onAdd, onEdit, onDelete, onDeleteAll
             </div>
 
             {subjects.length === 0 ? (
-                <div className="glass-card p-12 rounded-3xl border border-white/10 text-center flex flex-col items-center justify-center">
-                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 relative group">
+                <div className="glass-card p-12 rounded-3xl border border-gray-200 dark:border-white/10 text-center flex flex-col items-center justify-center bg-white/60 dark:bg-black/20">
+                    <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center mb-6 relative group">
                         <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-xl group-hover:bg-indigo-500/30 transition-colors" />
-                        <BookOpen size={32} className="text-white/40 relative z-10 group-hover:text-white/60 transition-colors" />
+                        <BookOpen size={32} className="text-gray-400 dark:text-white/40 relative z-10 group-hover:text-gray-600 dark:group-hover:text-white/60 transition-colors" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">No Subjects Found</h3>
-                    <p className="text-white/40 max-w-sm mb-8">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No Subjects Found</h3>
+                    <p className="text-gray-500 dark:text-white/40 max-w-sm mb-8">
                         Get started by adding a new subject manually or importing them via CSV/Excel.
                     </p>
                     <button
                         onClick={onAdd}
-                        className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all border border-white/10 flex items-center gap-2"
+                        className="px-6 py-3 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-900 dark:text-white rounded-xl transition-all border border-gray-200 dark:border-white/10 flex items-center gap-2"
                     >
                         <Plus size={18} />
                         Add First Subject
@@ -1196,19 +1225,19 @@ function SubjectsTab({ subjects, onRefresh, onAdd, onEdit, onDelete, onDeleteAll
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05 }}
-                            className="group relative glass-card p-5 rounded-2xl border border-white/5 bg-black/20 hover:bg-black/40 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:shadow-xl hover:shadow-indigo-500/10"
+                            className="group relative glass-card p-5 rounded-2xl border border-gray-200 dark:border-white/5 bg-white/80 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/30 dark:hover:border-white/10 hover:shadow-xl hover:shadow-indigo-500/5 dark:hover:shadow-indigo-500/10"
                         >
                             <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                     onClick={() => onEdit(subject.id)}
-                                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+                                    className="p-2 rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-400 dark:text-white/60 hover:text-gray-900 dark:hover:text-white transition-colors"
                                     title="Edit Subject"
                                 >
                                     <Edit size={14} />
                                 </button>
                                 <button
                                     onClick={() => onDelete(subject.id)}
-                                    className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
+                                    className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-colors"
                                     title="Delete Subject"
                                 >
                                     <Trash2 size={14} />
@@ -1216,28 +1245,28 @@ function SubjectsTab({ subjects, onRefresh, onAdd, onEdit, onDelete, onDeleteAll
                             </div>
 
                             <div className="mb-4">
-                                <span className={`inline-block text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r ${index % 3 === 0 ? 'from-indigo-400 to-purple-400' :
-                                    index % 3 === 1 ? 'from-emerald-400 to-teal-400' :
-                                        'from-pink-400 to-rose-400'
+                                <span className={`inline-block text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r ${index % 3 === 0 ? 'from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400' :
+                                    index % 3 === 1 ? 'from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400' :
+                                        'from-pink-600 to-rose-600 dark:from-pink-400 dark:to-rose-400'
                                     }`}>
                                     {subject.code}
                                 </span>
-                                <h4 className="text-white/90 font-medium leading-tight mt-1 group-hover:text-white transition-colors">
+                                <h4 className="text-gray-900 dark:text-white/90 font-medium leading-tight mt-1 group-hover:text-indigo-600 dark:group-hover:text-white transition-colors">
                                     {subject.name}
                                 </h4>
                             </div>
 
                             <div className="flex flex-wrap gap-2 mt-auto">
-                                <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-xs text-white/50 flex items-center gap-1.5">
-                                    <Clock size={12} className="text-indigo-400" />
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 text-xs text-gray-500 dark:text-white/50 flex items-center gap-1.5">
+                                    <Clock size={12} className="text-indigo-500 dark:text-indigo-400" />
                                     {subject.credit_hours} Credits
                                 </span>
-                                <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-xs text-white/50 flex items-center gap-1.5">
-                                    <Calendar size={12} className="text-purple-400" />
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 text-xs text-gray-500 dark:text-white/50 flex items-center gap-1.5">
+                                    <Calendar size={12} className="text-purple-500 dark:text-purple-400" />
                                     Sem {subject.semester || '?'}
                                 </span>
-                                <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-xs text-white/50 flex items-center gap-1.5">
-                                    <Users size={12} className="text-pink-400" />
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 text-xs text-gray-500 dark:text-white/50 flex items-center gap-1.5">
+                                    <Users size={12} className="text-pink-500 dark:text-pink-400" />
                                     {subject.programme}
                                 </span>
                             </div>
@@ -1270,91 +1299,124 @@ function SectionsTab({ sections, subjects, onRefresh, onAdd, onEdit, onDelete, o
     const subjectGroups = Object.values(groupedSections);
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="font-bold text-xl text-gray-800 dark:text-white">All Sections</h3>
-                <div className="flex gap-2">
+        <div className="space-y-8">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Manage Sections</h3>
+                    <p className="text-gray-500 dark:text-white/50 text-sm mt-1">Organize and manage course sections by subject.</p>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
                     {onImport && (
-                        <button
+                        <Button
+                            variant="secondary"
                             onClick={onImport}
-                            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition"
+                            icon={<Upload size={16} />}
                         >
-                            <Upload className="w-4 h-4" />
                             Import CSV
-                        </button>
+                        </Button>
                     )}
                     {onAssignLecturers && (
-                        <button
+                        <Button
+                            variant="primary"
                             onClick={onAssignLecturers}
-                            className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition"
+                            className="bg-teal-600 hover:bg-teal-700 from-teal-500 to-teal-700 border-teal-500/50"
+                            icon={<Users size={16} />}
                         >
-                            <Users className="w-4 h-4" />
                             Assign Lecturers
-                        </button>
+                        </Button>
                     )}
-                    <button
+                    <Button
+                        variant="primary"
                         onClick={onAdd}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition"
+                        icon={<Plus size={16} />}
                     >
-                        <Plus className="w-4 h-4" />
                         Add Section
-                    </button>
+                    </Button>
                     {sections.length > 0 && onClearAll && (
-                        <button
+                        <Button
+                            variant="danger"
                             onClick={onClearAll}
-                            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+                            icon={<Trash2 size={16} />}
                         >
-                            <Trash2 className="w-4 h-4" />
                             Clear All
-                        </button>
+                        </Button>
                     )}
                 </div>
             </div>
 
+            {/* Content */}
             {subjectGroups.length === 0 ? (
-                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                    <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                    <p className="text-lg">No sections created yet</p>
+                <div className="glass-card bg-white/80 dark:bg-black/40 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-3xl p-16 text-center">
+                    <div className="w-24 h-24 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-indigo-500/10 animate-pulse">
+                        <BookOpen className="w-10 h-10 text-gray-400 dark:text-white/20" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No sections created yet</h3>
+                    <p className="text-gray-500 dark:text-white/40 mb-8 max-w-md mx-auto">
+                        Get started by adding a new section manually or importing them via CSV.
+                    </p>
+                    <Button onClick={onAdd} icon={<Plus size={18} />}>
+                        Create First Section
+                    </Button>
                 </div>
             ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                     {subjectGroups.map(subject => {
                         const isExpanded = expandedSubject === subject.code;
                         const totalStudents = subject.sections.reduce((sum, s) => sum + (s.enrolled_count || 0), 0);
                         const totalCapacity = subject.sections.reduce((sum, s) => sum + (s.capacity || 0), 0);
+                        const utilization = totalCapacity > 0 ? Math.round((totalStudents / totalCapacity) * 100) : 0;
 
                         return (
-                            <div key={subject.code} className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800">
+                            <motion.div
+                                key={subject.code}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className={`glass-card rounded-2xl overflow-hidden transition-all duration-300 ${isExpanded ? 'bg-white/90 dark:bg-black/40 border-indigo-500/30 shadow-lg shadow-indigo-500/10' : 'bg-white/60 dark:bg-black/20 border-gray-200 dark:border-white/5 hover:bg-white/80 dark:hover:bg-black/30'}`}
+                            >
                                 {/* Subject Header - Clickable */}
                                 <button
                                     onClick={() => setExpandedSubject(isExpanded ? null : subject.code)}
-                                    className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
+                                    className="w-full flex items-center justify-between p-5 text-left group"
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white bg-gradient-to-br from-purple-500 to-pink-600">
+                                    <div className="flex items-center gap-5">
+                                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg transition-all duration-300 ${isExpanded ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white scale-105' : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white group-hover:bg-gray-200 dark:group-hover:bg-white/15'}`}>
                                             {subject.code?.slice(0, 3) || '???'}
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-gray-900 dark:text-white">
+                                            <h3 className="font-bold text-lg text-gray-900 dark:text-white group-hover:text-indigo-500 dark:group-hover:text-indigo-300 transition-colors">
                                                 {subject.code}
                                             </h3>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            <p className="text-sm text-gray-500 dark:text-white/50">
                                                 {subject.name}
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs font-medium rounded-full">
-                                            {totalStudents}/{totalCapacity} enrolled
-                                        </span>
-                                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                                            {subject.sections.length} section{subject.sections.length > 1 ? 's' : ''}
-                                        </span>
+
+                                    <div className="flex items-center gap-6">
+                                        {/* Stats Pills */}
+                                        <div className="hidden md:flex items-center gap-3">
+                                            <div className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 flex items-center gap-2">
+                                                <Users size={14} className="text-indigo-500 dark:text-indigo-400" />
+                                                <span className="text-sm font-medium text-gray-700 dark:text-white/80">
+                                                    {totalStudents}<span className="text-gray-300 dark:text-white/30">/</span>{totalCapacity}
+                                                </span>
+                                            </div>
+                                            <div className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 flex items-center gap-2">
+                                                <LayoutDashboard size={14} className="text-purple-500 dark:text-purple-400" />
+                                                <span className="text-sm font-medium text-gray-700 dark:text-white/80">
+                                                    {subject.sections.length} <span className="text-gray-400 dark:text-white/40 text-xs uppercase ml-1">Sections</span>
+                                                </span>
+                                            </div>
+                                        </div>
+
                                         <motion.div
                                             animate={{ rotate: isExpanded ? 180 : 0 }}
-                                            transition={{ duration: 0.2 }}
+                                            transition={{ duration: 0.3 }}
+                                            className={`p-2 rounded-full ${isExpanded ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-400 dark:text-white/30 group-hover:text-gray-900 dark:group-hover:text-white group-hover:bg-gray-100 dark:group-hover:bg-white/5'}`}
                                         >
-                                            <ChevronDown className="w-5 h-5 text-gray-400" />
+                                            <ChevronDown className="w-5 h-5" />
                                         </motion.div>
                                     </div>
                                 </button>
@@ -1366,85 +1428,104 @@ function SectionsTab({ sections, subjects, onRefresh, onAdd, onEdit, onDelete, o
                                             initial={{ height: 0, opacity: 0 }}
                                             animate={{ height: 'auto', opacity: 1 }}
                                             exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.2 }}
-                                            className="border-t border-gray-100 dark:border-gray-700"
+                                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                                            className="border-t border-gray-200 dark:border-white/5 bg-gray-50/50 dark:bg-black/20"
                                         >
-                                            <div className="p-4 space-y-3 bg-gray-50 dark:bg-gray-800/50">
-                                                {subject.sections.map(section => (
-                                                    <div
-                                                        key={section.id}
-                                                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
-                                                    >
-                                                        <div className="flex justify-between items-start">
-                                                            <div className="flex-1">
-                                                                <div className="flex items-center gap-3 mb-2">
-                                                                    <span className="font-semibold text-gray-800 dark:text-white">
-                                                                        Section {section.section_number}
-                                                                    </span>
-                                                                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${section.enrolled_count >= section.capacity
-                                                                        ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                                                                        : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                                                        }`}>
-                                                                        {section.enrolled_count || 0}/{section.capacity}
-                                                                    </span>
-                                                                    <span className="text-xs text-gray-400">
-                                                                        ({Math.round((section.enrolled_count / section.capacity) * 100)}% full)
-                                                                    </span>
+                                            <div className="p-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                                                {subject.sections.map((section, idx) => {
+                                                    const percentFull = section.capacity > 0 ? (section.enrolled_count / section.capacity) * 100 : 0;
+                                                    const isFull = percentFull >= 100;
+
+                                                    return (
+                                                        <motion.div
+                                                            key={section.id}
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            transition={{ delay: idx * 0.05 }}
+                                                            className="group relative bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 border border-gray-200 dark:border-white/5 hover:border-indigo-500/30 dark:hover:border-white/10 rounded-xl p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/5 dark:hover:shadow-black/20"
+                                                        >
+                                                            {/* Header */}
+                                                            <div className="flex justify-between items-start mb-4">
+                                                                <div>
+                                                                    <span className="text-xs font-bold text-gray-400 dark:text-white/30 uppercase tracking-wider block mb-1">Section</span>
+                                                                    <h4 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                                                        {section.section_number}
+                                                                        {isFull && <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />}
+                                                                    </h4>
                                                                 </div>
-                                                                {/* Display all schedules for this section */}
-                                                                <div className="space-y-1">
-                                                                    {section.schedules && section.schedules.length > 0 ? (
-                                                                        section.schedules.map((schedule, idx) => (
-                                                                            <div key={idx} className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-gray-500 dark:text-gray-400">
-                                                                                <span className="capitalize">{schedule.day}</span>
-                                                                                <span>{schedule.start_time} - {schedule.end_time}</span>
-                                                                                <span>Room: {schedule.room || 'TBA'}</span>
-                                                                                {idx === 0 && <span>{section.lecturer_name || 'Unassigned'}</span>}
-                                                                            </div>
-                                                                        ))
-                                                                    ) : (
-                                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-gray-500 dark:text-gray-400">
-                                                                            <span className="capitalize">{section.day || 'TBA'}</span>
-                                                                            <span>{section.start_time || 'TBA'} - {section.end_time || 'TBA'}</span>
-                                                                            <span>Room: {section.room || 'TBA'}</span>
-                                                                            <span>{section.lecturer_name || 'Unassigned'}</span>
-                                                                        </div>
-                                                                    )}
+
+                                                                {/* Enrollment Badge */}
+                                                                <div className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${isFull
+                                                                    ? 'bg-red-500/10 text-red-500 dark:text-red-400 border-red-500/20'
+                                                                    : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                                                                    }`}>
+                                                                    {section.enrolled_count || 0}/{section.capacity}
                                                                 </div>
                                                             </div>
 
-                                                            {/* Action Buttons */}
-                                                            <div className="flex gap-2 ml-4">
+                                                            {/* Schedules */}
+                                                            <div className="space-y-2 mb-4">
+                                                                {section.schedules && section.schedules.length > 0 ? (
+                                                                    section.schedules.map((schedule, sIdx) => (
+                                                                        <div key={sIdx} className="flex items-center gap-2 text-sm text-gray-500 dark:text-white/60">
+                                                                            <Calendar size={14} className="text-indigo-500 dark:text-indigo-400" />
+                                                                            <span className="font-medium text-gray-700 dark:text-white/80 capitalize">{schedule.day}</span>
+                                                                            <span className="text-gray-300 dark:text-white/30 text-xs">•</span>
+                                                                            <span>{schedule.start_time} - {schedule.end_time}</span>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <div className="flex items-center gap-2 text-sm text-gray-400 dark:text-white/60">
+                                                                        <Calendar size={14} className="text-gray-300 dark:text-white/20" />
+                                                                        <span className="italic opacity-50">TBA</span>
+                                                                    </div>
+                                                                )}
+                                                                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-white/60 pt-1">
+                                                                    <Users size={14} className="text-pink-500 dark:text-pink-400" />
+                                                                    <span>{section.lecturer_name || <span className="italic text-gray-400 dark:text-white/30">Unassigned</span>}</span>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Progress Bar */}
+                                                            <div className="w-full h-1 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden mb-5">
+                                                                <div
+                                                                    className={`h-full rounded-full transition-all duration-500 ${isFull ? 'bg-red-500' : 'bg-emerald-500'}`}
+                                                                    style={{ width: `${Math.min(percentFull, 100)}%` }}
+                                                                />
+                                                            </div>
+
+                                                            {/* Actions Overlay (Always visible on mobile, hover on desktop) */}
+                                                            <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-200 dark:border-white/5">
                                                                 <button
-                                                                    onClick={() => onViewStudents(section.id)}
-                                                                    className="p-2 hover:bg-blue-100 rounded-lg transition dark:hover:bg-blue-900/30"
+                                                                    onClick={(e) => { e.stopPropagation(); onViewStudents(section.id); }}
+                                                                    className="p-2 rounded-lg text-gray-400 dark:text-white/50 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                                                                     title="View Students"
                                                                 >
-                                                                    <Users className="w-4 h-4 text-blue-600" />
+                                                                    <Users size={18} />
                                                                 </button>
                                                                 <button
-                                                                    onClick={() => onEdit(section.id)}
-                                                                    className="p-2 hover:bg-gray-100 rounded-lg transition dark:hover:bg-gray-700"
+                                                                    onClick={(e) => { e.stopPropagation(); onEdit(section.id); }}
+                                                                    className="p-2 rounded-lg text-gray-400 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                                                                     title="Edit Section"
                                                                 >
-                                                                    <Edit className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                                                                    <Edit size={18} />
                                                                 </button>
                                                                 <button
-                                                                    onClick={() => onDelete(section.id)}
-                                                                    className="p-2 hover:bg-red-100 rounded-lg transition dark:hover:bg-red-900/30"
+                                                                    onClick={(e) => { e.stopPropagation(); onDelete(section.id); }}
+                                                                    className="p-2 rounded-lg text-gray-400 dark:text-white/50 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                                                                     title="Delete Section"
                                                                 >
-                                                                    <Trash2 className="w-4 h-4 text-red-600" />
+                                                                    <Trash2 size={18} />
                                                                 </button>
                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                                        </motion.div>
+                                                    );
+                                                })}
                                             </div>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
-                            </div>
+                            </motion.div>
                         );
                     })}
                 </div>

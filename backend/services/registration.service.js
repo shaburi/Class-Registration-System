@@ -1,6 +1,7 @@
 const { query, transaction } = require('../database/connection');
 const Joi = require('joi');
 const emailService = require('./email.service');
+const programStructureService = require('./programStructure.service');
 
 /**
  * Registration Service
@@ -305,6 +306,119 @@ const getAvailableSections = async (semester, programme) => {
 };
 
 /**
+ * Get available sections using intake-based program structure
+ * Falls back to standard semester-based filtering if no structure exists
+ * @param {number} semester - Student's current semester (or null if getAllSemesters=true)
+ * @param {string} programme - Student's programme
+ * @param {string} intakeSession - Student's intake session (e.g., '0825')
+ * @param {boolean} getAllSemesters - If true, fetch courses from all semesters
+ * @returns {Promise<Object>} - List of available sections with source info
+ */
+const getAvailableSectionsWithIntake = async (semester, programme, intakeSession, getAllSemesters = false) => {
+    // If no intake session, fall back to standard method
+    if (!intakeSession) {
+        const sections = await getAvailableSections(semester, programme);
+        return { source: 'default', sections };
+    }
+
+    // Try to get courses from program structure
+    const structureResult = await programStructureService.getCoursesForStudentSemester(
+        programme,
+        intakeSession,
+        semester,
+        getAllSemesters
+    );
+
+    // If using default (no structure found), use standard method
+    if (structureResult.source === 'default') {
+        const sections = await getAvailableSections(semester, programme);
+        return { source: 'default', sections };
+    }
+
+    // Get subject IDs from the program structure
+    const structureSubjectIds = structureResult.courses.map(c => c.id);
+
+    if (structureSubjectIds.length === 0) {
+        return {
+            source: 'structure',
+            structureId: structureResult.structureId,
+            intakeType: structureResult.intakeType,
+            sections: []
+        };
+    }
+
+    // Fetch sections for these specific subjects
+    const result = await query(`
+        SELECT 
+            sub.id as subject_id,
+            sub.code,
+            sub.name,
+            sub.credit_hours,
+            sub.description,
+            sub.prerequisites,
+            $2 as subject_semester,
+            s.id as section_id,
+            s.section_number,
+            s.capacity,
+            s.enrolled_count,
+            (s.capacity - s.enrolled_count) as available_seats,
+            s.day,
+            s.start_time,
+            s.end_time,
+            s.room,
+            s.building,
+            u.lecturer_name
+        FROM subjects sub
+        JOIN sections s ON sub.id = s.subject_id
+        LEFT JOIN users u ON s.lecturer_id = u.id
+        WHERE sub.id = ANY($1)
+            AND sub.is_active = true 
+            AND s.is_active = true
+        ORDER BY sub.code, s.section_number
+    `, [structureSubjectIds, semester]);
+
+    const sections = result.rows;
+
+    // Fetch schedules from section_schedules table
+    if (sections.length > 0) {
+        const sectionIds = [...new Set(sections.map(s => s.section_id))];
+        const schedulesResult = await query(
+            `SELECT * FROM section_schedules WHERE section_id = ANY($1) ORDER BY section_id, day, start_time`,
+            [sectionIds]
+        );
+
+        // Group schedules by section_id
+        const schedulesBySection = {};
+        for (const schedule of schedulesResult.rows) {
+            if (!schedulesBySection[schedule.section_id]) {
+                schedulesBySection[schedule.section_id] = [];
+            }
+            schedulesBySection[schedule.section_id].push(schedule);
+        }
+
+        // Attach schedules to each section
+        for (const section of sections) {
+            section.schedules = schedulesBySection[section.section_id] || [];
+            if (section.schedules.length > 0) {
+                const firstSchedule = section.schedules[0];
+                section.day = firstSchedule.day;
+                section.start_time = firstSchedule.start_time;
+                section.end_time = firstSchedule.end_time;
+                section.room = firstSchedule.room || section.room;
+            }
+        }
+    }
+
+    return {
+        source: 'structure',
+        structureId: structureResult.structureId,
+        structureName: structureResult.structureName,
+        intakeType: structureResult.intakeType,
+        sections
+    };
+};
+
+/**
  * Check real-time capacity for a section
  * @param {string} sectionId - Section UUID
  * @returns {Promise<Object>} - Capacity information
@@ -444,6 +558,7 @@ module.exports = {
     unregisterFromSection,
     getStudentRegistrations,
     getAvailableSections,
+    getAvailableSectionsWithIntake,
     checkCapacity,
     detectScheduleClash,
     detectScheduleClashBySectionId

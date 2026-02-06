@@ -36,7 +36,8 @@ router.get('/profile', async (req, res) => {
                 student_id: req.user.studentId || req.user.student_id,
                 student_name: req.user.studentName || req.user.student_name,
                 semester: req.user.semester,
-                programme: req.user.programme
+                programme: req.user.programme,
+                intake_session: req.user.intake_session
             }
         });
     } catch (error) {
@@ -53,7 +54,7 @@ router.get('/profile', async (req, res) => {
  */
 router.put('/profile', async (req, res) => {
     try {
-        const { semester, programme, student_name } = req.body;
+        const { semester, programme, student_name, intake_session } = req.body;
 
         // Allowed programmes
         const allowedProgrammes = ['CT206', 'CT204', 'CC101'];
@@ -94,6 +95,17 @@ router.put('/profile', async (req, res) => {
             updates.push(`student_name = $${paramCount++}`);
             values.push(student_name);
         }
+        if (intake_session) {
+            // Validate intake_session format (MMYY, e.g., 0525, 0825, 1225)
+            if (!/^(05|08|12)\d{2}$/.test(intake_session)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid intake session format. Use MMYY (e.g., 0525, 0825, 1225)'
+                });
+            }
+            updates.push(`intake_session = $${paramCount++}`);
+            values.push(intake_session);
+        }
 
         if (updates.length === 0) {
             return res.status(400).json({
@@ -121,7 +133,8 @@ router.put('/profile', async (req, res) => {
                 student_id: updatedUser.student_id,
                 student_name: updatedUser.student_name,
                 semester: updatedUser.semester,
-                programme: updatedUser.programme
+                programme: updatedUser.programme,
+                intake_session: updatedUser.intake_session
             }
         });
     } catch (error) {
@@ -140,19 +153,45 @@ router.put('/profile', async (req, res) => {
 /**
  * GET /api/student/subjects
  * View available subjects for student's semester
+ * Uses intake-based program structure if student has intake_session set
+ * Optional query params:
+ *   - filterSemester: specific semester number, 'all', or empty for current
  */
 router.get('/subjects', validateSemesterAccess(), async (req, res) => {
     try {
-        console.log('[STUDENT SUBJECTS] Querying for semester:', req.user.semester, 'programme:', req.user.programme);
-        const sections = await registrationService.getAvailableSections(
-            req.user.semester,
-            req.user.programme
+        // Handle filterSemester param: 'all', specific number, or default to student's semester
+        const filterSemester = req.query.filterSemester;
+        let targetSemester;
+        let getAllSemesters = false;
+
+        if (filterSemester === 'all') {
+            getAllSemesters = true;
+            targetSemester = null;
+        } else if (filterSemester && !isNaN(parseInt(filterSemester))) {
+            targetSemester = parseInt(filterSemester);
+        } else {
+            targetSemester = req.user.semester;
+        }
+
+        console.log('[STUDENT SUBJECTS] Querying for semester:', targetSemester || 'ALL', 'programme:', req.user.programme, 'intake_session:', req.user.intake_session);
+
+        // Use intake-aware function if intake_session is available
+        const result = await registrationService.getAvailableSectionsWithIntake(
+            targetSemester,
+            req.user.programme,
+            req.user.intake_session,
+            getAllSemesters
         );
 
-        console.log('[STUDENT SUBJECTS] Found', sections.length, 'sections');
+        console.log('[STUDENT SUBJECTS] Found', result.sections?.length || 0, 'sections, source:', result.source);
         res.json({
             success: true,
-            data: sections
+            source: result.source,
+            structureId: result.structureId,
+            intakeType: result.intakeType,
+            currentSemester: req.user.semester,
+            filterSemester: filterSemester || 'current',
+            data: result.sections || result
         });
     } catch (error) {
         console.error('[STUDENT SUBJECTS] Error:', error);
@@ -682,12 +721,32 @@ router.post('/drop-request', async (req, res) => {
 router.get('/drop-requests', async (req, res) => {
     try {
         const { status } = req.query;
-        const dropRequestService = require('../services/dropRequest.service');
-        const requests = await dropRequestService.getDropRequestsForStudent(req.user.id, status);
+
+        // Get drop requests that are NOT hidden by student
+        let queryStr = `
+            SELECT dr.*, 
+                   sub.code as subject_code, 
+                   sub.name as subject_name,
+                   sec.section_number
+            FROM drop_requests dr
+            JOIN registrations r ON dr.registration_id = r.id
+            JOIN sections sec ON r.section_id = sec.id
+            JOIN subjects sub ON sec.subject_id = sub.id
+            WHERE dr.student_id = $1 AND (dr.hidden_by_student = FALSE OR dr.hidden_by_student IS NULL)
+        `;
+        const params = [req.user.id];
+
+        if (status) {
+            queryStr += ` AND dr.status = $2`;
+            params.push(status);
+        }
+        queryStr += ` ORDER BY dr.created_at DESC`;
+
+        const result = await query(queryStr, params);
 
         res.json({
             success: true,
-            data: requests
+            data: result.rows
         });
     } catch (error) {
         res.status(500).json({
@@ -735,12 +794,12 @@ router.delete('/drop-request/:id', async (req, res) => {
             });
         }
 
-        // Delete the request
-        await query('DELETE FROM drop_requests WHERE id = $1', [requestId]);
+        // Soft delete - hide from student but keep for HOP
+        await query('UPDATE drop_requests SET hidden_by_student = TRUE WHERE id = $1', [requestId]);
 
         res.json({
             success: true,
-            message: 'Drop request deleted successfully'
+            message: 'Drop request cleared successfully'
         });
     } catch (error) {
         res.status(500).json({
@@ -980,12 +1039,12 @@ router.delete('/manual-join-request/:id', async (req, res) => {
             });
         }
 
-        // Delete the request
-        await query('DELETE FROM manual_join_requests WHERE id = $1', [requestId]);
+        // Soft delete - hide from student but keep for HOP
+        await query('UPDATE manual_join_requests SET hidden_by_student = TRUE WHERE id = $1', [requestId]);
 
         res.json({
             success: true,
-            message: 'Manual join request deleted successfully'
+            message: 'Manual join request cleared successfully'
         });
     } catch (error) {
         res.status(500).json({

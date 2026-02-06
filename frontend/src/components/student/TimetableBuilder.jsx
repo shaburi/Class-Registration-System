@@ -59,23 +59,65 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
         })), [totalPeriods]
     );
 
-    // Get all classes from aSC data
+    // Allowed programmes to filter by
+    const ALLOWED_PROGRAMMES = ['CT206', 'CT204', 'CC101'];
+
+    // Get all classes from aSC data, filtered to only show allowed programmes
     const classList = useMemo(() => {
         if (!ascData?.classes) return [];
-        return ascData.classes.sort((a, b) =>
-            (a.name || a.short || '').localeCompare(b.name || b.short || '')
-        );
+        return ascData.classes
+            .filter(c => {
+                const className = (c.name || c.short || '').toUpperCase();
+                return ALLOWED_PROGRAMMES.some(prog => className.includes(prog));
+            })
+            .sort((a, b) =>
+                (a.name || a.short || '').localeCompare(b.name || b.short || '')
+            );
     }, [ascData]);
 
-    // Filter classes by search
+    // Build a map of class ID to subjects taught in that class
+    const classSubjectMap = useMemo(() => {
+        if (!ascData?.lessons || !ascData?.subjects) return {};
+
+        const map = {};
+        (ascData.lessons || []).forEach(lesson => {
+            const subject = (ascData.subjects || []).find(s => s.id === lesson.subjectid);
+            if (!subject) return;
+
+            (lesson.classids || []).forEach(classId => {
+                if (!map[classId]) map[classId] = new Set();
+                map[classId].add(subject.short || subject.name || '');
+            });
+        });
+
+        // Convert Sets to arrays
+        Object.keys(map).forEach(k => {
+            map[k] = Array.from(map[k]).sort();
+        });
+
+        return map;
+    }, [ascData]);
+
+    // Filter classes by search - searches both class names AND subject codes
     const filteredClasses = useMemo(() => {
         if (!classSearch) return classList;
         const search = classSearch.toLowerCase();
-        return classList.filter(c =>
-            (c.name || '').toLowerCase().includes(search) ||
-            (c.short || '').toLowerCase().includes(search)
-        );
-    }, [classList, classSearch]);
+
+        return classList.filter(c => {
+            // Search by class name
+            const classNameMatch =
+                (c.name || '').toLowerCase().includes(search) ||
+                (c.short || '').toLowerCase().includes(search);
+
+            // Search by subjects in this class
+            const subjects = classSubjectMap[c.id] || [];
+            const subjectMatch = subjects.some(subj =>
+                subj.toLowerCase().includes(search)
+            );
+
+            return classNameMatch || subjectMatch;
+        });
+    }, [classList, classSearch, classSubjectMap]);
 
     // Auto-select student's class on mount
     useMemo(() => {
@@ -643,10 +685,10 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                             <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Search class..."
+                                placeholder="Search class or subject..."
                                 value={classSearch}
                                 onChange={(e) => setClassSearch(e.target.value)}
-                                className="pl-8 pr-3 py-1.5 text-sm glass-input text-[var(--text-primary)] w-40"
+                                className="pl-8 pr-3 py-1.5 text-sm glass-input text-[var(--text-primary)] w-48"
                             />
                         </div>
                         <select
@@ -655,12 +697,23 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                                 const cls = classList.find(c => c.id === e.target.value);
                                 setSelectedSourceClass(cls || null);
                             }}
-                            className="px-3 py-1.5 text-sm glass-input text-[var(--text-primary)] max-w-[200px]"
+                            className="px-3 py-1.5 text-sm glass-input text-[var(--text-primary)] max-w-[280px]"
                         >
                             <option value="">Select class...</option>
-                            {filteredClasses.map(c => (
-                                <option key={c.id} value={c.id}>{c.name || c.short}</option>
-                            ))}
+                            {filteredClasses.map(c => {
+                                const subjects = classSubjectMap[c.id] || [];
+                                const search = classSearch.toLowerCase();
+                                // Find matched subjects if searching
+                                const matchedSubjects = search
+                                    ? subjects.filter(s => s.toLowerCase().includes(search))
+                                    : [];
+                                const label = matchedSubjects.length > 0
+                                    ? `${c.name || c.short} (${matchedSubjects.slice(0, 3).join(', ')}${matchedSubjects.length > 3 ? '...' : ''})`
+                                    : c.name || c.short;
+                                return (
+                                    <option key={c.id} value={c.id}>{label}</option>
+                                );
+                            })}
                         </select>
                     </div>
                 </div>
