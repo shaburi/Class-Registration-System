@@ -32,7 +32,7 @@ const Modal = ({ isOpen, onClose, title, size = 'md', children }) => {
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                                 transition={{ type: 'spring', duration: 0.5, bounce: 0.3 }}
-                                className={`relative w-full ${sizeClasses[size]} glass-card bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-indigo-500/10`}
+                                className={`relative w-full ${sizeClasses[size]} glass-card bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-blue-500/10`}
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 {/* Header */}

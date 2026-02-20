@@ -42,20 +42,14 @@ export default function LecturerDashboard() {
     const loadData = async () => {
         try {
             setLoading(true);
-            console.log('[LECTURER] Loading data from backend...');
 
             const [sectionsRes, statsRes] = await Promise.all([
                 api.get('/lecturer/sections'),
                 api.get('/lecturer/stats')
             ]);
 
-            console.log('[LECTURER] Sections:', sectionsRes.data);
-            console.log('[LECTURER] Stats:', statsRes.data);
-
             setSections(sectionsRes.data.data || sectionsRes.data);
             setStats(statsRes.data.data || statsRes.data);
-
-            console.log('✅ Loaded lecturer data from backend');
         } catch (error) {
             console.error('[LECTURER] Error loading data:', error);
             alert('Failed to load lecturer data. Please try refreshing.');
@@ -134,10 +128,35 @@ export default function LecturerDashboard() {
     const totalStudents = sections.reduce((sum, s) => sum + (s.enrolled_count || 0), 0);
     const totalCreditHours = sections.reduce((sum, s) => sum + (s.credit_hours || 0), 0);
 
+    const displayName = user?.displayName || user?.student_name || user?.studentName || user?.lecturerName || user?.lecturer_name || user?.name || user?.email?.split('@')[0] || 'Lecturer';
+    const headerContent = (
+        <div className="flex flex-col gap-2 relative z-10">
+            <h2 className="text-3xl md:text-5xl font-bold mb-1 font-heading tracking-tight text-gray-900 dark:text-white drop-shadow-sm dark:drop-shadow-lg">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-red-600 to-blue-600 dark:from-blue-400 dark:via-red-400 dark:to-blue-400 animate-gradient-x">
+                    Welcome back
+                </span>
+                , {displayName}
+            </h2>
+            <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400 font-medium tracking-wide">
+                <p>Here is what's happening today.</p>
+                <div className="hidden md:block w-1.5 h-1.5 bg-gray-400 dark:bg-gray-600 rounded-full"></div>
+                <div className="hidden md:block text-[11px] font-bold uppercase tracking-widest opacity-80 text-gray-500">
+                    {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+            </div>
+        </div>
+    );
+
     return (
-        <DashboardLayout role="lecturer" title="Lecturer Dashboard" activeTab={activeTab} onTabChange={setActiveTab}>
+        <DashboardLayout
+            role="lecturer"
+            title="Lecturer Dashboard"
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            headerContent={headerContent}
+        >
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
                 <StatsCard
                     icon={<BookOpen className="w-6 h-6" />}
                     title="Teaching Sections"
@@ -404,11 +423,11 @@ const getSubjectColor = (code) => {
         'bg-cyan-100 border-cyan-300 text-cyan-900 dark:bg-cyan-900/40 dark:border-cyan-700 dark:text-cyan-100',
         'bg-sky-100 border-sky-300 text-sky-900 dark:bg-sky-900/40 dark:border-sky-700 dark:text-sky-100',
         'bg-blue-100 border-blue-300 text-blue-900 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-100',
-        'bg-indigo-100 border-indigo-300 text-indigo-900 dark:bg-indigo-900/40 dark:border-indigo-700 dark:text-indigo-100',
+        'bg-red-100 border-red-300 text-red-900 dark:bg-red-900/40 dark:border-red-700 dark:text-red-100',
         'bg-violet-100 border-violet-300 text-violet-900 dark:bg-violet-900/40 dark:border-violet-700 dark:text-violet-100',
-        'bg-purple-100 border-purple-300 text-purple-900 dark:bg-purple-900/40 dark:border-purple-700 dark:text-purple-100',
+        'bg-blue-100 border-blue-300 text-blue-900 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-100',
         'bg-fuchsia-100 border-fuchsia-300 text-fuchsia-900 dark:bg-fuchsia-900/40 dark:border-fuchsia-700 dark:text-fuchsia-100',
-        'bg-pink-100 border-pink-300 text-pink-900 dark:bg-pink-900/40 dark:border-pink-700 dark:text-pink-100',
+        'bg-rose-100 border-rose-300 text-rose-900 dark:bg-rose-900/40 dark:border-rose-700 dark:text-rose-100',
         'bg-rose-100 border-rose-300 text-rose-900 dark:bg-rose-900/40 dark:border-rose-700 dark:text-rose-100',
     ];
 
@@ -595,7 +614,7 @@ function TimetableView({ sections, onPrint, onExport }) {
                                             <div className={`
                                                 h-full w-full rounded shadow-sm border-l-[3px] ${colorClass} 
                                                 text-xs flex flex-col justify-between p-1.5 overflow-hidden
-                                                relative cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-opacity-50 ring-indigo-500
+                                                relative cursor-pointer hover:shadow-lg hover:ring-2 hover:ring-opacity-50 ring-blue-500
                                             `}>
                                                 <div className="font-bold text-[11px] leading-tight mb-1 break-words whitespace-normal" title={event.subject_name}>
                                                     {event.subject_code}

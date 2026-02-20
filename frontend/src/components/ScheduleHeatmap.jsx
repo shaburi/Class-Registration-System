@@ -51,10 +51,10 @@ export default function ScheduleHeatmap() {
     // Premium Color Scale (Indigo/Purple/Pink) - Glassmorphic
     const getHeatColor = (intensity) => {
         if (intensity === 0) return 'bg-gray-100/50 dark:bg-white/5 border border-gray-200 dark:border-white/5';
-        if (intensity < 0.25) return 'bg-indigo-500/20 border border-indigo-500/20';
-        if (intensity < 0.5) return 'bg-indigo-500/40 border border-indigo-500/30 shadow-[0_0_8px_rgba(99,102,241,0.2)]';
-        if (intensity < 0.75) return 'bg-purple-500/60 border border-purple-500/40 shadow-[0_0_12px_rgba(168,85,247,0.3)]';
-        return 'bg-pink-500/80 border border-pink-500/50 shadow-[0_0_15px_rgba(236,72,153,0.4)]';
+        if (intensity < 0.25) return 'bg-blue-500/20 border border-blue-500/20';
+        if (intensity < 0.5) return 'bg-blue-500/40 border border-blue-500/30 shadow-[0_0_8px_rgba(99,102,241,0.2)]';
+        if (intensity < 0.75) return 'bg-red-500/60 border border-red-500/40 shadow-[0_0_12px_rgba(168,85,247,0.3)]';
+        return 'bg-rose-500/80 border border-rose-500/50 shadow-[0_0_15px_rgba(236,72,153,0.4)]';
     };
 
     if (loading) {
@@ -75,7 +75,7 @@ export default function ScheduleHeatmap() {
             <div className="bg-gray-50/50 dark:bg-white/5 p-6 border-b border-gray-100 dark:border-white/10 flex justify-between items-center">
                 <div>
                     <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
-                        <Clock className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
+                        <Clock className="w-5 h-5 text-blue-500 dark:text-blue-400" />
                         Schedule Density
                     </h3>
                     <p className="text-xs text-gray-500 dark:text-white/40">Class frequency heatmap</p>
@@ -84,9 +84,9 @@ export default function ScheduleHeatmap() {
                     <span>Less</span>
                     <div className="flex gap-1.5">
                         <div className="w-3 h-3 rounded-sm bg-gray-200 dark:bg-white/5 border border-gray-300 dark:border-white/10"></div>
-                        <div className="w-3 h-3 rounded-sm bg-indigo-500/40 border border-indigo-500/30"></div>
-                        <div className="w-3 h-3 rounded-sm bg-purple-500/60 border border-purple-500/40"></div>
-                        <div className="w-3 h-3 rounded-sm bg-pink-500/80 border border-pink-500/50"></div>
+                        <div className="w-3 h-3 rounded-sm bg-blue-500/40 border border-blue-500/30"></div>
+                        <div className="w-3 h-3 rounded-sm bg-red-500/60 border border-red-500/40"></div>
+                        <div className="w-3 h-3 rounded-sm bg-rose-500/80 border border-rose-500/50"></div>
                     </div>
                     <span>More</span>
                 </div>
@@ -128,7 +128,7 @@ export default function ScheduleHeatmap() {
                                                 {/* Sophisticated Tooltip */}
                                                 <div className="absolute opacity-0 group-hover:opacity-100 bottom-full mb-2 left-1/2 -translate-x-1/2 z-20 pointer-events-none transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
                                                     <div className="bg-white/90 dark:bg-black/80 text-gray-900 dark:text-white text-xs py-2 px-3 rounded-xl shadow-xl whitespace-nowrap flex flex-col items-center border border-gray-200 dark:border-white/10 backdrop-blur-xl">
-                                                        <span className="font-bold text-indigo-600 dark:text-indigo-300">{count} Sections</span>
+                                                        <span className="font-bold text-blue-600 dark:text-blue-300">{count} Sections</span>
                                                         <span className="text-gray-500 dark:text-white/50 text-[10px]">{day} • {hour > 12 ? `${hour - 12}:00 PM` : `${hour}:00 AM`}</span>
                                                     </div>
                                                 </div>

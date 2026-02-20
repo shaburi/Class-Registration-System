@@ -11,10 +11,6 @@ const edupageService = require('../services/edupage.service');
 
 // All student routes require authentication and student role
 router.use(authenticate);
-router.use((req, res, next) => {
-    console.log('[STUDENT ROUTES] Request:', req.method, req.path, 'User:', req.user?.email);
-    next();
-});
 router.use(permissions.canViewOwnRegistrations);
 
 // ============================================================================
@@ -173,8 +169,6 @@ router.get('/subjects', validateSemesterAccess(), async (req, res) => {
             targetSemester = req.user.semester;
         }
 
-        console.log('[STUDENT SUBJECTS] Querying for semester:', targetSemester || 'ALL', 'programme:', req.user.programme, 'intake_session:', req.user.intake_session);
-
         // Use intake-aware function if intake_session is available
         const result = await registrationService.getAvailableSectionsWithIntake(
             targetSemester,
@@ -183,7 +177,6 @@ router.get('/subjects', validateSemesterAccess(), async (req, res) => {
             getAllSemesters
         );
 
-        console.log('[STUDENT SUBJECTS] Found', result.sections?.length || 0, 'sections, source:', result.source);
         res.json({
             success: true,
             source: result.source,
@@ -209,7 +202,6 @@ router.get('/subjects', validateSemesterAccess(), async (req, res) => {
 router.get('/semester-timetable', validateSemesterAccess(), async (req, res) => {
     try {
         const studentSemester = req.user.semester;
-        console.log('[STUDENT SEMESTER TIMETABLE] Fetching for semester:', studentSemester);
 
         const result = await query(`
             SELECT 
@@ -265,7 +257,6 @@ router.get('/semester-timetable', validateSemesterAccess(), async (req, res) => 
             }
         }
 
-        console.log('[STUDENT SEMESTER TIMETABLE] Found', sections.length, 'sections');
         res.json({
             success: true,
             data: {
@@ -500,8 +491,6 @@ router.post('/bulk-register', async (req, res) => {
             });
         }
 
-        console.log('[BULK REGISTER] Student', studentId, 'registering', courses.length, 'courses');
-
         const results = [];
         const errors = [];
 
@@ -514,8 +503,6 @@ router.post('/bulk-register', async (req, res) => {
                 let baseSubjectCode = subjectCodeParts ? subjectCodeParts[1] : course.subjectCode;
                 const sectionNum = subjectCodeParts ? subjectCodeParts[2] : '01';
 
-                console.log('[BULK REGISTER] Looking for subject:', baseSubjectCode, 'section:', sectionNum);
-
                 // Handle subject codes with "/" (e.g., "NWC3293/NWC4233")
                 // Try each alternative code and use the first one that exists in database
                 let subjectId = null;
@@ -523,7 +510,6 @@ router.post('/bulk-register', async (req, res) => {
 
                 if (baseSubjectCode.includes('/')) {
                     const alternativeCodes = baseSubjectCode.split('/').map(c => c.trim());
-                    console.log('[BULK REGISTER] Subject has alternatives:', alternativeCodes);
 
                     for (const altCode of alternativeCodes) {
                         const result = await query(
@@ -533,7 +519,6 @@ router.post('/bulk-register', async (req, res) => {
                         if (result.rows.length > 0) {
                             subjectId = result.rows[0].id;
                             foundSubjectCode = altCode;
-                            console.log('[BULK REGISTER] Found existing subject via alternative:', altCode, 'id:', subjectId);
                             break;
                         }
                     }
@@ -550,7 +535,6 @@ router.post('/bulk-register', async (req, res) => {
                     );
                     if (result.rows.length > 0) {
                         subjectId = result.rows[0].id;
-                        console.log('[BULK REGISTER] Found existing subject:', baseSubjectCode, 'id:', subjectId);
                     }
                 }
 
@@ -563,7 +547,6 @@ router.post('/bulk-register', async (req, res) => {
                         [foundSubjectCode, course.subjectName || foundSubjectCode, course.programme || 'GENERAL']
                     );
                     subjectId = newSubject.rows[0].id;
-                    console.log('[BULK REGISTER] Created new subject:', foundSubjectCode, 'id:', subjectId);
                 }
 
                 // Normalize day to lowercase for enum
@@ -595,10 +578,8 @@ router.post('/bulk-register', async (req, res) => {
                         [subjectId, sectionNum, normalizedDay, course.startTime, course.endTime, course.room || 'TBA']
                     );
                     sectionId = newSection.rows[0].id;
-                    console.log('[BULK REGISTER] Created new section:', sectionNum, 'id:', sectionId);
                 } else {
                     sectionId = sectionResult.rows[0].id;
-                    console.log('[BULK REGISTER] Found existing section:', sectionNum, 'id:', sectionId);
                 }
 
                 // Check if already registered for this section

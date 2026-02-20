@@ -1530,7 +1530,6 @@ router.post('/subjects/import-file', upload.single('file'), async (req, res) => 
 
         // Get the selected programme from the request
         const selectedProgramme = req.body.programme || 'UNKNOWN';
-        console.log('[IMPORT] Using programme:', selectedProgramme);
 
         const result = await subjectImportService.processFile(
             req.file.buffer,

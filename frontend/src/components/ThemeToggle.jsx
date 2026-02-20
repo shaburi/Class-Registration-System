@@ -11,7 +11,7 @@ const ThemeToggle = ({ className = '' }) => {
             className={`p-2 rounded-lg transition-colors duration-200 
                 ${theme === 'dark'
                     ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700'
-                    : 'bg-white text-gray-600 hover:bg-gray-100 hover:text-purple-600 shadow-sm border border-gray-200'} 
+                    : 'bg-white text-gray-600 hover:bg-gray-100 hover:text-red-600 shadow-sm border border-gray-200'} 
                 ${className}`}
             aria-label="Toggle Dark Mode"
         >

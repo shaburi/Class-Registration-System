@@ -209,7 +209,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                            className="w-full max-w-[700px] h-[550px] glass-card bg-white/90 dark:bg-black/80 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl shadow-indigo-500/10 flex overflow-hidden pointer-events-auto"
+                            className="w-full max-w-[700px] h-[550px] glass-card bg-white/90 dark:bg-black/80 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl shadow-blue-500/10 flex overflow-hidden pointer-events-auto"
                         >
                             {/* Left Sidebar */}
                             <div className="w-56 bg-gray-50/80 dark:bg-white/5 border-r border-gray-200 dark:border-white/10 flex flex-col backdrop-blur-md">
@@ -231,7 +231,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                             key={item.id}
                                             onClick={() => setActiveSection(item.id)}
                                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${activeSection === item.id
-                                                ? 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 text-indigo-600 dark:text-white border border-indigo-500/20 dark:border-indigo-500/30'
+                                                ? 'bg-gradient-to-r from-blue-500/10 to-red-500/10 dark:from-blue-500/20 dark:to-red-500/20 text-blue-600 dark:text-white border border-blue-500/20 dark:border-blue-500/30'
                                                 : 'text-gray-600 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
                                                 }`}
                                         >
@@ -261,7 +261,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                         <div className="space-y-6">
                                             <div className="flex items-center justify-between">
                                                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Profile</h2>
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-red-500 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
                                                     {user?.student_name?.charAt(0) || 'U'}
                                                 </div>
                                             </div>
@@ -286,7 +286,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                 <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 border border-gray-200 dark:border-white/10">
                                                     <label className="text-xs font-semibold text-gray-500 dark:text-white/40 uppercase tracking-wider mb-1 block">Email Address</label>
                                                     <div className="flex items-center gap-3 text-gray-700 dark:text-white/80">
-                                                        <Mail size={18} className="text-indigo-500 dark:text-indigo-400" />
+                                                        <Mail size={18} className="text-blue-500 dark:text-blue-400" />
                                                         {user?.email || 'N/A'}
                                                     </div>
                                                 </div>
@@ -302,7 +302,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                             type="text"
                                                             value={profile.student_name}
                                                             onChange={(e) => setProfile({ ...profile, student_name: e.target.value })}
-                                                            className="block w-full rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 pl-10 pr-3 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:border-indigo-500 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-indigo-500 transition-all sm:text-sm"
+                                                            className="block w-full rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 pl-10 pr-3 py-2.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:border-blue-500 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-blue-500 transition-all sm:text-sm"
                                                             placeholder="Enter name"
                                                         />
                                                     </div>
@@ -318,7 +318,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                         <select
                                                             value={profile.programme}
                                                             onChange={(e) => setProfile({ ...profile, programme: e.target.value, semester: '' })}
-                                                            className="block w-full rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 pl-10 pr-3 py-2.5 text-gray-900 dark:text-white focus:border-indigo-500 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-indigo-500 transition-all sm:text-sm appearance-none"
+                                                            className="block w-full rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 pl-10 pr-3 py-2.5 text-gray-900 dark:text-white focus:border-blue-500 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-blue-500 transition-all sm:text-sm appearance-none"
                                                         >
                                                             <option value="" className="bg-white dark:bg-gray-900">Select Programme...</option>
                                                             {PROGRAMMES.map(prog => (
@@ -339,7 +339,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                             value={profile.semester}
                                                             onChange={(e) => setProfile({ ...profile, semester: e.target.value })}
                                                             disabled={!profile.programme}
-                                                            className="block w-full rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 pl-10 pr-3 py-2.5 text-gray-900 dark:text-white focus:border-indigo-500 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-indigo-500 transition-all sm:text-sm appearance-none disabled:opacity-50"
+                                                            className="block w-full rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 pl-10 pr-3 py-2.5 text-gray-900 dark:text-white focus:border-blue-500 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-blue-500 transition-all sm:text-sm appearance-none disabled:opacity-50"
                                                         >
                                                             <option value="" className="bg-white dark:bg-gray-900">Select Semester...</option>
                                                             {[...Array(maxSemester)].map((_, i) => (
@@ -360,7 +360,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                         <select
                                                             value={profile.intake_session}
                                                             onChange={(e) => setProfile({ ...profile, intake_session: e.target.value })}
-                                                            className="block w-full rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 pl-10 pr-3 py-2.5 text-gray-900 dark:text-white focus:border-indigo-500 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-indigo-500 transition-all sm:text-sm appearance-none"
+                                                            className="block w-full rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 pl-10 pr-3 py-2.5 text-gray-900 dark:text-white focus:border-blue-500 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-blue-500 transition-all sm:text-sm appearance-none"
                                                         >
                                                             <option value="" className="bg-white dark:bg-gray-900">Select Intake Session...</option>
                                                             {INTAKE_SESSIONS.map(session => (
@@ -377,7 +377,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                     <button
                                                         type="submit"
                                                         disabled={saving}
-                                                        className="w-full py-3 px-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-red-600 hover:from-blue-600 hover:to-red-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
                                                         {saving ? (
                                                             <>
@@ -412,7 +412,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                             <div className="bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
                                                 <div className="p-4 border-b border-gray-200 dark:border-white/10">
                                                     <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
-                                                        <KeyRound size={18} className="text-indigo-500" />
+                                                        <KeyRound size={18} className="text-blue-500" />
                                                         Two-Factor Authentication
                                                     </h3>
                                                     <p className="text-sm text-gray-500 dark:text-white/50 mt-1">Add an extra layer of security to your account using an authenticator app.</p>
@@ -421,7 +421,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                 <div className="p-4">
                                                     {mfaLoading ? (
                                                         <div className="flex items-center justify-center py-6">
-                                                            <Loader2 className="w-6 h-6 text-indigo-500 animate-spin" />
+                                                            <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
                                                         </div>
                                                     ) : mfaEnabled ? (
                                                         <div className="space-y-4">
@@ -519,7 +519,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                             <div className="bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
                                                 <div className="p-4 border-b border-gray-200 dark:border-white/10">
                                                     <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
-                                                        {theme === 'dark' ? <Moon size={18} className="text-purple-500 dark:text-purple-400" /> : <Sun size={18} className="text-amber-500 dark:text-amber-400" />}
+                                                        {theme === 'dark' ? <Moon size={18} className="text-red-500 dark:text-red-400" /> : <Sun size={18} className="text-amber-500 dark:text-amber-400" />}
                                                         Theme Preference
                                                     </h3>
                                                     <p className="text-sm text-gray-500 dark:text-white/50 mt-1">Choose how UPTM Scheduling looks for you.</p>
@@ -528,7 +528,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                     <button
                                                         onClick={() => theme === 'dark' && toggleTheme()}
                                                         className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 border ${theme === 'light'
-                                                            ? 'bg-white text-indigo-600 border-indigo-200 shadow-md transform scale-[1.02]'
+                                                            ? 'bg-white text-blue-600 border-blue-200 shadow-md transform scale-[1.02]'
                                                             : 'bg-transparent text-gray-500 hover:bg-gray-200/50 dark:text-white/60 dark:border-white/5 dark:hover:bg-white/10'
                                                             }`}
                                                     >
@@ -537,7 +537,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                     <button
                                                         onClick={() => theme === 'light' && toggleTheme()}
                                                         className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 border ${theme === 'dark'
-                                                            ? 'bg-indigo-500/20 text-white border-indigo-500/50 shadow-lg shadow-indigo-500/10 transform scale-[1.02]'
+                                                            ? 'bg-blue-500/20 text-white border-blue-500/50 shadow-lg shadow-blue-500/10 transform scale-[1.02]'
                                                             : 'bg-transparent text-gray-500 hover:bg-gray-200/50 dark:text-white/60 dark:border-white/5 dark:hover:bg-white/10'
                                                             }`}
                                                     >
@@ -549,7 +549,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                             {/* Accent Color */}
                                             <div>
                                                 <div className="flex items-center gap-2 mb-4">
-                                                    <Palette size={18} className="text-pink-500 dark:text-pink-400" />
+                                                    <Palette size={18} className="text-rose-500 dark:text-rose-400" />
                                                     <h3 className="font-medium text-gray-900 dark:text-white">Accent Color</h3>
                                                 </div>
                                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -570,7 +570,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                                 <motion.div
                                                                     initial={{ scale: 0 }}
                                                                     animate={{ scale: 1 }}
-                                                                    className="absolute top-2 right-2 w-5 h-5 bg-white text-indigo-600 rounded-full flex items-center justify-center shadow-lg"
+                                                                    className="absolute top-2 right-2 w-5 h-5 bg-white text-blue-600 rounded-full flex items-center justify-center shadow-lg"
                                                                 >
                                                                     <Check size={12} strokeWidth={3} />
                                                                 </motion.div>

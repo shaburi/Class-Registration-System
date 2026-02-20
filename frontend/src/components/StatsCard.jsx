@@ -46,10 +46,10 @@ const StatsCard = ({ icon, title, value, color }) => {
             whileHover={{ y: -5, scale: 1.02 }}
             className={`
                 relative bg-white/80 dark:bg-[#0b0d14]/80 backdrop-blur-xl p-6 rounded-[24px] flex items-center gap-5 overflow-hidden shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] border border-gray-200/50 dark:border-white/5 transition-all duration-300 group
-                ${color === 'indigo' ? 'hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] hover:border-indigo-500/30 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10' : ''}
-                ${color === 'purple' ? 'hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] hover:border-purple-500/30 hover:bg-purple-50/50 dark:hover:bg-purple-900/10' : ''}
+                ${color === 'blue' ? 'hover:shadow-[0_0_30px_rgba(37,99,235,0.15)] hover:border-blue-500/30 hover:bg-blue-50/50 dark:hover:bg-blue-900/10' : ''}
+                ${color === 'red' ? 'hover:shadow-[0_0_30px_rgba(220,38,38,0.15)] hover:border-red-500/30 hover:bg-red-50/50 dark:hover:bg-red-900/10' : ''}
                 ${color === 'cyan' ? 'hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] hover:border-cyan-500/30 hover:bg-cyan-50/50 dark:hover:bg-cyan-900/10' : ''}
-                ${color === 'pink' ? 'hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] hover:border-pink-500/30 hover:bg-pink-50/50 dark:hover:bg-pink-900/10' : ''}
+                ${color === 'rose' ? 'hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] hover:border-rose-500/30 hover:bg-rose-50/50 dark:hover:bg-rose-900/10' : ''}
             `}
         >
             {/* Spotlight Gradient */}
@@ -64,10 +64,10 @@ const StatsCard = ({ icon, title, value, color }) => {
             {/* Top edge inner glow */}
             <div className="absolute inset-0 rounded-[24px] pointer-events-none border-t border-white/50 dark:border-white/10 opacity-50 group-hover:opacity-100 transition-opacity"></div>
 
-            <div className={`p-4 rounded-xl relative z-10 shadow-inner backdrop-blur-md border border-gray-200/50 dark:border-white/5 transition-transform duration-300 group-hover:scale-110 ${color === 'indigo' ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-500/20 group-hover:text-indigo-700 dark:group-hover:text-indigo-300' :
-                color === 'purple' ? 'bg-purple-500/10 text-purple-400 group-hover:bg-purple-500/20 group-hover:text-purple-300' :
+            <div className={`p-4 rounded-xl relative z-10 shadow-inner backdrop-blur-md border border-gray-200/50 dark:border-white/5 transition-transform duration-300 group-hover:scale-110 ${color === 'blue' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:bg-blue-500/20 group-hover:text-blue-700 dark:group-hover:text-blue-300' :
+                color === 'red' ? 'bg-red-500/10 text-red-600 dark:text-red-400 group-hover:bg-red-500/20 group-hover:text-red-700 dark:group-hover:text-red-300' :
                     color === 'cyan' ? 'bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500/20 group-hover:text-cyan-300' :
-                        'bg-pink-500/10 text-pink-600 dark:text-pink-400 group-hover:bg-pink-500/20 group-hover:text-pink-700 dark:group-hover:text-pink-300'
+                        'bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:bg-rose-500/20 group-hover:text-rose-700 dark:group-hover:text-rose-300'
                 }`}>
                 {icon}
             </div>

@@ -1,15 +1,33 @@
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SessionProvider } from './contexts/SessionContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 
-// Pages
+// Pages - Login loaded eagerly (first thing users see)
 import Login from './pages/Login';
-import StudentDashboard from './pages/StudentDashboard';
-import LecturerDashboard from './pages/LecturerDashboard';
-import HOPDashboard from './pages/HOPDashboard';
+
+// Lazy-loaded dashboards - each role only downloads their own dashboard
+const StudentDashboard = React.lazy(() => import('./pages/StudentDashboard'));
+const LecturerDashboard = React.lazy(() => import('./pages/LecturerDashboard'));
+const HOPDashboard = React.lazy(() => import('./pages/HOPDashboard'));
+
+// Loading fallback for lazy components
+function DashboardLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#07090e]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative">
+          <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl animate-pulse" />
+          <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin relative z-10" />
+        </div>
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 animate-pulse">Loading dashboard...</p>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   return (
@@ -26,7 +44,9 @@ function App() {
                 path="/dashboard"
                 element={
                   <ProtectedRoute>
-                    <DashboardRouter />
+                    <Suspense fallback={<DashboardLoading />}>
+                      <DashboardRouter />
+                    </Suspense>
                   </ProtectedRoute>
                 }
               />
@@ -78,9 +98,6 @@ function App() {
 function DashboardRouter() {
   const { user } = useAuth();
 
-  console.log('[DASHBOARD ROUTER] User:', user);
-  console.log('[DASHBOARD ROUTER] User role:', user?.role);
-
   if (!user) return <Navigate to="/login" replace />;
 
   switch (user.role) {
@@ -89,15 +106,10 @@ function DashboardRouter() {
     case 'lecturer':
       return <LecturerDashboard />;
     case 'hop':
-      console.log('[DASHBOARD ROUTER] Rendering HOPDashboard');
       return <HOPDashboard />;
     default:
-      console.log('[DASHBOARD ROUTER] Unknown role, redirecting to login');
       return <Navigate to="/login" replace />;
   }
 }
-
-// Import useAuth
-import { useAuth } from './contexts/AuthContext';
 
 export default App;

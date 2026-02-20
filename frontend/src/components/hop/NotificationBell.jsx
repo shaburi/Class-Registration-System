@@ -85,12 +85,12 @@ const NotificationBell = ({ notifications, onNotificationClick }) => {
                                             relative p-3 rounded-xl border cursor-pointer group transition-all
                                             ${notification.read
                                                 ? 'bg-transparent border-transparent hover:bg-white/5'
-                                                : 'bg-indigo-500/10 border-indigo-500/30 hover:bg-indigo-500/20'
+                                                : 'bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20'
                                             }
                                         `}
                                     >
                                         {!notification.read && (
-                                            <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
+                                            <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
                                         )}
 
                                         <div className="flex gap-3">

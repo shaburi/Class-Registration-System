@@ -35,9 +35,9 @@ const HOURS = Array.from({ length: 15 }, (_, i) => i + 8); // 8 AM to 10 PM
 
 // Color palette for subjects
 const SUBJECT_COLORS = [
-    { bg: 'bg-indigo-500', border: 'border-indigo-600', text: 'text-indigo-100' },
-    { bg: 'bg-purple-500', border: 'border-purple-600', text: 'text-purple-100' },
-    { bg: 'bg-pink-500', border: 'border-pink-600', text: 'text-pink-100' },
+    { bg: 'bg-blue-500', border: 'border-blue-600', text: 'text-blue-100' },
+    { bg: 'bg-red-500', border: 'border-red-600', text: 'text-red-100' },
+    { bg: 'bg-cyan-500', border: 'border-cyan-600', text: 'text-cyan-100' },
     { bg: 'bg-rose-500', border: 'border-rose-600', text: 'text-rose-100' },
     { bg: 'bg-orange-500', border: 'border-orange-600', text: 'text-orange-100' },
     { bg: 'bg-amber-500', border: 'border-amber-600', text: 'text-amber-100' },
@@ -169,7 +169,7 @@ function DroppableRow({ day, children }) {
     return (
         <div
             ref={setNodeRef}
-            className={`relative h-20 border-b border-gray-200 dark:border-gray-700 transition-colors ${isOver ? 'bg-indigo-50 dark:bg-indigo-900/20' : ''}`}
+            className={`relative h-20 border-b border-gray-200 dark:border-gray-700 transition-colors ${isOver ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
         >
             {children}
         </div>
@@ -481,7 +481,7 @@ export default function TimetableBuilder({ onClose, onSuccess }) {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-96">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
             </div>
         );
     }
@@ -498,7 +498,7 @@ export default function TimetableBuilder({ onClose, onSuccess }) {
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                            <Calendar className="w-5 h-5 text-indigo-500" />
+                            <Calendar className="w-5 h-5 text-blue-500" />
                             Timetable Builder
                         </h2>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -530,7 +530,7 @@ export default function TimetableBuilder({ onClose, onSuccess }) {
                         <button
                             onClick={handleSubmit}
                             disabled={submitting || newlyPlacedIds.length === 0}
-                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 text-sm font-medium"
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 text-sm font-medium"
                         >
                             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                             Register New ({newlyPlacedIds.length})
@@ -543,7 +543,7 @@ export default function TimetableBuilder({ onClose, onSuccess }) {
                     {/* Available Sections Panel */}
                     <div className="w-72 flex-shrink-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 overflow-hidden shadow-sm flex flex-col">
                         <h3 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
-                            <Filter className="w-4 h-4 text-indigo-500" />
+                            <Filter className="w-4 h-4 text-blue-500" />
                             Available Classes
                             <span className="ml-auto text-xs font-normal text-gray-500 lowercase">
                                 {availableSections.length} found
@@ -558,7 +558,7 @@ export default function TimetableBuilder({ onClose, onSuccess }) {
                                 placeholder="Search subjects..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-9 pr-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
+                                className="w-full pl-9 pr-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                             />
                             {searchQuery && (
                                 <button
@@ -575,7 +575,7 @@ export default function TimetableBuilder({ onClose, onSuccess }) {
                             <button
                                 onClick={() => setSemesterFilter('current')}
                                 className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${semesterFilter === 'current'
-                                    ? 'bg-indigo-600 text-white'
+                                    ? 'bg-blue-600 text-white'
                                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                     }`}
                             >
@@ -586,7 +586,7 @@ export default function TimetableBuilder({ onClose, onSuccess }) {
                                     key={sem}
                                     onClick={() => setSemesterFilter(String(sem))}
                                     className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${semesterFilter === String(sem)
-                                        ? 'bg-indigo-600 text-white'
+                                        ? 'bg-blue-600 text-white'
                                         : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                         }`}
                                 >
@@ -596,7 +596,7 @@ export default function TimetableBuilder({ onClose, onSuccess }) {
                             <button
                                 onClick={() => setSemesterFilter('all')}
                                 className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${semesterFilter === 'all'
-                                    ? 'bg-indigo-600 text-white'
+                                    ? 'bg-blue-600 text-white'
                                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                     }`}
                             >
@@ -628,7 +628,7 @@ export default function TimetableBuilder({ onClose, onSuccess }) {
                                     {searchQuery && (
                                         <button
                                             onClick={() => setSearchQuery('')}
-                                            className="mt-2 text-xs text-indigo-600 hover:text-indigo-700"
+                                            className="mt-2 text-xs text-blue-600 hover:text-blue-700"
                                         >
                                             Clear search
                                         </button>
@@ -697,7 +697,7 @@ export default function TimetableBuilder({ onClose, onSuccess }) {
                         <span className="text-gray-500 dark:text-gray-400">
                             <span className="text-emerald-600 font-medium">{Object.keys(registeredSections).length}</span> registered
                             {newlyPlacedIds.length > 0 && (
-                                <> • <span className="text-indigo-600 font-medium">{newlyPlacedIds.length}</span> new</>
+                                <> • <span className="text-blue-600 font-medium">{newlyPlacedIds.length}</span> new</>
                             )}
                         </span>
                     </div>
@@ -707,7 +707,7 @@ export default function TimetableBuilder({ onClose, onSuccess }) {
                             <span className="text-gray-500">Registered</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            <div className="w-3 h-3 rounded bg-indigo-500" />
+                            <div className="w-3 h-3 rounded bg-blue-500" />
                             <span className="text-gray-500">New</span>
                         </div>
                     </div>
@@ -717,7 +717,7 @@ export default function TimetableBuilder({ onClose, onSuccess }) {
             {/* Drag Overlay */}
             <DragOverlay>
                 {activeSection && (
-                    <div className={`${subjectColors[activeSection.subject_id]?.bg || 'bg-indigo-500'} text-white p-3 rounded-xl shadow-2xl`}>
+                    <div className={`${subjectColors[activeSection.subject_id]?.bg || 'bg-blue-500'} text-white p-3 rounded-xl shadow-2xl`}>
                         <p className="font-bold text-sm">{activeSection.subject_code}</p>
                         <p className="text-xs opacity-90">{activeSection.subject_name}</p>
                     </div>

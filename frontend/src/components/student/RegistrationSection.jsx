@@ -101,14 +101,14 @@ const RegistrationSection = ({
                 {/* Header with Import Button */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl shadow-inner">
-                            <BookOpen className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                        <div className="p-2.5 bg-blue-500/10 border border-blue-500/20 rounded-xl shadow-inner">
+                            <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <h3 className="font-bold text-2xl text-gray-900 dark:text-white font-heading tracking-tight drop-shadow-sm dark:drop-shadow-md">
                             Available Courses
                         </h3>
                         {filterActive && (
-                            <span className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-1 shadow-[0_0_10px_rgba(99,102,241,0.1)]">
+                            <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/30 text-blue-600 dark:text-blue-300 text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-1 shadow-[0_0_10px_rgba(37,99,235,0.1)]">
                                 <Filter className="w-3 h-3" />
                                 {filterCount} filters
                             </span>
@@ -126,7 +126,7 @@ const RegistrationSection = ({
                         )}
                         <button
                             onClick={() => setShowSubjectImport(true)}
-                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:shadow-[0_0_25px_rgba(99,102,241,0.5)] font-bold text-sm border border-indigo-400/50 group"
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(37,99,235,0.3)] hover:shadow-[0_0_25px_rgba(37,99,235,0.5)] font-bold text-sm border border-blue-400/50 group"
                         >
                             <Upload className="w-4 h-4 group-hover:-translate-y-1 transition-transform" />
                             Import My Subjects
@@ -142,7 +142,7 @@ const RegistrationSection = ({
                             <button
                                 onClick={() => setSemesterFilter('current')}
                                 className={`px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${semesterFilter === 'current'
-                                    ? 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-indigo-400'
+                                    ? 'bg-blue-500 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)] border border-blue-400'
                                     : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-800 dark:hover:text-white'
                                     }`}
                             >
@@ -151,7 +151,7 @@ const RegistrationSection = ({
                             <button
                                 onClick={() => setSemesterFilter('all')}
                                 className={`px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${semesterFilter === 'all'
-                                    ? 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-indigo-400'
+                                    ? 'bg-blue-500 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)] border border-blue-400'
                                     : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-800 dark:hover:text-white'
                                     }`}
                             >
@@ -162,7 +162,7 @@ const RegistrationSection = ({
                                     key={sem}
                                     onClick={() => setSemesterFilter(sem.toString())}
                                     className={`px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${semesterFilter === sem.toString()
-                                        ? 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-indigo-400'
+                                        ? 'bg-blue-500 text-white shadow-[0_0_20px_rgba(37,99,235,0.5)] border border-blue-400'
                                         : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-800 dark:hover:text-white'
                                         }`}
                                 >
@@ -183,7 +183,7 @@ const RegistrationSection = ({
                         placeholder="Search courses by code or name..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-12 py-3.5 bg-white/80 dark:bg-[#07090e]/80 border border-gray-200 dark:border-white/10 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-indigo-500/50 focus:shadow-[0_0_20px_rgba(99,102,241,0.1)] dark:focus:shadow-[0_0_20px_rgba(99,102,241,0.2)] shadow-inner transition-all font-medium"
+                        className="w-full pl-12 pr-12 py-3.5 bg-white/80 dark:bg-[#07090e]/80 border border-gray-200 dark:border-white/10 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:shadow-[0_0_20px_rgba(37,99,235,0.1)] dark:focus:shadow-[0_0_20px_rgba(37,99,235,0.2)] shadow-inner transition-all font-medium"
                     />
                     {searchQuery && (
                         <button
@@ -215,7 +215,7 @@ const RegistrationSection = ({
                                 {searchQuery && (
                                     <button
                                         onClick={() => setSearchQuery('')}
-                                        className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 font-medium hover:underline"
+                                        className="text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium hover:underline"
                                     >
                                         Clear search
                                     </button>
@@ -223,7 +223,7 @@ const RegistrationSection = ({
                                 {filterActive && (
                                     <button
                                         onClick={clearFilter}
-                                        className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 font-medium hover:underline"
+                                        className="text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium hover:underline"
                                     >
                                         Clear filter
                                     </button>
@@ -252,7 +252,7 @@ const RegistrationSection = ({
                                         <div className="flex items-center gap-5">
                                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-gray-900 dark:text-white text-lg bg-gradient-to-br shadow-inner border border-gray-200/50 dark:border-white/10 transition-all duration-300 ${hasRegistration
                                                 ? 'from-green-100 to-emerald-200 dark:from-green-500 dark:to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]'
-                                                : isExpanded ? 'from-purple-200 to-indigo-200 dark:from-purple-600 dark:to-indigo-600 shadow-[0_0_20px_rgba(168,85,247,0.3)]' : 'from-gray-100 to-gray-50 dark:from-[#1a1d29] dark:to-[#0d0f18] text-gray-600 dark:text-gray-300 group-hover/accordion:border-gray-300 dark:group-hover/accordion:border-white/20'
+                                                : isExpanded ? 'from-red-200 to-blue-200 dark:from-red-600 dark:to-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.3)]' : 'from-gray-100 to-gray-50 dark:from-[#1a1d29] dark:to-[#0d0f18] text-gray-600 dark:text-gray-300 group-hover/accordion:border-gray-300 dark:group-hover/accordion:border-white/20'
                                                 }`}>
                                                 {subject.code.slice(0, 3)}
                                             </div>
@@ -267,7 +267,7 @@ const RegistrationSection = ({
                                         </div>
                                         <div className="flex items-center gap-4">
                                             {/* Semester Badge */}
-                                            <span className="hidden sm:inline-flex px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-widest rounded-full">
+                                            <span className="hidden sm:inline-flex px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-500 dark:text-blue-300 text-[10px] font-bold uppercase tracking-widest rounded-full">
                                                 Sem {subject.subject_semester}
                                             </span>
                                             {/* Prerequisite Warning */}
@@ -315,11 +315,11 @@ const RegistrationSection = ({
                                                                 key={section.section_id}
                                                                 className={`relative rounded-[20px] p-6 transition-all duration-300 group overflow-hidden ${alreadyRegistered
                                                                     ? 'bg-green-50/50 dark:bg-green-900/10 border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.05)]'
-                                                                    : 'bg-white/60 dark:bg-[#1a1d29]/60 border border-gray-200 dark:border-white/5 hover:border-indigo-300/50 dark:hover:border-indigo-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.1)]'
+                                                                    : 'bg-white/60 dark:bg-[#1a1d29]/60 border border-gray-200 dark:border-white/5 hover:border-blue-300/50 dark:hover:border-blue-500/30 hover:shadow-[0_0_30px_rgba(37,99,235,0.1)]'
                                                                     }`}
                                                             >
                                                                 {/* Background glow effect on hover */}
-                                                                {!alreadyRegistered && <div className="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>}
+                                                                {!alreadyRegistered && <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>}
 
                                                                 <div className="flex justify-between items-start mb-5 relative z-10">
                                                                     <div>
@@ -341,11 +341,11 @@ const RegistrationSection = ({
                                                                             <div key={idx} className="flex items-center justify-between bg-gray-50/50 dark:bg-[#07090e]/50 border border-gray-200/50 dark:border-white/5 p-3 rounded-xl hover:border-gray-300 dark:group-hover:border-white/10 transition-colors">
                                                                                 <div className="flex items-center gap-4">
                                                                                     <div className="flex items-center gap-2">
-                                                                                        <Calendar className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                                                                                        <Calendar className="w-4 h-4 text-blue-500 dark:text-blue-400" />
                                                                                         <span className="capitalize font-medium text-gray-700 dark:text-gray-300">{sched.day}</span>
                                                                                     </div>
                                                                                     <div className="flex items-center gap-2">
-                                                                                        <Clock className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+                                                                                        <Clock className="w-4 h-4 text-red-500 dark:text-red-400" />
                                                                                         <span className="text-gray-600 dark:text-gray-300">{sched.start_time} - {sched.end_time}</span>
                                                                                     </div>
                                                                                 </div>
@@ -356,18 +356,18 @@ const RegistrationSection = ({
                                                                         <div className="bg-gray-50/50 dark:bg-[#07090e]/50 border border-gray-200/50 dark:border-white/5 p-3 rounded-xl flex items-center justify-between">
                                                                             <div className="flex items-center gap-4">
                                                                                 <div className="flex items-center gap-2">
-                                                                                    <Calendar className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                                                                                    <Calendar className="w-4 h-4 text-blue-500 dark:text-blue-400" />
                                                                                     <span className="capitalize font-medium text-gray-700 dark:text-gray-300">{section.day || 'TBA'}</span>
                                                                                 </div>
                                                                                 <div className="flex items-center gap-2">
-                                                                                    <Clock className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+                                                                                    <Clock className="w-4 h-4 text-red-500 dark:text-red-400" />
                                                                                     <span className="text-gray-600 dark:text-gray-300">{section.start_time && section.end_time ? `${section.start_time} - ${section.end_time}` : 'TBA'}</span>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     )}
                                                                     <div className="pt-3 flex items-center gap-3 text-gray-400 border-t border-gray-200/50 dark:border-white/5 mt-3">
-                                                                        <User className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors" />
+                                                                        <User className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
                                                                         <span className="text-xs font-semibold tracking-wide uppercase">{section.lecturer_name || 'TBA'}</span>
                                                                     </div>
                                                                 </div>
@@ -390,9 +390,9 @@ const RegistrationSection = ({
                                                                     ) : (
                                                                         <button
                                                                             onClick={() => handleRegisterClick(section.section_id, subject.prerequisites)}
-                                                                            className="w-full py-3.5 mt-2 font-bold tracking-widest uppercase text-[11px] rounded-[14px] relative overflow-hidden group/btn border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 hover:text-white transition-all duration-300 shadow-[0_0_15px_rgba(99,102,241,0.1)]"
+                                                                            className="w-full py-3.5 mt-2 font-bold tracking-widest uppercase text-[11px] rounded-[14px] relative overflow-hidden group/btn border border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-300 hover:text-white transition-all duration-300 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
                                                                         >
-                                                                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                                                                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                                                                             <span className="relative z-10 flex items-center justify-center gap-2">
                                                                                 Register Now
                                                                             </span>

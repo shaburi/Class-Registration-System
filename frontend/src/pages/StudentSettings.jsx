@@ -150,7 +150,7 @@ export default function StudentSettings() {
         return (
             <DashboardLayout role="student" title="Settings" activeTab="settings" onTabChange={() => { }}>
                 <div className="flex items-center justify-center py-20">
-                    <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                 </div>
             </DashboardLayout>
         );
@@ -167,7 +167,7 @@ export default function StudentSettings() {
                 >
                     {/* Header */}
                     <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
-                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
                             <User className="w-8 h-8 text-white" />
                         </div>
                         <div>
@@ -222,7 +222,7 @@ export default function StudentSettings() {
                                 value={profile.student_name}
                                 onChange={(e) => setProfile({ ...profile, student_name: e.target.value })}
                                 placeholder="Enter your full name"
-                                className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition dark:text-white"
+                                className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition dark:text-white"
                             />
                         </div>
 
@@ -237,7 +237,7 @@ export default function StudentSettings() {
                                 onChange={(e) => {
                                     setProfile({ ...profile, programme: e.target.value, semester: '' });
                                 }}
-                                className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition dark:text-white"
+                                className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition dark:text-white"
                             >
                                 <option value="">Select your programme</option>
                                 {PROGRAMMES.map(prog => (
@@ -263,7 +263,7 @@ export default function StudentSettings() {
                                 value={profile.semester}
                                 onChange={(e) => setProfile({ ...profile, semester: e.target.value })}
                                 disabled={!profile.programme}
-                                className={`w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition dark:text-white ${!profile.programme ? 'opacity-50 cursor-not-allowed' : ''
+                                className={`w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition dark:text-white ${!profile.programme ? 'opacity-50 cursor-not-allowed' : ''
                                     }`}
                             >
                                 <option value="">Select your semester</option>
@@ -286,7 +286,7 @@ export default function StudentSettings() {
                             disabled={saving}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className={`w-full py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg flex items-center justify-center gap-2 transition ${saving ? 'opacity-70 cursor-not-allowed' : ''
+                            className={`w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-red-600 hover:from-blue-700 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg flex items-center justify-center gap-2 transition ${saving ? 'opacity-70 cursor-not-allowed' : ''
                                 }`}
                         >
                             {saving ? (
@@ -304,9 +304,9 @@ export default function StudentSettings() {
                     </form>
 
                     {/* Info Box */}
-                    <div className="mt-8 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
-                        <h4 className="font-medium text-indigo-800 dark:text-indigo-300 mb-2">Why is this important?</h4>
-                        <p className="text-sm text-indigo-600 dark:text-indigo-400">
+                    <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                        <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Why is this important?</h4>
+                        <p className="text-sm text-blue-600 dark:text-blue-400">
                             Your programme and semester determine which subjects you can register for.
                             Make sure to select the correct information to see relevant courses.
                         </p>
@@ -336,7 +336,7 @@ export default function StudentSettings() {
 
                     {mfaLoading ? (
                         <div className="flex items-center justify-center py-8">
-                            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
                         </div>
                     ) : mfaEnabled ? (
                         <div className="space-y-4">
@@ -470,7 +470,7 @@ export default function StudentSettings() {
                             <button
                                 onClick={() => theme === 'dark' && toggleTheme()}
                                 className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-3 ${theme === 'light'
-                                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
+                                    ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                                     : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300'
                                     }`}
                             >
@@ -481,7 +481,7 @@ export default function StudentSettings() {
                             <button
                                 onClick={() => theme === 'light' && toggleTheme()}
                                 className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-3 ${theme === 'dark'
-                                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
+                                    ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                                     : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300'
                                     }`}
                             >

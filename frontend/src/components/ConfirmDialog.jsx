@@ -50,7 +50,7 @@ export default function ConfirmDialog({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: 'spring', duration: 0.3 }}
-                        className="relative glass-card bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-indigo-500/10 p-6 max-w-md w-full mx-4 pointer-events-auto"
+                        className="relative glass-card bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-blue-500/10 p-6 max-w-md w-full mx-4 pointer-events-auto"
                     >
                         {/* Close button */}
                         <button

@@ -129,7 +129,7 @@ export default function MFASetupModal({ onClose, onEnabled }) {
                         {/* Loading State */}
                         {step === 'loading' && (
                             <div className="flex flex-col items-center py-12">
-                                <Loader2 className="w-10 h-10 text-indigo-500 animate-spin mb-4" />
+                                <Loader2 className="w-10 h-10 text-blue-500 animate-spin mb-4" />
                                 <p className="text-gray-500 dark:text-gray-400">Generating your 2FA secret...</p>
                             </div>
                         )}
@@ -141,7 +141,7 @@ export default function MFASetupModal({ onClose, onEnabled }) {
                                 <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
                                 <button
                                     onClick={setupMFA}
-                                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                                 >
                                     Try Again
                                 </button>

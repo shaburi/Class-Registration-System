@@ -29,13 +29,13 @@ const StatsOverview = ({ registrations, swapRequests, manualRequests }) => {
                 icon={<BookOpen className="w-6 h-6" />}
                 title="Registered Courses"
                 value={registrations.length}
-                color="indigo"
+                color="blue"
             />
             <StatsCard
                 icon={<Calendar className="w-6 h-6" />}
                 title="Total Credit Hours"
                 value={totalCreditHours}
-                color="purple"
+                color="red"
             />
             <StatsCard
                 icon={<RefreshCw className="w-6 h-6" />}
@@ -47,7 +47,7 @@ const StatsOverview = ({ registrations, swapRequests, manualRequests }) => {
                 icon={<Clock className="w-6 h-6" />}
                 title="Manual Requests"
                 value={pendingManualRequests}
-                color="pink"
+                color="rose"
             />
         </motion.div>
     );

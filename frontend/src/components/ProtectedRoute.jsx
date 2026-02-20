@@ -6,10 +6,10 @@ export const ProtectedRoute = ({ children, allowedRoles }) => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-cyan-50">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-indigo-600 font-medium">Loading...</p>
+                    <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-blue-600 font-medium">Loading...</p>
                 </div>
             </div>
         );

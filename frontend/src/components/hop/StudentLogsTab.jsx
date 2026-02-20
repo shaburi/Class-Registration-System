@@ -132,7 +132,7 @@ const StudentLogsTab = () => {
             manual_join: {
                 icon: <UserPlus size={14} />,
                 text: 'Manual',
-                className: 'bg-purple-500/10 text-purple-400 border-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.1)]'
+                className: 'bg-red-500/10 text-red-400 border-red-500/20 shadow-[0_0_10px_rgba(168,85,247,0.1)]'
             }
         };
 
@@ -194,27 +194,27 @@ const StudentLogsTab = () => {
             <div className="w-80 flex-shrink-0 glass-card rounded-3xl overflow-hidden flex flex-col border border-gray-200 dark:border-white/10 shadow-xl bg-white/60 dark:bg-black/40 backdrop-blur-2xl transition-colors duration-300">
                 <div className="p-6 border-b border-gray-200 dark:border-white/5 bg-gray-50/50 dark:bg-white/5">
                     <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-3 mb-5">
-                        <Users size={20} className="text-indigo-500 dark:text-indigo-400" />
+                        <Users size={20} className="text-blue-500 dark:text-blue-400" />
                         Students
                         <span className="px-2 py-0.5 rounded-full bg-gray-200 dark:bg-white/10 text-xs text-gray-600 dark:text-white/60 font-medium">
                             {students.length}
                         </span>
                     </h3>
                     <div className="relative group">
-                        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40 group-focus-within:text-indigo-500 dark:group-focus-within:text-indigo-400 transition-colors" />
+                        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors" />
                         <input
                             type="text"
                             placeholder="Find a student..."
                             value={studentSearch}
                             onChange={(e) => setStudentSearch(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:outline-none focus:border-indigo-500/50 focus:bg-white dark:focus:bg-white/5 transition-all shadow-sm"
+                            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:outline-none focus:border-blue-500/50 focus:bg-white dark:focus:bg-white/5 transition-all shadow-sm"
                         />
                     </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
                     {loadingStudents ? (
                         <div className="flex flex-col items-center justify-center py-12 gap-3">
-                            <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                            <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                             <p className="text-xs text-gray-500 dark:text-white/40">Loading students...</p>
                         </div>
                     ) : filteredStudents.length === 0 ? (
@@ -234,25 +234,25 @@ const StudentLogsTab = () => {
                                     transition={{ delay: index * 0.03 }}
                                     onClick={() => handleStudentSelect(student)}
                                     className={`w-full p-3.5 rounded-2xl text-left transition-all duration-300 group relative ${selectedStudent?.id === student.id
-                                        ? 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 border border-indigo-500/20 dark:border-white/10 shadow-lg'
+                                        ? 'bg-gradient-to-r from-blue-500/10 to-red-500/10 dark:from-blue-500/20 dark:to-red-500/20 border border-blue-500/20 dark:border-white/10 shadow-lg'
                                         : 'hover:bg-white dark:hover:bg-white/5 border border-transparent hover:border-gray-200 dark:hover:border-white/5 hover:shadow-md dark:hover:shadow-none'
                                         }`}
                                 >
                                     {selectedStudent?.id === student.id && (
                                         <motion.div
                                             layoutId="activeGlow"
-                                            className="absolute inset-0 rounded-2xl bg-indigo-500/5 dark:bg-indigo-500/10 blur-xl"
+                                            className="absolute inset-0 rounded-2xl bg-blue-500/5 dark:bg-blue-500/10 blur-xl"
                                         />
                                     )}
                                     <div className="relative flex items-center gap-4">
                                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg shadow-inner ${selectedStudent?.id === student.id
-                                            ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/30'
-                                            : 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-500 dark:text-white/60 group-hover:text-indigo-600 dark:group-hover:text-white group-hover:scale-105 transition-transform'
+                                            ? 'bg-gradient-to-br from-blue-500 to-red-600 text-white shadow-blue-500/30'
+                                            : 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-500 dark:text-white/60 group-hover:text-blue-600 dark:group-hover:text-white group-hover:scale-105 transition-transform'
                                             }`}>
                                             {student.student_name?.charAt(0) || 'S'}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className={`font-semibold truncate transition-colors ${selectedStudent?.id === student.id ? 'text-indigo-700 dark:text-white' : 'text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white'
+                                            <p className={`font-semibold truncate transition-colors ${selectedStudent?.id === student.id ? 'text-blue-700 dark:text-white' : 'text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white'
                                                 }`}>
                                                 {student.student_name}
                                             </p>
@@ -284,7 +284,7 @@ const StudentLogsTab = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 className="flex items-start gap-6"
                             >
-                                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px] shadow-2xl shadow-indigo-500/20">
+                                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-red-600 p-[1px] shadow-2xl shadow-blue-500/20">
                                     <div className="w-full h-full rounded-3xl bg-white/90 dark:bg-black/40 backdrop-blur-md flex items-center justify-center">
                                         <span className="text-3xl font-bold text-gray-900 dark:text-white">
                                             {selectedStudent.student_name?.charAt(0) || 'S'}
@@ -319,8 +319,8 @@ const StudentLogsTab = () => {
                         <button
                             onClick={() => setShowFilters(!showFilters)}
                             className={`group flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all ${showFilters
-                                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25'
-                                : 'bg-white/80 dark:bg-white/5 text-gray-600 dark:text-white/70 hover:bg-white dark:hover:bg-white/10 hover:text-indigo-600 dark:hover:text-white shadow-sm'
+                                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
+                                : 'bg-white/80 dark:bg-white/5 text-gray-600 dark:text-white/70 hover:bg-white dark:hover:bg-white/10 hover:text-blue-600 dark:hover:text-white shadow-sm'
                                 }`}
                         >
                             <Filter size={18} className="transition-transform group-hover:scale-110" />
@@ -329,7 +329,7 @@ const StudentLogsTab = () => {
                         <button
                             onClick={fetchLogs}
                             disabled={loading || !selectedStudent}
-                            className="p-3 rounded-xl bg-white/80 dark:bg-white/5 text-gray-600 dark:text-white/70 hover:bg-white dark:hover:bg-white/10 hover:text-indigo-600 dark:hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed group shadow-sm"
+                            className="p-3 rounded-xl bg-white/80 dark:bg-white/5 text-gray-600 dark:text-white/70 hover:bg-white dark:hover:bg-white/10 hover:text-blue-600 dark:hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed group shadow-sm"
                         >
                             <RefreshCw size={18} className={`transition-transform group-hover:rotate-180 ${loading ? 'animate-spin' : ''}`} />
                         </button>
@@ -361,7 +361,7 @@ const StudentLogsTab = () => {
                                             <select
                                                 value={filters.action_type}
                                                 onChange={(e) => handleFilterChange('action_type', e.target.value)}
-                                                className="w-full px-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white appearance-none focus:outline-none focus:border-indigo-500/50"
+                                                className="w-full px-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white appearance-none focus:outline-none focus:border-blue-500/50"
                                             >
                                                 <option value="all" className="bg-white dark:bg-gray-900">All Actions</option>
                                                 <option value="registration" className="bg-white dark:bg-gray-900">Registrations</option>
@@ -378,7 +378,7 @@ const StudentLogsTab = () => {
                                             type="date"
                                             value={filters.start_date}
                                             onChange={(e) => handleFilterChange('start_date', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500/50 [color-scheme:light] dark:[color-scheme:dark]"
+                                            className="w-full px-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-500/50 [color-scheme:light] dark:[color-scheme:dark]"
                                         />
                                     </div>
                                     <div className="col-span-1">
@@ -387,7 +387,7 @@ const StudentLogsTab = () => {
                                             type="date"
                                             value={filters.end_date}
                                             onChange={(e) => handleFilterChange('end_date', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500/50 [color-scheme:light] dark:[color-scheme:dark]"
+                                            className="w-full px-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-500/50 [color-scheme:light] dark:[color-scheme:dark]"
                                         />
                                     </div>
                                     <div className="col-span-1 flex items-end">
@@ -411,14 +411,14 @@ const StudentLogsTab = () => {
                             { label: 'Registrations', icon: <ArrowUpCircle size={20} />, count: logs.filter(l => l.action_type === 'registration').length, color: 'emerald' },
                             { label: 'Drop Requests', icon: <ArrowDownCircle size={20} />, count: logs.filter(l => l.action_type === 'drop').length, color: 'orange' },
                             { label: 'Swaps', icon: <ArrowRightLeft size={20} />, count: logs.filter(l => l.action_type === 'swap').length, color: 'blue' },
-                            { label: 'Manual Joins', icon: <UserPlus size={20} />, count: logs.filter(l => l.action_type === 'manual_join').length, color: 'purple' },
+                            { label: 'Manual Joins', icon: <UserPlus size={20} />, count: logs.filter(l => l.action_type === 'manual_join').length, color: 'red' },
                         ].map((stat, i) => (
                             <motion.div
                                 key={stat.label}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.1 }}
-                                className="glass-card p-5 rounded-2xl bg-white/60 dark:bg-white/5 border border-gray-200 dark:border-white/5 overflow-hidden relative group hover:border-indigo-500/20 dark:hover:border-white/10 transition-colors shadow-sm"
+                                className="glass-card p-5 rounded-2xl bg-white/60 dark:bg-white/5 border border-gray-200 dark:border-white/5 overflow-hidden relative group hover:border-blue-500/20 dark:hover:border-white/10 transition-colors shadow-sm"
                             >
                                 <div className={`absolute -right-4 -top-4 w-24 h-24 bg-${stat.color}-500/10 rounded-full blur-2xl group-hover:bg-${stat.color}-500/20 transition-colors`} />
                                 <div className="relative z-10">
@@ -438,7 +438,7 @@ const StudentLogsTab = () => {
                     {!selectedStudent ? (
                         <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
                             <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center mb-6 relative">
-                                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 blur-xl animate-pulse" />
+                                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500/20 to-red-500/20 blur-xl animate-pulse" />
                                 <Users size={40} className="text-gray-400 dark:text-white/30 relative z-10" />
                             </div>
                             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Select a Student</h3>
@@ -448,7 +448,7 @@ const StudentLogsTab = () => {
                         </div>
                     ) : loading ? (
                         <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                            <div className="w-10 h-10 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                            <div className="w-10 h-10 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
                             <p className="text-sm text-gray-500 dark:text-white/40 animate-pulse">Fetching records...</p>
                         </div>
                     ) : logs.length === 0 ? (
@@ -462,7 +462,7 @@ const StudentLogsTab = () => {
                             </p>
                             <button
                                 onClick={() => setFilters({ action_type: 'all', start_date: '', end_date: '' })}
-                                className="mt-6 px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-lg text-sm font-medium transition-colors"
+                                className="mt-6 px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-lg text-sm font-medium transition-colors"
                             >
                                 Clear Filters
                             </button>
@@ -487,7 +487,7 @@ const StudentLogsTab = () => {
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: index * 0.02 }}
-                                                className="group hover:bg-indigo-50/50 dark:hover:bg-white/[0.02] transition-colors"
+                                                className="group hover:bg-blue-50/50 dark:hover:bg-white/[0.02] transition-colors"
                                             >
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-col">
@@ -508,7 +508,7 @@ const StudentLogsTab = () => {
                                                         <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-400 dark:text-white/40 group-hover:text-gray-600 dark:group-hover:text-white/80 transition-colors">
                                                             <BookOpen size={14} />
                                                         </div>
-                                                        <span className="font-semibold text-gray-700 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">{log.subject_code}</span>
+                                                        <span className="font-semibold text-gray-700 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors">{log.subject_code}</span>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">

@@ -20,24 +20,16 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 
-// Helper to get consistent color for a subject code (COPIED FROM EdupageDataView)
+// Helper to get consistent color for a subject code (UPTM Brand Colors)
 const getSubjectColor = (code) => {
     const colors = [
-        'bg-red-100 border-red-300 text-red-900 dark:bg-red-900/40 dark:border-red-700 dark:text-red-100',
-        'bg-orange-100 border-orange-300 text-orange-900 dark:bg-orange-900/40 dark:border-orange-700 dark:text-orange-100',
-        'bg-amber-100 border-amber-300 text-amber-900 dark:bg-amber-900/40 dark:border-amber-700 dark:text-amber-100',
-        'bg-green-100 border-green-300 text-green-900 dark:bg-green-900/40 dark:border-green-700 dark:text-green-100',
-        'bg-emerald-100 border-emerald-300 text-emerald-900 dark:bg-emerald-900/40 dark:border-emerald-700 dark:text-emerald-100',
-        'bg-teal-100 border-teal-300 text-teal-900 dark:bg-teal-900/40 dark:border-teal-700 dark:text-teal-100',
-        'bg-cyan-100 border-cyan-300 text-cyan-900 dark:bg-cyan-900/40 dark:border-cyan-700 dark:text-cyan-100',
-        'bg-sky-100 border-sky-300 text-sky-900 dark:bg-sky-900/40 dark:border-sky-700 dark:text-sky-100',
         'bg-blue-100 border-blue-300 text-blue-900 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-100',
-        'bg-indigo-100 border-indigo-300 text-indigo-900 dark:bg-indigo-900/40 dark:border-indigo-700 dark:text-indigo-100',
-        'bg-violet-100 border-violet-300 text-violet-900 dark:bg-violet-900/40 dark:border-violet-700 dark:text-violet-100',
-        'bg-purple-100 border-purple-300 text-purple-900 dark:bg-purple-900/40 dark:border-purple-700 dark:text-purple-100',
-        'bg-fuchsia-100 border-fuchsia-300 text-fuchsia-900 dark:bg-fuchsia-900/40 dark:border-fuchsia-700 dark:text-fuchsia-100',
-        'bg-pink-100 border-pink-300 text-pink-900 dark:bg-pink-900/40 dark:border-pink-700 dark:text-pink-100',
-        'bg-rose-100 border-rose-300 text-rose-900 dark:bg-rose-900/40 dark:border-rose-700 dark:text-rose-100',
+        'bg-cyan-100 border-cyan-300 text-cyan-900 dark:bg-cyan-900/40 dark:border-cyan-700 dark:text-cyan-100', // Keeps navy tone
+        'bg-slate-100 border-slate-300 text-slate-900 dark:bg-slate-900/40 dark:border-slate-700 dark:text-slate-100',
+        'bg-gray-100 border-gray-300 text-gray-900 dark:bg-gray-900/40 dark:border-gray-700 dark:text-gray-100',
+        'bg-amber-100 border-amber-300 text-amber-900 dark:bg-amber-900/40 dark:border-amber-700 dark:text-amber-100', // Warning/accent
+        'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-200',
+        'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200',
     ];
 
     if (!code) return colors[0];
@@ -587,7 +579,7 @@ export default function StudentDashboard() {
     const headerContent = (
         <div className="flex flex-col gap-2 relative z-10">
             <h2 className="text-3xl md:text-5xl font-bold mb-1 font-heading tracking-tight text-gray-900 dark:text-white drop-shadow-sm dark:drop-shadow-lg">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 dark:from-indigo-400 dark:via-purple-400 dark:to-indigo-400 animate-gradient-x">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-red-600 to-blue-600 dark:from-blue-400 dark:via-red-400 dark:to-blue-400 animate-gradient-x">
                     Welcome back
                 </span>
                 , {displayName}
@@ -631,11 +623,11 @@ export default function StudentDashboard() {
                     className="bg-white/80 dark:bg-[#0b0d14]/80 backdrop-blur-3xl border border-gray-200/50 dark:border-white/5 p-8 min-h-[500px] rounded-[32px] relative overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)]"
                 >
                     {/* Ambient Background Orbs inside the main card */}
-                    <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none"></div>
-                    <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] bg-purple-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+                    <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+                    <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] bg-red-500/10 blur-[120px] rounded-full pointer-events-none"></div>
 
                     <div className="absolute top-0 right-0 p-8 opacity-30 pointer-events-none mix-blend-screen">
-                        <Sparkles className="w-64 h-64 text-indigo-500 blur-3xl animate-pulse" />
+                        <Sparkles className="w-64 h-64 text-blue-500 blur-3xl animate-pulse" />
                     </div>
 
                     {activeTab === 'timetable' && (
@@ -677,7 +669,7 @@ export default function StudentDashboard() {
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-3">
-                                    <Calendar className="w-6 h-6 text-indigo-500" />
+                                    <Calendar className="w-6 h-6 text-blue-500" />
                                     <h3 className="text-xl font-bold text-gray-800 dark:text-white">Semester Timetable</h3>
                                     <span className="text-sm text-gray-500 dark:text-gray-400">
                                         ({semesterSections.length} sections)
@@ -706,11 +698,11 @@ export default function StudentDashboard() {
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-3">
-                                    <GraduationCap className="w-6 h-6 text-purple-500" />
+                                    <GraduationCap className="w-6 h-6 text-red-500" />
                                     <h3 className="text-xl font-bold text-gray-800 dark:text-white">Programme Schedules</h3>
                                     <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full dark:bg-green-900/30 dark:text-green-400">From Database</span>
                                     {selectedBuilderSections.length > 0 && (
-                                        <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full dark:bg-indigo-900/30 dark:text-indigo-400">
+                                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full dark:bg-blue-900/30 dark:text-blue-400">
                                             {selectedBuilderSections.length} selected
                                         </span>
                                     )}
@@ -789,8 +781,8 @@ export default function StudentDashboard() {
 
                                     {/* Selected Courses Summary */}
                                     {selectedBuilderSections.length > 0 && (
-                                        <div className="mt-6 p-6 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 backdrop-blur-sm">
-                                            <h4 className="font-semibold text-indigo-800 dark:text-indigo-300 mb-3 flex items-center gap-2">
+                                        <div className="mt-6 p-6 rounded-2xl border border-blue-500/20 bg-blue-500/5 backdrop-blur-sm">
+                                            <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-3 flex items-center gap-2">
                                                 <Calendar className="w-4 h-4" />
                                                 Your Selected Courses
                                             </h4>
@@ -798,7 +790,7 @@ export default function StudentDashboard() {
                                                 {selectedBuilderSections.map((section, idx) => (
                                                     <div
                                                         key={idx}
-                                                        className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 rounded-lg border border-indigo-300 dark:border-indigo-700"
+                                                        className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 rounded-lg border border-blue-300 dark:border-blue-700"
                                                     >
                                                         <span className="font-medium text-sm text-gray-800 dark:text-white">
                                                             {section.subjectCode || section.subject_code}
@@ -860,7 +852,7 @@ export default function StudentDashboard() {
                                                         key={lecturer.id}
                                                         onClick={() => setSelectedLecturer(lecturer)}
                                                         className={`w-full p-3 rounded-lg text-left transition ${selectedLecturer?.id === lecturer.id
-                                                            ? 'bg-[var(--neon-accent)] text-white shadow-lg shadow-indigo-500/30'
+                                                            ? 'bg-[var(--neon-accent)] text-white shadow-lg shadow-blue-500/30'
                                                             : 'hover:bg-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                                                             }`}
                                                     >
@@ -920,7 +912,7 @@ export default function StudentDashboard() {
 function LoadingSpinner() {
     return (
         <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
     );
 }

@@ -7,14 +7,14 @@ import ExportDropdown from '../ExportDropdown';
 // Consistent gradient color blocks identical to TimetableBuilder
 const getSubjectColorHelper = (code) => {
     const gradients = [
-        'bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(99,102,241,0.3)]',
-        'bg-gradient-to-br from-rose-500 to-pink-600 border-rose-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(244,63,94,0.3)]',
+        'bg-gradient-to-br from-blue-600 to-blue-600 border-blue-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(37,99,235,0.3)]',
+        'bg-gradient-to-br from-red-600 to-rose-700 border-red-500/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(220,38,38,0.3)]',
         'bg-gradient-to-br from-emerald-500 to-teal-600 border-emerald-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(16,185,129,0.3)]',
         'bg-gradient-to-br from-amber-500 to-orange-600 border-amber-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(245,158,11,0.3)]',
         'bg-gradient-to-br from-cyan-500 to-blue-600 border-cyan-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(6,182,212,0.3)]',
         'bg-gradient-to-br from-violet-500 to-fuchsia-600 border-violet-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(139,92,246,0.3)]',
         'bg-gradient-to-br from-[#1a1d29] to-[#0d0f18] border-gray-600/50 text-gray-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_4px_10px_rgba(0,0,0,0.4)]',
-        'bg-gradient-to-br from-red-600 to-rose-700 border-red-500/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(220,38,38,0.3)]',
+        'bg-gradient-to-br from-rose-500 to-rose-600 border-rose-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(244,63,94,0.3)]',
         'bg-gradient-to-br from-lime-500 to-green-600 border-lime-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(132,204,22,0.3)]',
         'bg-gradient-to-br from-[#0c4a6e] to-[#082f49] border-sky-600/50 text-sky-100 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_4px_10px_rgba(12,74,110,0.4)]',
     ];
@@ -155,13 +155,13 @@ const TimetableSection = ({ registrations, onUnregister, onSwap }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="bg-white/80 dark:bg-[#0b0d14]/80 backdrop-blur-2xl rounded-[32px] border border-gray-200/50 dark:border-white/5 p-8 relative overflow-hidden shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_10px_40px_-15px_rgba(0,0,0,0.5)]"
+            className="bg-white/80 dark:bg-[#0b0d14]/80 backdrop-blur-2xl rounded-[32px] border border-gray-200/50 dark:border-white/5 p-4 md:p-8 relative overflow-hidden shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_10px_40px_-15px_rgba(0,0,0,0.5)]"
         >
-            <div className="absolute top-[-50%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+            <div className="absolute top-[-50%] left-[-10%] w-[400px] h-[400px] bg-red-500/10 blur-[100px] rounded-full pointer-events-none"></div>
 
-            <div className="flex justify-between items-center mb-6 relative z-10">
+            <div className="flex justify-between items-center mb-6 relative z-50">
                 <h3 className="font-bold text-2xl text-gray-900 dark:text-white font-heading tracking-tight flex items-center gap-3">
-                    <span className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 p-2.5 rounded-xl border border-indigo-500/20 shadow-inner">
+                    <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 p-2.5 rounded-xl border border-blue-500/20 shadow-inner">
                         <Calendar className="w-5 h-5" />
                     </span>
                     My Timetable
@@ -174,15 +174,17 @@ const TimetableSection = ({ registrations, onUnregister, onSwap }) => {
             </div>
 
             <div id="student-timetable" className="relative rounded-[20px] pb-4 bg-white/50 dark:bg-[rgba(0,0,0,0.2)] backdrop-blur-md border border-gray-200/50 dark:border-white/10 shadow-lg dark:shadow-2xl z-10 w-full overflow-hidden">
-                <div className="w-full relative">
+
+                {/* Desktop Grid View */}
+                <div className="hidden md:block w-full relative">
                     {/* Header Row - HOP STYLE */}
                     <div className="flex border-b border-gray-200/50 dark:border-white/10 mb-0 sticky top-0 bg-white/95 dark:bg-[#07090e]/95 backdrop-blur-2xl z-20 shadow-sm">
                         <div className="w-12 md:w-16 flex-shrink-0 bg-gray-50/80 dark:bg-white/5 border-r border-gray-200/50 dark:border-white/10"></div>
                         <div className="flex-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${totalPeriods}, 1fr)` }}>
                             {periods.map(period => (
-                                <div key={period.id} className="text-center p-2 border-l border-gray-200/50 dark:border-white/5">
-                                    <div className="font-bold text-xs text-gray-900 dark:text-white uppercase tracking-wider">{period.name}</div>
-                                    <div className="text-[10px] text-indigo-600 dark:text-indigo-300/80 font-medium tracking-widest">{period.starttime}-{period.endtime}</div>
+                                <div key={period.id} className="text-center p-1 md:p-2 border-l border-gray-200/50 dark:border-white/5">
+                                    <div className="font-bold text-[10px] md:text-xs text-gray-900 dark:text-white uppercase tracking-wider">{period.name}</div>
+                                    <div className="text-[7.5px] md:text-[9px] text-blue-600 dark:text-blue-300/80 font-bold tracking-wide">{period.starttime}-{period.endtime}</div>
                                 </div>
                             ))}
                         </div>
@@ -199,7 +201,7 @@ const TimetableSection = ({ registrations, onUnregister, onSwap }) => {
                             return (
                                 <div key={day} className="flex border-b border-gray-200/50 dark:border-white/5 group relative">
                                     {/* Day Name Label */}
-                                    <div className="w-12 md:w-16 flex-shrink-0 flex items-center justify-center font-bold text-[10px] md:text-[11px] uppercase tracking-widest text-indigo-600 dark:text-indigo-300/60 bg-gray-50 dark:bg-white/5 border-r border-gray-200/50 dark:border-white/5 z-10 group-hover:bg-gray-100 dark:group-hover:bg-white/10 transition-colors">
+                                    <div className="w-12 md:w-16 flex-shrink-0 flex items-center justify-center font-bold text-[10px] md:text-[11px] uppercase tracking-widest text-blue-600 dark:text-blue-300/60 bg-gray-50 dark:bg-white/5 border-r border-gray-200/50 dark:border-white/5 z-10 group-hover:bg-gray-100 dark:group-hover:bg-white/10 transition-colors">
                                         {day.substring(0, 3)}
                                     </div>
 
@@ -248,7 +250,7 @@ const TimetableSection = ({ registrations, onUnregister, onSwap }) => {
                                                         <div className="absolute inset-0 bg-white/20 dark:bg-white/10 opacity-0 group-hover/event:opacity-100 transition-opacity pointer-events-none rounded-[14px]"></div>
                                                         <div className="relative z-10 p-1.5 flex flex-col h-full">
                                                             <div>
-                                                                <div className="font-extrabold text-[10px] leading-tight mb-0.5 break-words line-clamp-2 drop-shadow-md" title={event.subject_name}>
+                                                                <div className="font-extrabold text-[10px] leading-tight mb-0.5 break-words line-clamp-2" title={event.subject_name}>
                                                                     {event.subject_code}
                                                                 </div>
                                                                 <div className="text-[8px] opacity-80 line-clamp-1 leading-tight">{event.subject_name}</div>
@@ -262,11 +264,11 @@ const TimetableSection = ({ registrations, onUnregister, onSwap }) => {
 
                                                             {/* Details */}
                                                             <div className="mt-auto space-y-[1px] text-white">
-                                                                <div className="flex items-center gap-1 opacity-90 text-[9px] truncate drop-shadow-sm">
+                                                                <div className="flex items-center gap-1 opacity-90 text-[9px] truncate">
                                                                     <LayoutGrid className="w-2.5 h-2.5 flex-shrink-0" />
                                                                     <span className="truncate font-bold tracking-wide">{event.room || 'TBA'}</span>
                                                                 </div>
-                                                                <div className="flex items-center gap-1 opacity-80 text-[9px] truncate drop-shadow-sm">
+                                                                <div className="flex items-center gap-1 opacity-80 text-[9px] truncate">
                                                                     <User className="w-2.5 h-2.5 flex-shrink-0" />
                                                                     <span className="truncate font-semibold">{event.lecturer_name || 'Staff'}</span>
                                                                 </div>
@@ -299,6 +301,81 @@ const TimetableSection = ({ registrations, onUnregister, onSwap }) => {
                             );
                         })}
                     </div>
+                </div>
+
+                {/* Mobile Agenda View */}
+                <div className="block md:hidden space-y-4 pt-4 px-2">
+                    {days.map((day) => {
+                        const events = timetableData.eventsByDay[day] || [];
+                        if (events.length === 0) return null;
+
+                        return (
+                            <div key={day} className="bg-white/40 dark:bg-[#0b0d14]/60 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm">
+                                <div className="bg-blue-50 dark:bg-blue-500/10 px-4 py-2 border-b border-blue-100 dark:border-blue-500/20">
+                                    <h3 className="font-bold text-sm text-blue-800 dark:text-blue-300 tracking-wide uppercase">{day}</h3>
+                                </div>
+                                <div className="p-2 space-y-2">
+                                    {events.sort((a, b) => a.startIndex - b.startIndex).map((event, idx) => {
+                                        const colorClass = getSubjectColorHelper(event.subject_code);
+                                        const timeString = event.start_time && event.end_time ? `${event.start_time.substring(0, 5)} - ${event.end_time.substring(0, 5)}` : '';
+
+                                        return (
+                                            <div
+                                                key={event.id || idx}
+                                                className={`relative flex flex-col p-3 rounded-xl border shadow-sm ${colorClass}`}
+                                            >
+                                                <div className="flex justify-between items-start mb-1 gap-2">
+                                                    <span className="font-extrabold text-sm text-white drop-shadow-sm break-words line-clamp-2">
+                                                        {event.subject_code}
+                                                    </span>
+                                                    {timeString && (
+                                                        <span className="text-[10px] font-bold text-white bg-black/20 dark:bg-white/20 px-2 py-0.5 rounded flex-shrink-0 backdrop-blur-sm shadow-sm border border-white/10">
+                                                            {timeString}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="text-[11px] text-white/90 font-medium mb-3 drop-shadow-sm line-clamp-1">
+                                                    {event.subject_name}
+                                                </div>
+
+                                                <div className="flex justify-between items-center mt-2.5">
+                                                    <span className="font-bold bg-white/20 dark:bg-black/30 px-2 py-0.5 rounded-full text-[9px] text-white backdrop-blur-sm border border-white/20 shadow-sm">
+                                                        Sec {event.section_number}
+                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[10px] text-white/90 font-medium truncate flex max-w-[120px]">
+                                                            <User className="w-3 h-3 min-w-3 mr-1 opacity-80" /> {event.lecturer_name || 'Staff'}
+                                                        </span>
+                                                        <span className="text-[9px] font-extrabold text-gray-800 bg-white/90 px-2 py-0.5 rounded tracking-wide shadow-sm min-w-10 text-center">
+                                                            {event.room || 'TBA'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Action Buttons */}
+                                                <div className="flex justify-end gap-2 mt-3 pt-2 border-t border-white/20">
+                                                    <button
+                                                        onClick={() => onSwap(event.registration_id)}
+                                                        className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-black/10 hover:bg-black/20 text-white rounded-lg shadow-sm transition-all text-[10px] font-bold uppercase tracking-wide backdrop-blur-sm"
+                                                    >
+                                                        <RefreshCw className="w-3 h-3" />
+                                                        Swap
+                                                    </button>
+                                                    <button
+                                                        onClick={() => onUnregister(event.registration_id)}
+                                                        className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-red-500/80 hover:bg-red-600 text-white rounded-lg shadow-sm transition-all text-[10px] font-bold uppercase tracking-wide border border-red-400/50 backdrop-blur-sm"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                        Drop
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </motion.div>

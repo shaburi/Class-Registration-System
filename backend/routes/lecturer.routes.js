@@ -7,10 +7,6 @@ const manualJoinService = require('../services/manualJoin.service');
 
 // All lecturer routes require authentication and lecturer/hop role
 router.use(authenticate);
-router.use((req, res, next) => {
-    console.log('[LECTURER ROUTES] Request:', req.method, req.path, 'User:', req.user?.email);
-    next();
-});
 router.use(requireRole(['lecturer', 'hop']));
 
 // ============================================================================

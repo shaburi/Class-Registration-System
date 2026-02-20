@@ -21,7 +21,7 @@ const GlassToast = ({ t, type = 'success', message }) => {
                 <div className="flex-shrink-0 pt-0.5">
                     {isSuccess && <CheckCircle className="h-5 w-5 text-emerald-500" />}
                     {isError && <XCircle className="h-5 w-5 text-red-500" />}
-                    {!isSuccess && !isError && <Info className="h-5 w-5 text-indigo-500" />}
+                    {!isSuccess && !isError && <Info className="h-5 w-5 text-blue-500" />}
                 </div>
                 <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -33,7 +33,7 @@ const GlassToast = ({ t, type = 'success', message }) => {
                 </div>
                 <div className="ml-4 flex flex-shrink-0">
                     <button
-                        className="inline-flex text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="inline-flex text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                         onClick={() => toast.dismiss(t.id)}
                     >
                         <span className="sr-only">Close</span>

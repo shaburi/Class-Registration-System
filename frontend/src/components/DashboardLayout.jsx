@@ -27,7 +27,9 @@ import {
     GraduationCap,
     CalendarClock,
     CloudDownload,
-    User
+    User,
+    Menu,
+    X
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import SettingsModal from './SettingsModal';
@@ -38,6 +40,7 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
     const { user, logout } = useAuth();
     const { accent: userAccent } = useTheme();
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
     const profileMenuRef = useRef(null);
@@ -111,12 +114,12 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
     const userEmail = user?.email || '';
     const userRole = role ? role.charAt(0).toUpperCase() + role.slice(1) : 'User';
 
-    // Role-based gradient
+    // Role-based gradient (UPTM Brand Color Scheme)
     const getRoleGradient = () => {
-        if (role === 'student') return 'from-indigo-500 to-purple-500';
-        if (role === 'lecturer') return 'from-emerald-500 to-teal-500';
-        if (role === 'hop') return 'from-rose-500 to-orange-500';
-        return 'from-blue-500 to-indigo-500';
+        if (role === 'student') return 'from-blue-600 to-blue-600'; // UPTM Navy/Royal Blue variant
+        if (role === 'lecturer') return 'from-red-600 to-rose-600'; // UPTM Crimson Red variant
+        if (role === 'hop') return 'from-amber-500 to-orange-500'; // Keep distinct for super admins, or use dark grey
+        return 'from-blue-600 to-blue-600';
     };
 
     return (
@@ -124,18 +127,20 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
             {/* Mesh Gradient Background */}
             <div className="mesh-gradient-bg" />
 
-            {/* Floating Glass Sidebar (Dynamic Island Style) */}
+            {/* Floating Glass Sidebar (Dynamic Island Style) - Desktop Only */}
             <motion.aside
                 initial={false}
                 animate={{ width: isCollapsed ? 90 : 280 }}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="relative flex flex-col h-[94vh] my-[3vh] ml-[3vh] bg-white/40 dark:bg-[#0b0d14]/60 backdrop-blur-3xl rounded-[32px] z-20 overflow-hidden border border-white/40 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,0.5)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)]"
+                className="hidden md:flex relative flex-col h-[94vh] my-[3vh] ml-[3vh] bg-white/40 dark:bg-[#0b0d14]/60 backdrop-blur-3xl rounded-[32px] z-20 overflow-hidden border border-white/40 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,0.5)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)]"
             >
+                {/* ... */}
+                {/* Fast forwarding to the updated SVG def ... */}
                 {/* Logo Area */}
                 <div className="h-28 flex items-center justify-center px-4 border-b border-gray-200/30 dark:border-white/5 relative z-10">
                     <motion.div
                         whileHover={{ rotate: 10, scale: 1.1 }}
-                        className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${userAccent?.gradient || getRoleGradient()} flex items-center justify-center shadow-lg ${userAccent?.shadow || 'shadow-indigo-500/20'} relative`}
+                        className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${userAccent?.gradient || getRoleGradient()} flex items-center justify-center shadow-lg ${userAccent?.shadow || 'shadow-blue-500/20'} relative`}
                     >
                         <Sparkles className="w-6 h-6 text-white relative z-10" />
                         {/* Glow orb behind icon */}
@@ -203,9 +208,9 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                                     {isActive && (
                                         <svg width="0" height="0" className="absolute">
                                             <linearGradient id="active-icon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                {role === 'student' && <><stop offset="0%" stopColor="#6366f1" /><stop offset="100%" stopColor="#a855f7" /></>}
-                                                {role === 'lecturer' && <><stop offset="0%" stopColor="#10b981" /><stop offset="100%" stopColor="#14b8a6" /></>}
-                                                {role === 'hop' && <><stop offset="0%" stopColor="#f43f5e" /><stop offset="100%" stopColor="#f97316" /></>}
+                                                {role === 'student' && <><stop offset="0%" stopColor="#2563eb" /><stop offset="100%" stopColor="#4f46e5" /></>}
+                                                {role === 'lecturer' && <><stop offset="0%" stopColor="#dc2626" /><stop offset="100%" stopColor="#e11d48" /></>}
+                                                {role === 'hop' && <><stop offset="0%" stopColor="#f59e0b" /><stop offset="100%" stopColor="#f97316" /></>}
                                             </linearGradient>
                                         </svg>
                                     )}
@@ -216,12 +221,17 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                 </nav>
 
                 {/* Minimal Dark Mode Toggle inside Sidebar */}
-                <div className="absolute top-4 right-4 z-30">
-                    <ThemeToggle />
+                <div className={`mt-auto mx-4 mb-2 flex items-center z-30 ${isCollapsed ? 'justify-center' : 'justify-between px-3 py-1.5 bg-white/40 dark:bg-black/20 rounded-[14px] border border-white/50 dark:border-white/10 shadow-sm backdrop-blur-md'}`}>
+                    {!isCollapsed && (
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                            Theme
+                        </span>
+                    )}
+                    <ThemeToggle className={isCollapsed ? '' : 'scale-90 shadow-none hover:bg-white dark:hover:bg-white/10 rounded-lg'} />
                 </div>
 
                 {/* Interactive Profile Pod */}
-                <div className="m-4 mt-auto relative z-20 group">
+                <div className="mx-4 mb-4 relative z-20 group">
                     <motion.div
                         className="bg-white/60 dark:bg-black/30 border border-white/50 dark:border-white/10 rounded-2xl p-2 cursor-pointer backdrop-blur-md shadow-[0_4px_15px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all duration-300 hover:bg-white/80 dark:hover:bg-black/50"
                         onClick={() => setShowProfileMenu(!showProfileMenu)}
@@ -282,16 +292,146 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                     onClick={() => setIsCollapsed(!isCollapsed)}
                     className="absolute -right-3 top-1/2 -translate-y-1/2 bg-white dark:bg-[#1a1d29] border border-gray-200 dark:border-white/10 p-2 rounded-full shadow-[0_0_15px_rgba(0,0,0,0.1)] hover:shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-110 transition-all z-50 text-[var(--text-primary)] group"
                 >
-                    <div className="group-hover:text-indigo-500 transition-colors">
+                    <div className="group-hover:text-blue-500 transition-colors">
                         {isCollapsed ? <ChevronRight size={14} strokeWidth={3} /> : <ChevronLeft size={14} strokeWidth={3} />}
                     </div>
                 </button>
             </motion.aside>
 
+            {/* Mobile Navigation Drawer Overlay */}
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] md:hidden"
+                    >
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                        />
+
+                        {/* Drawer */}
+                        <motion.div
+                            initial={{ x: '-100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '-100%' }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="absolute inset-y-0 left-0 w-[85%] max-w-[320px] bg-white/80 dark:bg-[#0b0d14]/90 backdrop-blur-3xl border-r border-white/40 dark:border-white/10 flex flex-col shadow-2xl"
+                        >
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-white/10">
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${getRoleGradient()} flex items-center justify-center shadow-lg relative`}>
+                                        <Sparkles className="w-5 h-5 text-white relative z-10" />
+                                    </div>
+                                    <span className="font-heading font-extrabold text-xl tracking-tight text-[var(--text-primary)]">
+                                        UPTM <span className={`text-transparent bg-clip-text bg-gradient-to-r ${getRoleGradient()}`}>HUB</span>
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="p-2 rounded-xl bg-gray-100 dark:bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+                                {navItems.map((item) => {
+                                    const isActive = activeTab === item.id;
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            onClick={() => {
+                                                onTabChange && onTabChange(item.id);
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className={`
+                                                w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-300
+                                                ${isActive
+                                                    ? 'bg-white/50 dark:bg-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.05)] text-[var(--text-primary)] border border-white/60 dark:border-white/10'
+                                                    : 'text-[var(--text-secondary)] hover:bg-black/5 dark:hover:bg-white/5'
+                                                }
+                                            `}
+                                        >
+                                            <div className={`${isActive ? 'scale-110' : ''}`}>
+                                                {React.cloneElement(item.icon, {
+                                                    className: isActive ? 'text-transparent bg-clip-text' : 'currentColor',
+                                                    stroke: isActive ? 'url(#active-icon-gradient)' : 'currentColor',
+                                                    strokeWidth: isActive ? 2.5 : 2
+                                                })}
+                                            </div>
+                                            <span className={`font-semibold tracking-wide text-[15px] ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
+                                                {item.label}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </nav>
+
+                            <div className="p-4 border-t border-gray-200/50 dark:border-white/10 bg-white/30 dark:bg-black/20">
+                                <div className="flex items-center gap-3 mb-4 px-2">
+                                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getRoleGradient()} flex items-center justify-center text-white font-extrabold shadow-lg shrink-0 overflow-hidden ring-2 ring-white/50 dark:ring-black/50`}>
+                                        {profilePicture ? (
+                                            <img src={profilePicture} alt={displayName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                        ) : (
+                                            <span>{displayName.charAt(0).toUpperCase()}</span>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-extrabold text-[var(--text-primary)] truncate">{displayName}</p>
+                                        <p className="text-xs text-[var(--text-secondary)] uppercase tracking-widest font-bold">{userRole}</p>
+                                    </div>
+                                    <ThemeToggle />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        onClick={() => { setIsMobileMenuOpen(false); setShowSettingsModal(true); }}
+                                        className="flex items-center justify-center gap-2 py-3 rounded-xl bg-gray-100 dark:bg-white/5 text-[var(--text-primary)] font-semibold text-sm hover:bg-gray-200 dark:hover:bg-white/10"
+                                    >
+                                        <Settings size={16} />
+                                        Settings
+                                    </button>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="flex items-center justify-center gap-2 py-3 rounded-xl bg-red-50 dark:bg-red-500/10 text-red-600 font-semibold text-sm hover:bg-red-100 dark:hover:bg-red-500/20"
+                                    >
+                                        <LogOut size={16} />
+                                        Logout
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Main Content Area */}
-            <main className="flex-1 overflow-hidden relative">
-                <div className="h-full overflow-y-auto p-4 sm:p-8">
-                    <div className="max-w-[1600px] mx-auto space-y-8">
+            <main className="flex-1 flex flex-col overflow-hidden relative">
+
+                {/* Mobile Header */}
+                <div className="md:hidden flex flex-shrink-0 items-center justify-between px-4 py-3 bg-white/70 dark:bg-[#0b0d14]/80 backdrop-blur-xl border-b border-white/40 dark:border-white/10 z-[40]">
+                    <div className="flex items-center gap-3">
+                        <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setIsMobileMenuOpen(true)}
+                            className="p-2 bg-white/50 dark:bg-white/5 rounded-xl border border-white/50 dark:border-white/10 text-[var(--text-primary)] shadow-sm"
+                        >
+                            <Menu size={20} />
+                        </motion.button>
+                        <span className="font-heading font-extrabold text-xl tracking-tight text-[var(--text-primary)]">
+                            UPTM <span className={`text-transparent bg-clip-text bg-gradient-to-r ${getRoleGradient()}`}>HUB</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-8">
+                    <div className="max-w-[1600px] mx-auto space-y-6 md:space-y-8">
                         {/* Dynamic Header (Unboxed & Airy) */}
                         <motion.div
                             initial={{ opacity: 0, y: -20 }}
@@ -384,8 +524,8 @@ const SessionSelector = () => {
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-3 px-5 py-3 glass-input rounded-xl hover:translate-y-[-2px] hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700"
             >
-                <div className="bg-indigo-500/10 p-2 rounded-lg">
-                    <CalendarDays size={20} className="text-indigo-500" />
+                <div className="bg-blue-500/10 p-2 rounded-lg">
+                    <CalendarDays size={20} className="text-blue-500" />
                 </div>
                 <div className="text-left">
                     <div className="text-sm font-bold text-[var(--text-primary)]">
@@ -420,12 +560,12 @@ const SessionSelector = () => {
                                     }}
                                     className={`w-full flex items-center justify-between px-5 py-4 transition-all border-b border-[var(--glass-border)] last:border-0
                                         ${selectedSession.id === session.id
-                                            ? 'bg-indigo-500/10'
+                                            ? 'bg-blue-500/10'
                                             : 'hover:bg-[var(--glass-border)]'
                                         }`}
                                 >
                                     <div className="text-left">
-                                        <div className={`text-sm font-bold ${selectedSession.id === session.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-[var(--text-primary)]'}`}>
+                                        <div className={`text-sm font-bold ${selectedSession.id === session.id ? 'text-blue-600 dark:text-blue-400' : 'text-[var(--text-primary)]'}`}>
                                             {session.code}
                                         </div>
                                         <div className="text-xs text-[var(--text-secondary)]">

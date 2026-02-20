@@ -34,18 +34,18 @@ const AnimatedCounter = ({ value, duration = 2000 }) => {
 
 // Premium Chart Colors
 const CHART_COLORS = {
-    primary: '#6366f1', // Indigo
-    secondary: '#06b6d4', // Cyan
+    primary: '#3b82f6', // Blue
+    secondary: '#ef4444', // Red
     tertiary: '#10b981', // Emerald
     quaternary: '#f59e0b', // Amber
     gradient: [
-        '#6366f1', '#8b5cf6', '#d946ef', '#ec4899',
+        '#3b82f6', '#8b5cf6', '#d946ef', '#ef4444',
         '#f43f5e', '#f97316', '#f59e0b', '#10b981'
     ],
     enrollmentGradient: {
         id: 'colorEnrollment',
-        start: '#6366f1',
-        end: '#8b5cf6'
+        start: '#3b82f6',
+        end: '#ef4444'
     }
 };
 
@@ -109,11 +109,11 @@ export default function AnalyticsDashboard() {
 
     // Define Neon Colors
     const NEON_COLORS = {
-        primary: '#6366f1', // Indigo
-        secondary: '#06b6d4', // Cyan
+        primary: '#3b82f6', // Blue
+        secondary: '#ef4444', // Red
         tertiary: '#10b981', // Emerald
         quaternary: '#f59e0b', // Amber
-        pink: '#ec4899', // Pink
+        pink: '#f43f5e', // Rose
     };
 
     const sectionPieData = [
@@ -133,9 +133,9 @@ export default function AnalyticsDashboard() {
             value: utilizationStats.currentEnrollment,
             subtext: 'active students',
             icon: Users,
-            color: "text-indigo-400",
-            bg: "bg-indigo-500/10",
-            border: "border-indigo-500/20",
+            color: "text-blue-400",
+            bg: "bg-blue-500/10",
+            border: "border-blue-500/20",
             glow: "shadow-[0_0_20px_rgba(99,102,241,0.2)]"
         },
         {
@@ -174,8 +174,8 @@ export default function AnalyticsDashboard() {
         <div className="space-y-8 pb-10">
             {/* Header */}
             <div className="relative">
-                <div className="absolute -top-10 -left-10 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
-                <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-indigo-600 to-gray-900 dark:from-white dark:via-purple-200 dark:to-white relative z-10">
+                <div className="absolute -top-10 -left-10 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+                <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-blue-600 to-gray-900 dark:from-white dark:via-red-200 dark:to-white relative z-10">
                     Analytics Overview
                 </h2>
                 <p className="text-gray-600 dark:text-white/60 mt-2 relative z-10">Real-time scheduling performance and capacity insights.</p>
@@ -227,7 +227,7 @@ export default function AnalyticsDashboard() {
                             <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">Enrollment Growth</h3>
                             <p className="text-xs text-gray-500 dark:text-white/40">Daily registration activity</p>
                         </div>
-                        <div className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-300 text-xs font-bold rounded-full">
+                        <div className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-300 text-xs font-bold rounded-full">
                             Last 7 Days
                         </div>
                     </div>
@@ -443,7 +443,7 @@ export default function AnalyticsDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="hidden lg:block">
                     <div className="glass-card rounded-3xl p-6 h-full relative overflow-hidden flex flex-col justify-center items-center text-center group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-red-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         <Calendar className="w-16 h-16 mb-4 text-gray-400 dark:text-white/80 group-hover:scale-110 transition-transform duration-300" />
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Academic Calendar</h3>
                         <p className="text-gray-500 dark:text-white/60 text-sm">Fall 2024 Semester</p>

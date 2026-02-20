@@ -49,7 +49,7 @@ export default function ExportDropdown({ elementId, filename = 'timetable', titl
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 disabled={exporting}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg transition shadow-md hover:shadow-lg disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-red-600 hover:from-blue-700 hover:to-red-700 text-white rounded-lg transition shadow-md hover:shadow-lg disabled:opacity-50"
             >
                 {exporting ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

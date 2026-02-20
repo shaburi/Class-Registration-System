@@ -193,7 +193,7 @@ const SubjectImportModal = ({ isOpen, onClose, onImportComplete }) => {
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                className="relative w-full max-w-3xl glass-card bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-indigo-500/10"
+                                className="relative w-full max-w-3xl glass-card bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-blue-500/10"
                                 onClick={e => e.stopPropagation()}
                             >
                                 {/* Header */}
@@ -226,7 +226,7 @@ const SubjectImportModal = ({ isOpen, onClose, onImportComplete }) => {
                                             className={`
                                                 relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200
                                                 ${dragActive
-                                                    ? 'border-indigo-500 bg-indigo-500/10'
+                                                    ? 'border-blue-500 bg-blue-500/10'
                                                     : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
                                                 }
                                             `}
@@ -262,7 +262,7 @@ const SubjectImportModal = ({ isOpen, onClose, onImportComplete }) => {
                                             ) : (
                                                 <>
                                                     <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                                                        <Upload className={`w-8 h-8 ${dragActive ? 'text-indigo-400' : 'text-white/40'}`} />
+                                                        <Upload className={`w-8 h-8 ${dragActive ? 'text-blue-400' : 'text-white/40'}`} />
                                                     </div>
                                                     <h3 className="text-lg font-semibold text-white mb-2">
                                                         {dragActive ? 'Drop file here' : 'Upload File'}
@@ -272,7 +272,7 @@ const SubjectImportModal = ({ isOpen, onClose, onImportComplete }) => {
                                                     </p>
                                                     <button
                                                         onClick={() => fileInputRef.current?.click()}
-                                                        className="px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-indigo-500/20"
+                                                        className="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20"
                                                     >
                                                         Browse Files
                                                     </button>
@@ -287,7 +287,7 @@ const SubjectImportModal = ({ isOpen, onClose, onImportComplete }) => {
                                     {/* Loading State */}
                                     {loading && (
                                         <div className="flex flex-col items-center justify-center py-12">
-                                            <Loader2 className="w-10 h-10 animate-spin text-indigo-500 mb-4" />
+                                            <Loader2 className="w-10 h-10 animate-spin text-blue-500 mb-4" />
                                             <span className="text-white/60">Parsing file...</span>
                                         </div>
                                     )}
@@ -308,7 +308,7 @@ const SubjectImportModal = ({ isOpen, onClose, onImportComplete }) => {
                                         <div className="mt-6 space-y-4">
                                             <div className="flex items-center justify-between">
                                                 <h3 className="font-medium text-white flex items-center gap-2">
-                                                    <Eye className="w-5 h-5 text-indigo-400" />
+                                                    <Eye className="w-5 h-5 text-blue-400" />
                                                     Preview ({preview.total} subjects found)
                                                 </h3>
                                             </div>
@@ -411,16 +411,16 @@ const SubjectImportModal = ({ isOpen, onClose, onImportComplete }) => {
 
                                     {/* File Format Help */}
                                     {!preview && !result && !loading && (
-                                        <div className="mt-8 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
-                                            <h4 className="font-medium text-indigo-400 mb-2 flex items-center gap-2">
+                                        <div className="mt-8 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                                            <h4 className="font-medium text-blue-400 mb-2 flex items-center gap-2">
                                                 <FileText className="w-4 h-4" /> Expected Format
                                             </h4>
-                                            <div className="text-sm text-indigo-300/80">
+                                            <div className="text-sm text-blue-300/80">
                                                 <p className="mb-2">Your file should contain columns for:</p>
                                                 <ul className="list-disc list-inside space-y-1 ml-2">
-                                                    <li><strong className="text-indigo-200">Code</strong> - Subject code (e.g., CT206)</li>
-                                                    <li><strong className="text-indigo-200">Name</strong> - Subject name</li>
-                                                    <li><strong className="text-indigo-200">Credit Hours</strong> - (Optional, default: 3)</li>
+                                                    <li><strong className="text-blue-200">Code</strong> - Subject code (e.g., CT206)</li>
+                                                    <li><strong className="text-blue-200">Name</strong> - Subject name</li>
+                                                    <li><strong className="text-blue-200">Credit Hours</strong> - (Optional, default: 3)</li>
                                                 </ul>
                                             </div>
                                         </div>

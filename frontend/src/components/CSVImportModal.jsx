@@ -146,7 +146,7 @@ const CSVImportModal = ({
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                className="relative w-full max-w-2xl glass-card bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-indigo-500/10"
+                                className="relative w-full max-w-2xl glass-card bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-blue-500/10"
                                 onClick={e => e.stopPropagation()}
                             >
                                 {/* Header */}
@@ -187,7 +187,7 @@ const CSVImportModal = ({
                                             className={`
                                                 relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200
                                                 ${dragOver
-                                                    ? 'border-indigo-500 bg-indigo-500/10'
+                                                    ? 'border-blue-500 bg-blue-500/10'
                                                     : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
                                                 }
                                             `}
@@ -201,7 +201,7 @@ const CSVImportModal = ({
                                             />
 
                                             <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                                                <Upload className={`w-8 h-8 ${dragOver ? 'text-indigo-400' : 'text-white/40'}`} />
+                                                <Upload className={`w-8 h-8 ${dragOver ? 'text-blue-400' : 'text-white/40'}`} />
                                             </div>
 
                                             <h3 className="text-lg font-semibold text-white mb-2">
@@ -213,7 +213,7 @@ const CSVImportModal = ({
 
                                             <button
                                                 onClick={() => fileInputRef.current?.click()}
-                                                className="px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-indigo-500/20"
+                                                className="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20"
                                             >
                                                 Browse Files
                                             </button>
@@ -222,7 +222,7 @@ const CSVImportModal = ({
                                                 <p className="text-xs text-white/40 mb-3">Don't have the template?</p>
                                                 <button
                                                     onClick={downloadTemplate}
-                                                    className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+                                                    className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
                                                 >
                                                     <Download size={14} />
                                                     Download Sample Template
@@ -291,7 +291,7 @@ const CSVImportModal = ({
                                                 <button
                                                     onClick={handleImport}
                                                     disabled={importing}
-                                                    className="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                                    className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                                 >
                                                     {importing ? (
                                                         <>

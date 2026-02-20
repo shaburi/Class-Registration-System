@@ -71,7 +71,7 @@ export default function MFAVerifyModal({ tempToken, onVerified, onCancel }) {
             >
                 {/* Immersive Background Glow */}
                 <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                    <div className="w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[100px]" />
+                    <div className="w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px]" />
                 </div>
 
                 <motion.div
@@ -90,7 +90,7 @@ export default function MFAVerifyModal({ tempToken, onVerified, onCancel }) {
                                 initial={{ rotate: -15, scale: 0.8 }}
                                 animate={{ rotate: 0, scale: 1 }}
                                 transition={{ type: "spring", bounce: 0.5, delay: 0.1 }}
-                                className="w-12 h-12 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 flex-shrink-0 ring-1 ring-white/20"
+                                className="w-12 h-12 bg-gradient-to-b from-blue-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 flex-shrink-0 ring-1 ring-white/20"
                             >
                                 <Shield className="w-6 h-6 text-white" />
                             </motion.div>
@@ -121,9 +121,9 @@ export default function MFAVerifyModal({ tempToken, onVerified, onCancel }) {
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                                 {useBackupCode ? (
-                                    <Key className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-400 transition-colors" />
+                                    <Key className="h-5 w-5 text-gray-400 group-focus-within:text-blue-400 transition-colors" />
                                 ) : (
-                                    <KeyRound className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-400 transition-colors" />
+                                    <KeyRound className="h-5 w-5 text-gray-400 group-focus-within:text-blue-400 transition-colors" />
                                 )}
                             </div>
 
@@ -146,7 +146,7 @@ export default function MFAVerifyModal({ tempToken, onVerified, onCancel }) {
                                 }}
                                 placeholder={useBackupCode ? 'ABCD-EF12' : '0 0 0  0 0 0'}
                                 className={`w-full pl-12 pr-4 py-4 text-center font-mono bg-white/5 border border-white/10 rounded-xl 
-                                            focus:bg-indigo-500/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 
+                                            focus:bg-blue-500/10 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 
                                             transition-all duration-300 text-white shadow-inner placeholder:text-gray-600 outline-none
                                             ${useBackupCode ? 'text-lg tracking-[0.2em]' : 'text-xl tracking-[0.4em]'} 
                                             ${error ? '!border-red-500/50 !focus:ring-red-500/50' : ''}`}
@@ -179,7 +179,7 @@ export default function MFAVerifyModal({ tempToken, onVerified, onCancel }) {
                                 whileTap={{ scale: 0.98 }}
                                 className="w-full py-3.5 bg-[#5b45b0] hover:bg-[#6b52c9] text-white font-bold rounded-xl 
                                            disabled:opacity-50 disabled:cursor-not-allowed transition-colors 
-                                           flex items-center justify-center gap-2 shadow-lg shadow-indigo-900/20"
+                                           flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20"
                             >
                                 {loading ? (
                                     <>
@@ -205,7 +205,7 @@ export default function MFAVerifyModal({ tempToken, onVerified, onCancel }) {
                                     setError('');
                                     setTimeout(() => inputRef.current?.focus(), 100);
                                 }}
-                                className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors inline-block"
+                                className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors inline-block"
                             >
                                 {useBackupCode
                                     ? 'Back to Authenticator App'

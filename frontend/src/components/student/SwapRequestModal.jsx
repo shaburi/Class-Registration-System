@@ -154,7 +154,7 @@ function SwapSectionCard({ section, onSelectStudent }) {
                 >
                     {loading ? (
                         <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                            <RefreshCw className="w-6 h-6 mx-auto mb-2 animate-spin text-indigo-500" />
+                            <RefreshCw className="w-6 h-6 mx-auto mb-2 animate-spin text-blue-500" />
                             <p>Loading classmates...</p>
                         </div>
                     ) : students.length === 0 ? (

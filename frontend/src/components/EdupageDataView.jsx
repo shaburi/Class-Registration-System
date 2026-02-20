@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     RefreshCw,
@@ -13,6 +13,8 @@ import {
     Loader2,
     ChevronDown,
     ChevronUp,
+    ChevronLeft,
+    ChevronRight,
     Search,
     Filter,
     Grid3X3,
@@ -35,11 +37,11 @@ const getSubjectColor = (code) => {
         'bg-cyan-100 border-cyan-300 text-cyan-900 dark:bg-cyan-900/40 dark:border-cyan-700 dark:text-cyan-100',
         'bg-sky-100 border-sky-300 text-sky-900 dark:bg-sky-900/40 dark:border-sky-700 dark:text-sky-100',
         'bg-blue-100 border-blue-300 text-blue-900 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-100',
-        'bg-indigo-100 border-indigo-300 text-indigo-900 dark:bg-indigo-900/40 dark:border-indigo-700 dark:text-indigo-100',
+        'bg-blue-100 border-blue-300 text-blue-900 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-100',
         'bg-violet-100 border-violet-300 text-violet-900 dark:bg-violet-900/40 dark:border-violet-700 dark:text-violet-100',
-        'bg-purple-100 border-purple-300 text-purple-900 dark:bg-purple-900/40 dark:border-purple-700 dark:text-purple-100',
+        'bg-red-100 border-red-300 text-red-900 dark:bg-red-900/40 dark:border-red-700 dark:text-red-100',
         'bg-fuchsia-100 border-fuchsia-300 text-fuchsia-900 dark:bg-fuchsia-900/40 dark:border-fuchsia-700 dark:text-fuchsia-100',
-        'bg-pink-100 border-pink-300 text-pink-900 dark:bg-pink-900/40 dark:border-pink-700 dark:text-pink-100',
+        'bg-rose-100 border-rose-300 text-rose-900 dark:bg-rose-900/40 dark:border-rose-700 dark:text-rose-100',
         'bg-rose-100 border-rose-300 text-rose-900 dark:bg-rose-900/40 dark:border-rose-700 dark:text-rose-100',
     ];
 
@@ -91,6 +93,25 @@ const EdupageDataView = () => {
     // State for selected course prefix and specific class
     const [selectedPrefix, setSelectedPrefix] = useState(null);
     const [selectedClass, setSelectedClass] = useState(null);
+    const [relatedClasses, setRelatedClasses] = useState([]); // Classes sharing same subject from search
+
+    // Navigate to prev/next related class
+    const navigateRelatedClass = useCallback((direction) => {
+        if (!selectedClass || relatedClasses.length <= 1) return;
+        const currentIndex = relatedClasses.findIndex(c => c.id === selectedClass.id);
+        let nextIndex;
+        if (direction === 'next') {
+            nextIndex = (currentIndex + 1) % relatedClasses.length;
+        } else {
+            nextIndex = (currentIndex - 1 + relatedClasses.length) % relatedClasses.length;
+        }
+        const nextClass = relatedClasses[nextIndex];
+        const matchingPrefix = targetCoursePrefixes.find(prefix =>
+            nextClass.short?.toUpperCase().startsWith(prefix) || nextClass.name?.toUpperCase().startsWith(prefix)
+        );
+        if (matchingPrefix) setSelectedPrefix(matchingPrefix);
+        setSelectedClass(nextClass);
+    }, [selectedClass, relatedClasses]);
 
     // Load stored data on component mount
     useEffect(() => {
@@ -1008,6 +1029,130 @@ const EdupageDataView = () => {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
                                 >
+                                    {/* Search Results (when search term is active) */}
+                                    {searchTerm && searchTerm.trim().length > 0 && (() => {
+                                        const term = searchTerm.toLowerCase();
+                                        const matchingSubjects = (data.subjects || []).filter(s =>
+                                            s.short?.toLowerCase().includes(term) || s.name?.toLowerCase().includes(term)
+                                        );
+
+                                        if (matchingSubjects.length === 0) {
+                                            return (
+                                                <div className="mb-6 p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                                                    <Search className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                                                    <p className="text-gray-600 dark:text-gray-400 font-medium">No subjects found matching "{searchTerm}"</p>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">Try searching by subject code or name</p>
+                                                </div>
+                                            );
+                                        }
+
+                                        // For each matching subject, find lessons and associated classes (only from target programmes)
+                                        const results = matchingSubjects.map(subject => {
+                                            const subjectLessons = (data.lessons || []).filter(l => l.subjectid === subject.id);
+                                            const classIds = [...new Set(subjectLessons.flatMap(l => l.classids || []))];
+                                            const associatedClasses = classIds
+                                                .map(cid => (data.classes || []).find(c => c.id === cid))
+                                                .filter(Boolean)
+                                                .filter(c => targetCoursePrefixes.some(prefix =>
+                                                    c.short?.toUpperCase().startsWith(prefix) || c.name?.toUpperCase().startsWith(prefix)
+                                                ));
+                                            const teacherIds = [...new Set(subjectLessons.flatMap(l => l.teacherids || []))];
+                                            const associatedTeachers = teacherIds
+                                                .map(tid => (data.teachers || []).find(t => t.id === tid))
+                                                .filter(Boolean);
+                                            return { subject, lessons: subjectLessons, classes: associatedClasses, teachers: associatedTeachers };
+                                        }).filter(r => r.classes.length > 0).slice(0, 20); // Filter first, THEN limit
+
+                                        if (results.length === 0) {
+                                            return (
+                                                <div className="mb-6 p-6 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
+                                                    <Search className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                                                    <p className="text-gray-600 dark:text-gray-400 font-medium">No subjects found matching "{searchTerm}" in CT206, CT204 or CC101</p>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">Try searching by subject code or name</p>
+                                                </div>
+                                            );
+                                        }
+
+                                        return (
+                                            <div className="mb-6">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <Search className="w-4 h-4 text-primary-500" />
+                                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                        {results.length} subject{results.length !== 1 ? 's' : ''} matching "{searchTerm}"
+                                                    </span>
+                                                </div>
+                                                <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                                                    <table className="w-full text-sm">
+                                                        <thead>
+                                                            <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+                                                                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">Subject Code</th>
+                                                                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">Subject Name</th>
+                                                                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">Lecturer(s)</th>
+                                                                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">Classes</th>
+                                                                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">Lessons</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {results.map(({ subject, lessons, classes: cls, teachers }) => (
+                                                                <tr
+                                                                    key={subject.id}
+                                                                    className="border-b border-gray-100 dark:border-gray-700/50 hover:bg-primary-50/50 dark:hover:bg-primary-900/10 transition-colors"
+                                                                >
+                                                                    <td className="py-3 px-4">
+                                                                        <span className="font-mono font-bold text-primary-600 dark:text-primary-400">
+                                                                            {subject.short}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                                                                        {subject.name || '—'}
+                                                                    </td>
+                                                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
+                                                                        {teachers.length > 0
+                                                                            ? teachers.map(t => t.short || t.name).join(', ')
+                                                                            : '—'
+                                                                        }
+                                                                    </td>
+                                                                    <td className="py-3 px-4">
+                                                                        <div className="flex flex-wrap gap-1">
+                                                                            {cls.length > 0 ? cls.map(c => {
+                                                                                const matchingPrefix = targetCoursePrefixes.find(prefix =>
+                                                                                    c.short?.toUpperCase().startsWith(prefix) || c.name?.toUpperCase().startsWith(prefix)
+                                                                                );
+                                                                                return (
+                                                                                    <button
+                                                                                        key={c.id}
+                                                                                        onClick={() => {
+                                                                                            if (matchingPrefix) {
+                                                                                                setSelectedPrefix(matchingPrefix);
+                                                                                                setSelectedClass(c);
+                                                                                                setRelatedClasses(cls);
+                                                                                                setSearchTerm('');
+                                                                                            }
+                                                                                        }}
+                                                                                        className="inline-block px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded hover:bg-blue-200 dark:hover:bg-blue-800/50 hover:scale-105 transition-all cursor-pointer"
+                                                                                        title={`View timetable for ${c.short || c.name}`}
+                                                                                    >
+                                                                                        {c.short || c.name}
+                                                                                    </button>
+                                                                                );
+                                                                            }) : <span className="text-gray-400">—</span>}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400 font-mono">
+                                                                        {lessons.length}
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                {matchingSubjects.length > 20 && (
+                                                    <p className="text-xs text-gray-500 mt-2 text-center">Showing first 20 of {matchingSubjects.length} results</p>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
+
                                     {/* Course Prefix Selector */}
                                     <div className="mb-6">
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1022,6 +1167,7 @@ const EdupageDataView = () => {
                                                         onClick={() => {
                                                             setSelectedPrefix(selectedPrefix === prefix ? null : prefix);
                                                             setSelectedClass(null);
+                                                            setRelatedClasses([]);
                                                         }}
                                                         className={`
                                                             px-4 py-2 rounded-lg font-medium transition-all duration-200
@@ -1056,21 +1202,27 @@ const EdupageDataView = () => {
                                                 Select Class/Semester
                                             </label>
                                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                                                {classesGroupedByPrefix[selectedPrefix].map(cls => (
-                                                    <button
-                                                        key={cls.id}
-                                                        onClick={() => setSelectedClass(selectedClass?.id === cls.id ? null : cls)}
-                                                        className={`
+                                                {classesGroupedByPrefix[selectedPrefix]
+                                                    .filter(cls => {
+                                                        if (!searchTerm) return true;
+                                                        const term = searchTerm.toLowerCase();
+                                                        return (cls.short?.toLowerCase().includes(term) || cls.name?.toLowerCase().includes(term));
+                                                    })
+                                                    .map(cls => (
+                                                        <button
+                                                            key={cls.id}
+                                                            onClick={() => { setSelectedClass(selectedClass?.id === cls.id ? null : cls); setRelatedClasses([]); }}
+                                                            className={`
                                                             px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
                                                             ${selectedClass?.id === cls.id
-                                                                ? 'bg-green-500 text-white shadow-md'
-                                                                : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600'
-                                                            }
+                                                                    ? 'bg-green-500 text-white shadow-md'
+                                                                    : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600'
+                                                                }
                                                         `}
-                                                    >
-                                                        {cls.short || cls.name}
-                                                    </button>
-                                                ))}
+                                                        >
+                                                            {cls.short || cls.name}
+                                                        </button>
+                                                    ))}
                                             </div>
                                         </div>
                                     )}
@@ -1081,12 +1233,39 @@ const EdupageDataView = () => {
                                             {/* Class Header */}
                                             <div className="mb-4 p-4 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/30 dark:to-blue-900/20 rounded-xl border border-primary-200 dark:border-primary-800">
                                                 <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <h3 className="text-xl font-bold text-primary-700 dark:text-primary-300">
-                                                            {selectedClass.short || selectedClass.name}
-                                                        </h3>
-                                                        {selectedClass.name && selectedClass.name !== selectedClass.short && (
-                                                            <p className="text-sm text-gray-600 dark:text-gray-400">{selectedClass.name}</p>
+                                                    <div className="flex items-center gap-3">
+                                                        {/* Prev Button */}
+                                                        {relatedClasses.length > 1 && (
+                                                            <button
+                                                                onClick={() => navigateRelatedClass('prev')}
+                                                                className="p-2 rounded-lg bg-white/80 dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:border-primary-300 dark:hover:border-primary-700 transition-all text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
+                                                                title="Previous class"
+                                                            >
+                                                                <ChevronLeft className="w-5 h-5" />
+                                                            </button>
+                                                        )}
+                                                        <div>
+                                                            <h3 className="text-xl font-bold text-primary-700 dark:text-primary-300">
+                                                                {selectedClass.short || selectedClass.name}
+                                                            </h3>
+                                                            {selectedClass.name && selectedClass.name !== selectedClass.short && (
+                                                                <p className="text-sm text-gray-600 dark:text-gray-400">{selectedClass.name}</p>
+                                                            )}
+                                                            {relatedClasses.length > 1 && (
+                                                                <p className="text-xs text-primary-500 dark:text-primary-400 font-medium mt-0.5">
+                                                                    {relatedClasses.findIndex(c => c.id === selectedClass.id) + 1} of {relatedClasses.length} classes
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        {/* Next Button */}
+                                                        {relatedClasses.length > 1 && (
+                                                            <button
+                                                                onClick={() => navigateRelatedClass('next')}
+                                                                className="p-2 rounded-lg bg-white/80 dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:border-primary-300 dark:hover:border-primary-700 transition-all text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
+                                                                title="Next class"
+                                                            >
+                                                                <ChevronRight className="w-5 h-5" />
+                                                            </button>
                                                         )}
                                                     </div>
                                                     <div className="text-right">

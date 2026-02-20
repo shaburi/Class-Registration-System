@@ -19,9 +19,9 @@
     /* Much lighter blur background */
     --glass-shadow: 0 4px 40px 0 rgba(0, 0, 0, 0.05);
     /* Diffused and faint */
-    --neon-accent: #6366f1;
-    /* Indigo */
-    --neon-glow: rgba(99, 102, 241, 0.3);
+    --neon-accent: #dc2626;
+    /* UPTM Crimson Red */
+    --neon-glow: rgba(220, 38, 38, 0.3);
 
     /* Text - High Contrast for Light Mode */
     --text-primary: #0f172a;
@@ -40,9 +40,9 @@
     /* Much more transparent */
     --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
     /* Softer drop */
-    --neon-accent: #818cf8;
-    /* Indigo 400 */
-    --neon-glow: rgba(129, 140, 248, 0.25);
+    --neon-accent: #ef4444;
+    /* UPTM Red (Lighter for dark mode visibility) */
+    --neon-glow: rgba(239, 68, 68, 0.25);
 
     /* Text */
     --text-primary: #f8fafc;
