@@ -25,10 +25,13 @@ export default function CourseRecommendations({ onViewCourse }) {
 
     if (loading) {
         return (
-            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-6 mb-6">
-                <div className="flex items-center gap-3 mb-4">
-                    <Sparkles className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                    <h3 className="font-bold text-lg text-gray-800 dark:text-white">Recommended for You</h3>
+            <div className="relative bg-white/80 dark:bg-[#0d0f18]/80 backdrop-blur-2xl rounded-[32px] p-8 mb-8 border border-gray-200/50 dark:border-white/5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] overflow-hidden">
+                <div className="absolute top-[-50%] right-[-10%] w-[300px] h-[300px] bg-indigo-500/20 blur-[100px] rounded-full pointer-events-none"></div>
+                <div className="relative z-10 flex items-center gap-4 mb-6">
+                    <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl shadow-inner">
+                        <Sparkles className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <h3 className="font-bold text-2xl text-gray-900 dark:text-white font-heading tracking-tight drop-shadow-sm dark:drop-shadow-lg">Recommended for You</h3>
                 </div>
                 <div className="flex items-center justify-center py-8">
                     <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
@@ -43,57 +46,67 @@ export default function CourseRecommendations({ onViewCourse }) {
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-6 mb-6 border border-indigo-100 dark:border-indigo-800"
+            className="relative bg-white/80 dark:bg-[#0d0f18]/80 backdrop-blur-2xl rounded-[32px] p-8 mb-8 border border-gray-200/50 dark:border-white/5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] overflow-hidden"
         >
-            <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl">
-                    <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            <div className="absolute inset-0 rounded-[32px] pointer-events-none border-t border-white/50 dark:border-white/10 opacity-50"></div>
+            <div className="absolute top-[-50%] right-[-10%] w-[400px] h-[400px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+            <div className="absolute bottom-[-20%] left-[-10%] w-[300px] h-[300px] bg-purple-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+            <div className="relative z-10 flex items-center gap-4 mb-8">
+                <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl shadow-inner relative group cursor-default">
+                    <div className="absolute inset-0 bg-indigo-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
+                    <Sparkles className="w-6 h-6 text-indigo-600 dark:text-indigo-400 relative z-10" />
                 </div>
                 <div>
-                    <h3 className="font-bold text-lg text-gray-800 dark:text-white">Recommended for You</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Based on popularity and availability</p>
+                    <h3 className="font-bold text-2xl text-gray-900 dark:text-white font-heading tracking-tight drop-shadow-sm dark:drop-shadow-md">Recommended for You</h3>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-widest text-[10px]">Based on popularity & availability</p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {recommendations.map((course, index) => (
                     <motion.div
                         key={course.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all cursor-pointer group"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1, type: 'spring', bounce: 0.4 }}
+                        whileHover={{ y: -4, scale: 1.02 }}
+                        className="bg-white/60 dark:bg-[#1a1d29]/60 backdrop-blur-md rounded-2xl p-5 border border-gray-200/50 dark:border-white/5 hover:border-indigo-300/40 dark:hover:border-indigo-500/40 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 shadow-lg hover:shadow-[0_0_30px_rgba(99,102,241,0.1)] dark:hover:shadow-[0_0_30px_rgba(99,102,241,0.2)] transition-all cursor-pointer group relative overflow-hidden"
                         onClick={() => onViewCourse && onViewCourse(course.code)}
                     >
-                        <div className="flex justify-between items-start mb-2">
-                            <div className="flex-1">
-                                <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+                        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gray-400/20 dark:via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+                        <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1 pr-4">
+                                <span className="text-[11px] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 uppercase tracking-widest drop-shadow-sm">
                                     {course.code}
                                 </span>
-                                <h4 className="font-semibold text-gray-800 dark:text-white text-sm line-clamp-2 mt-1">
+                                <h4 className="font-bold text-gray-900 dark:text-white text-base line-clamp-2 mt-1.5 leading-snug">
                                     {course.name}
                                 </h4>
                             </div>
-                            <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+                            <div className="w-8 h-8 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 flex items-center justify-center group-hover:bg-indigo-500/10 dark:group-hover:bg-indigo-500/20 transition-colors shrink-0">
+                                <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors" />
+                            </div>
                         </div>
 
-                        <div className="flex items-center gap-4 mt-3 text-xs text-gray-500 dark:text-gray-400">
-                            <div className="flex items-center gap-1">
-                                <Users className="w-3.5 h-3.5" />
+                        <div className="flex items-center gap-5 mt-4 pt-4 border-t border-gray-200/50 dark:border-white/5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                            <div className="flex items-center gap-2 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                                <Users className="w-4 h-4 text-indigo-500/70 dark:text-indigo-400/70" />
                                 <span>{course.popularity} enrolled</span>
                             </div>
-                            <div className="flex items-center gap-1">
-                                <Clock className="w-3.5 h-3.5" />
+                            <div className="flex items-center gap-2 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                                <Clock className="w-4 h-4 text-purple-500/70 dark:text-purple-400/70" />
                                 <span>{course.credit_hours} credits</span>
                             </div>
                         </div>
 
-                        <div className="mt-3">
-                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${course.reason === 'Popular choice'
-                                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                                    : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                        <div className="mt-4 flex">
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase transition-colors shadow-inner ${course.reason === 'Popular choice'
+                                ? 'border border-amber-500/30 text-amber-300 bg-amber-500/10 shadow-[inset_0_0_10px_rgba(245,158,11,0.1)] group-hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                                : 'border border-emerald-500/30 text-emerald-300 bg-emerald-500/10 shadow-[inset_0_0_10px_rgba(16,185,129,0.1)] group-hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]'
                                 }`}>
                                 <TrendingUp className="w-3 h-3" />
                                 {course.reason}

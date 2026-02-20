@@ -101,22 +101,24 @@ const RegistrationSection = ({
                 {/* Header with Import Button */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <div className="flex items-center gap-3">
-                        <h3 className="font-bold text-xl text-gray-800 dark:text-white flex items-center gap-2">
-                            <BookOpen className="w-6 h-6 text-indigo-500" />
+                        <div className="p-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl shadow-inner">
+                            <BookOpen className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                        <h3 className="font-bold text-2xl text-gray-900 dark:text-white font-heading tracking-tight drop-shadow-sm dark:drop-shadow-md">
                             Available Courses
                         </h3>
                         {filterActive && (
-                            <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-xs font-medium rounded-full flex items-center gap-1">
+                            <span className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-1 shadow-[0_0_10px_rgba(99,102,241,0.1)]">
                                 <Filter className="w-3 h-3" />
-                                {filterCount} subjects filtered
+                                {filterCount} filters
                             </span>
                         )}
                     </div>
-                    <div className="flex gap-2 w-full sm:w-auto">
+                    <div className="flex gap-3 w-full sm:w-auto">
                         {filterActive && (
                             <button
                                 onClick={clearFilter}
-                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 rounded-lg transition"
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white border border-gray-200 dark:border-white/10 rounded-xl transition-all duration-300 font-medium text-sm"
                             >
                                 <X className="w-4 h-4" />
                                 Clear Filter
@@ -124,9 +126,9 @@ const RegistrationSection = ({
                         )}
                         <button
                             onClick={() => setShowSubjectImport(true)}
-                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition shadow-md shadow-indigo-500/20"
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:shadow-[0_0_25px_rgba(99,102,241,0.5)] font-bold text-sm border border-indigo-400/50 group"
                         >
-                            <Upload className="w-4 h-4" />
+                            <Upload className="w-4 h-4 group-hover:-translate-y-1 transition-transform" />
                             Import My Subjects
                         </button>
                     </div>
@@ -134,23 +136,23 @@ const RegistrationSection = ({
 
                 {/* Semester Filter */}
                 {setSemesterFilter && (
-                    <div className="flex flex-wrap items-center gap-3 mb-4">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Show subjects from:</span>
+                    <div className="flex flex-wrap items-center gap-4 mb-6">
+                        <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Show subjects from:</span>
                         <div className="flex flex-wrap gap-2">
                             <button
                                 onClick={() => setSemesterFilter('current')}
-                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${semesterFilter === 'current'
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-indigo-500'
+                                className={`px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${semesterFilter === 'current'
+                                    ? 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-indigo-400'
+                                    : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-800 dark:hover:text-white'
                                     }`}
                             >
                                 Semester {currentSemester} (Current)
                             </button>
                             <button
                                 onClick={() => setSemesterFilter('all')}
-                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${semesterFilter === 'all'
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-indigo-500'
+                                className={`px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${semesterFilter === 'all'
+                                    ? 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-indigo-400'
+                                    : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-800 dark:hover:text-white'
                                     }`}
                             >
                                 All Semesters
@@ -159,9 +161,9 @@ const RegistrationSection = ({
                                 <button
                                     key={sem}
                                     onClick={() => setSemesterFilter(sem.toString())}
-                                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${semesterFilter === sem.toString()
-                                            ? 'bg-indigo-600 text-white'
-                                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-indigo-500'
+                                    className={`px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${semesterFilter === sem.toString()
+                                        ? 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-indigo-400'
+                                        : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-800 dark:hover:text-white'
                                         }`}
                                 >
                                     Sem {sem}
@@ -181,7 +183,7 @@ const RegistrationSection = ({
                         placeholder="Search courses by code or name..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                        className="w-full pl-12 pr-12 py-3.5 bg-white/80 dark:bg-[#07090e]/80 border border-gray-200 dark:border-white/10 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-indigo-500/50 focus:shadow-[0_0_20px_rgba(99,102,241,0.1)] dark:focus:shadow-[0_0_20px_rgba(99,102,241,0.2)] shadow-inner transition-all font-medium"
                     />
                     {searchQuery && (
                         <button
@@ -240,52 +242,53 @@ const RegistrationSection = ({
                                 <motion.div
                                     layout
                                     key={subject.code}
-                                    className="glass-card rounded-2xl overflow-hidden hover:shadow-lg transition-all"
+                                    className="bg-white/80 dark:bg-[#0b0d14]/80 backdrop-blur-xl border border-gray-200/50 dark:border-white/5 rounded-[24px] overflow-hidden hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 group/accordion"
                                 >
                                     {/* Subject Header - Clickable */}
                                     <button
                                         onClick={() => setExpandedSubject(isExpanded ? null : subject.code)}
-                                        className="w-full flex items-center justify-between p-4 hover:bg-[var(--glass-border)] transition-colors text-left"
+                                        className="w-full flex items-center justify-between p-5 hover:bg-white/5 transition-colors text-left"
                                     >
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white bg-gradient-to-br shadow-inner ${hasRegistration
-                                                ? 'from-green-500 to-emerald-600'
-                                                : isExpanded ? 'from-indigo-600 to-purple-600' : 'from-indigo-500 to-indigo-600'
+                                        <div className="flex items-center gap-5">
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-gray-900 dark:text-white text-lg bg-gradient-to-br shadow-inner border border-gray-200/50 dark:border-white/10 transition-all duration-300 ${hasRegistration
+                                                ? 'from-green-100 to-emerald-200 dark:from-green-500 dark:to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]'
+                                                : isExpanded ? 'from-purple-200 to-indigo-200 dark:from-purple-600 dark:to-indigo-600 shadow-[0_0_20px_rgba(168,85,247,0.3)]' : 'from-gray-100 to-gray-50 dark:from-[#1a1d29] dark:to-[#0d0f18] text-gray-600 dark:text-gray-300 group-hover/accordion:border-gray-300 dark:group-hover/accordion:border-white/20'
                                                 }`}>
                                                 {subject.code.slice(0, 3)}
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-gray-900 dark:text-white text-lg">
+                                                <h3 className="font-bold text-gray-900 dark:text-white font-heading tracking-tight text-xl mb-1">
                                                     {subject.code}
                                                 </h3>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium line-clamp-1">
                                                     {subject.name}
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-4">
                                             {/* Semester Badge */}
-                                            <span className="hidden sm:inline-flex px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold rounded-full">
+                                            <span className="hidden sm:inline-flex px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-widest rounded-full">
                                                 Sem {subject.subject_semester}
                                             </span>
                                             {/* Prerequisite Warning */}
                                             {subject.prerequisites && subject.prerequisites.length > 0 && (
-                                                <span className="hidden sm:inline-flex px-2.5 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-semibold rounded-full" title={`Requires: ${subject.prerequisites.join(', ')}`}>
+                                                <span className="hidden sm:inline-flex px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-[inset_0_0_10px_rgba(245,158,11,0.1)]" title={`Requires: ${subject.prerequisites.join(', ')}`}>
                                                     ⚠️ Prereq
                                                 </span>
                                             )}
                                             {hasRegistration && (
-                                                <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold rounded-full flex items-center gap-1">
+                                                <span className="px-3 py-1 bg-green-500/10 border border-green-500/30 text-green-400 text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-1.5 shadow-[inset_0_0_10px_rgba(34,197,94,0.1)]">
                                                     ✓ Registered
                                                 </span>
                                             )}
-                                            <div className="flex flex-col items-end sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm text-gray-500 dark:text-gray-400 min-w-[80px] text-right">
-                                                <span>{subject.sections.length} section{subject.sections.length !== 1 ? 's' : ''}</span>
+                                            <div className="flex flex-col items-end sm:flex-row sm:items-center gap-2 sm:gap-5 text-sm text-gray-500 min-w-[80px] text-right">
+                                                <span className="font-medium text-xs uppercase tracking-wider">{subject.sections.length} section{subject.sections.length !== 1 ? 's' : ''}</span>
                                                 <motion.div
                                                     animate={{ rotate: isExpanded ? 180 : 0 }}
-                                                    transition={{ duration: 0.2 }}
+                                                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                                                    className="w-8 h-8 rounded-full bg-black/5 dark:bg-white/5 hidden sm:flex items-center justify-center border border-gray-200 dark:border-white/5 group-hover/accordion:bg-black/10 dark:group-hover/accordion:bg-white/10 transition-colors"
                                                 >
-                                                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                                                    <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover/accordion:text-gray-900 dark:group-hover/accordion:text-white" />
                                                 </motion.div>
                                             </div>
                                         </div>
@@ -301,7 +304,8 @@ const RegistrationSection = ({
                                                 transition={{ duration: 0.3, ease: "easeInOut" }}
                                                 className="border-t border-[var(--glass-border)]"
                                             >
-                                                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-[var(--bg-secondary)]/30">
+                                                <div className="p-5 grid grid-cols-1 xl:grid-cols-2 gap-5 bg-white/50 dark:bg-[#07090e]/50 border-t border-gray-200/50 dark:border-white/5 relative shadow-inner">
+                                                    <div className="absolute inset-0 bg-gradient-to-b from-gray-100/50 to-transparent dark:from-black/20 dark:to-transparent pointer-events-none"></div>
                                                     {subject.sections.map(section => {
                                                         const alreadyRegistered = isRegistered(section.section_id);
                                                         const isFull = section.enrolled_count >= section.capacity;
@@ -309,73 +313,92 @@ const RegistrationSection = ({
                                                         return (
                                                             <div
                                                                 key={section.section_id}
-                                                                className={`bg-white dark:bg-gray-800 border rounded-xl p-5 shadow-sm transition-all hover:shadow-md ${alreadyRegistered
-                                                                    ? 'border-green-500/50 ring-1 ring-green-500/20 bg-green-500/5'
-                                                                    : 'glass-card border-[var(--glass-border)]'
+                                                                className={`relative rounded-[20px] p-6 transition-all duration-300 group overflow-hidden ${alreadyRegistered
+                                                                    ? 'bg-green-50/50 dark:bg-green-900/10 border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.05)]'
+                                                                    : 'bg-white/60 dark:bg-[#1a1d29]/60 border border-gray-200 dark:border-white/5 hover:border-indigo-300/50 dark:hover:border-indigo-500/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.1)]'
                                                                     }`}
                                                             >
-                                                                <div className="flex justify-between items-start mb-4">
+                                                                {/* Background glow effect on hover */}
+                                                                {!alreadyRegistered && <div className="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>}
+
+                                                                <div className="flex justify-between items-start mb-5 relative z-10">
                                                                     <div>
-                                                                        <span className="font-bold text-gray-800 dark:text-white text-lg">
+                                                                        <span className="font-bold text-gray-900 dark:text-white text-xl font-heading tracking-tight">
                                                                             Section {section.section_number}
                                                                         </span>
                                                                     </div>
-                                                                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${section.enrolled_count < section.capacity
-                                                                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                                                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                                                    <span className={`px-3 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-bold border ${section.enrolled_count < section.capacity
+                                                                        ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10 shadow-[inset_0_0_10px_rgba(16,185,129,0.1)]'
+                                                                        : 'border-red-500/30 text-red-400 bg-red-500/10 shadow-[inset_0_0_10px_rgba(239,68,68,0.1)]'
                                                                         }`}>
                                                                         {section.enrolled_count}/{section.capacity}
                                                                     </span>
                                                                 </div>
 
-                                                                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-5">
+                                                                <div className="space-y-3 text-sm text-gray-500 dark:text-gray-400 mb-6 relative z-10">
                                                                     {section.schedules && section.schedules.length > 0 ? (
                                                                         section.schedules.map((sched, idx) => (
-                                                                            <div key={idx} className="flex items-center gap-2 flex-wrap bg-gray-50 dark:bg-gray-700/30 p-2 rounded-lg">
-                                                                                <Calendar className="w-4 h-4 text-indigo-500" />
-                                                                                <span className="capitalize font-medium">{sched.day}</span>
-                                                                                <Clock className="w-4 h-4 text-indigo-500 ml-2" />
-                                                                                <span>{sched.start_time} - {sched.end_time}</span>
-                                                                                {sched.room && <span className="text-gray-400 text-xs ml-auto font-mono bg-white dark:bg-gray-600 px-1 rounded">{sched.room}</span>}
+                                                                            <div key={idx} className="flex items-center justify-between bg-gray-50/50 dark:bg-[#07090e]/50 border border-gray-200/50 dark:border-white/5 p-3 rounded-xl hover:border-gray-300 dark:group-hover:border-white/10 transition-colors">
+                                                                                <div className="flex items-center gap-4">
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <Calendar className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                                                                                        <span className="capitalize font-medium text-gray-700 dark:text-gray-300">{sched.day}</span>
+                                                                                    </div>
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <Clock className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+                                                                                        <span className="text-gray-600 dark:text-gray-300">{sched.start_time} - {sched.end_time}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                                {sched.room && <span className="text-gray-500 dark:text-gray-400 text-[11px] font-bold uppercase tracking-widest bg-black/5 dark:bg-white/5 border border-gray-200/50 dark:border-white/5 px-2 py-1 rounded-md">{sched.room}</span>}
                                                                             </div>
                                                                         ))
                                                                     ) : (
-                                                                        <div className="bg-gray-50 dark:bg-gray-700/30 p-2 rounded-lg">
-                                                                            <div className="flex items-center gap-2 mb-1">
-                                                                                <Calendar className="w-4 h-4 text-indigo-500" />
-                                                                                <span className="capitalize font-medium">{section.day || 'TBA'}</span>
-                                                                            </div>
-                                                                            <div className="flex items-center gap-2">
-                                                                                <Clock className="w-4 h-4 text-indigo-500" />
-                                                                                <span>{section.start_time && section.end_time ? `${section.start_time} - ${section.end_time}` : 'TBA'}</span>
+                                                                        <div className="bg-gray-50/50 dark:bg-[#07090e]/50 border border-gray-200/50 dark:border-white/5 p-3 rounded-xl flex items-center justify-between">
+                                                                            <div className="flex items-center gap-4">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <Calendar className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                                                                                    <span className="capitalize font-medium text-gray-700 dark:text-gray-300">{section.day || 'TBA'}</span>
+                                                                                </div>
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <Clock className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+                                                                                    <span className="text-gray-600 dark:text-gray-300">{section.start_time && section.end_time ? `${section.start_time} - ${section.end_time}` : 'TBA'}</span>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                     )}
-                                                                    <div className="pt-2 flex items-center gap-2 text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700 mt-2">
-                                                                        <User className="w-4 h-4" />
-                                                                        <span className="text-xs">{section.lecturer_name || 'TBA'}</span>
+                                                                    <div className="pt-3 flex items-center gap-3 text-gray-400 border-t border-gray-200/50 dark:border-white/5 mt-3">
+                                                                        <User className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors" />
+                                                                        <span className="text-xs font-semibold tracking-wide uppercase">{section.lecturer_name || 'TBA'}</span>
                                                                     </div>
                                                                 </div>
 
-                                                                {alreadyRegistered ? (
-                                                                    <div className="py-2.5 text-center font-bold rounded-lg bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border border-green-200 dark:border-green-800/50 flex items-center justify-center gap-2">
-                                                                        <span className="text-lg">✓</span> Registered
-                                                                    </div>
-                                                                ) : isFull ? (
-                                                                    <button
-                                                                        onClick={() => onRequestJoin(section.section_id, 'Requesting to join full section')}
-                                                                        className="w-full py-2.5 font-bold rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition shadow-md shadow-amber-500/20"
-                                                                    >
-                                                                        Request to Join
-                                                                    </button>
-                                                                ) : (
-                                                                    <button
-                                                                        onClick={() => handleRegisterClick(section.section_id, subject.prerequisites)}
-                                                                        className="w-full py-2.5 font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition shadow-md shadow-indigo-500/20"
-                                                                    >
-                                                                        Register Now
-                                                                    </button>
-                                                                )}
+                                                                <div className="relative z-10">
+                                                                    {alreadyRegistered ? (
+                                                                        <div className="py-3 mt-2 text-center font-bold tracking-widest uppercase text-[11px] rounded-[14px] bg-green-500/10 text-green-400 border border-green-500/30 flex items-center justify-center gap-2 shadow-[inset_0_0_10px_rgba(34,197,94,0.1)]">
+                                                                            <span className="text-sm">✓</span> Registered
+                                                                        </div>
+                                                                    ) : isFull ? (
+                                                                        <button
+                                                                            onClick={() => onRequestJoin(section.section_id, 'Requesting to join full section')}
+                                                                            className="w-full py-3.5 mt-2 font-bold tracking-widest uppercase text-[11px] rounded-[14px] relative overflow-hidden group/btn border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:text-white transition-all duration-300 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+                                                                        >
+                                                                            <div className="absolute inset-0 bg-gradient-to-r from-amber-600 to-orange-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                                                                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                                                                Request to Join
+                                                                            </span>
+                                                                        </button>
+                                                                    ) : (
+                                                                        <button
+                                                                            onClick={() => handleRegisterClick(section.section_id, subject.prerequisites)}
+                                                                            className="w-full py-3.5 mt-2 font-bold tracking-widest uppercase text-[11px] rounded-[14px] relative overflow-hidden group/btn border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 hover:text-white transition-all duration-300 shadow-[0_0_15px_rgba(99,102,241,0.1)]"
+                                                                        >
+                                                                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                                                                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                                                                Register Now
+                                                                            </span>
+                                                                        </button>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         );
                                                     })}

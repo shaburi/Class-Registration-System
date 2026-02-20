@@ -585,17 +585,17 @@ export default function StudentDashboard() {
     const displayName = user?.displayName || user?.student_name || user?.studentName || user?.lecturerName || user?.name || user?.email?.split('@')[0] || 'Student';
 
     const headerContent = (
-        <div className="flex flex-col gap-2">
-            <h2 className="text-3xl md:text-4xl font-bold mb-1">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--text-primary)] via-[var(--neon-accent)] to-[var(--text-primary)] animate-gradient-x">
+        <div className="flex flex-col gap-2 relative z-10">
+            <h2 className="text-3xl md:text-5xl font-bold mb-1 font-heading tracking-tight text-gray-900 dark:text-white drop-shadow-sm dark:drop-shadow-lg">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 dark:from-indigo-400 dark:via-purple-400 dark:to-indigo-400 animate-gradient-x">
                     Welcome back
                 </span>
                 , {displayName}
             </h2>
-            <div className="flex items-center gap-4 text-[var(--text-secondary)]">
+            <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400 font-medium tracking-wide">
                 <p>Here is what's happening today.</p>
-                <div className="hidden md:block w-1 h-1 bg-gray-400 rounded-full"></div>
-                <div className="hidden md:block text-sm font-medium opacity-80">
+                <div className="hidden md:block w-1.5 h-1.5 bg-gray-400 dark:bg-gray-600 rounded-full"></div>
+                <div className="hidden md:block text-[11px] font-bold uppercase tracking-widest opacity-80 text-gray-500">
                     {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </div>
             </div>
@@ -628,10 +628,14 @@ export default function StudentDashboard() {
 
                 <motion.div
                     variants={itemVariants}
-                    className="glass-card p-8 min-h-[500px] rounded-3xl relative overflow-hidden"
+                    className="bg-white/80 dark:bg-[#0b0d14]/80 backdrop-blur-3xl border border-gray-200/50 dark:border-white/5 p-8 min-h-[500px] rounded-[32px] relative overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)]"
                 >
-                    <div className="absolute top-0 right-0 p-8 opacity-20 pointer-events-none">
-                        <Sparkles className="w-64 h-64 text-[var(--neon-accent)] blur-3xl" />
+                    {/* Ambient Background Orbs inside the main card */}
+                    <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+                    <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] bg-purple-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+                    <div className="absolute top-0 right-0 p-8 opacity-30 pointer-events-none mix-blend-screen">
+                        <Sparkles className="w-64 h-64 text-indigo-500 blur-3xl animate-pulse" />
                     </div>
 
                     {activeTab === 'timetable' && (

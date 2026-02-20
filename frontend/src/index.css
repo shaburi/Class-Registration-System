@@ -13,9 +13,12 @@
     /* Light Mode (Porcelain Glass) */
     --bg-primary: #f8f9fc;
     --bg-secondary: #ffffff;
-    --glass-border: rgba(255, 255, 255, 0.6);
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    /* Thinner border for light mode */
+    --glass-bg: rgba(255, 255, 255, 0.4);
+    /* Much lighter blur background */
+    --glass-shadow: 0 4px 40px 0 rgba(0, 0, 0, 0.05);
+    /* Diffused and faint */
     --neon-accent: #6366f1;
     /* Indigo */
     --neon-glow: rgba(99, 102, 241, 0.3);
@@ -31,9 +34,12 @@
     --bg-primary: #030712;
     /* Gray 950+ */
     --bg-secondary: #0f172a;
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-bg: rgba(17, 25, 40, 0.75);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    --glass-border: rgba(255, 255, 255, 0.05);
+    /* Barely there border */
+    --glass-bg: rgba(17, 25, 40, 0.4);
+    /* Much more transparent */
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    /* Softer drop */
     --neon-accent: #818cf8;
     /* Indigo 400 */
     --neon-glow: rgba(129, 140, 248, 0.25);
@@ -133,19 +139,19 @@
     z-index: -1;
     background-color: var(--bg-primary);
     background-image:
-      radial-gradient(at 0% 0%, hsla(253, 16%, 90%, 1) 0, transparent 50%),
-      radial-gradient(at 50% 0%, hsla(225, 39%, 90%, 1) 0, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(339, 49%, 90%, 1) 0, transparent 50%);
-    opacity: 0.6;
-    animation: pulseGradient 15s ease-in-out infinite alternate;
+      radial-gradient(at 0% 0%, hsla(253, 20%, 96%, 1) 0, transparent 40%),
+      radial-gradient(at 50% 0%, hsla(225, 30%, 95%, 1) 0, transparent 40%),
+      radial-gradient(at 100% 0%, hsla(339, 30%, 96%, 1) 0, transparent 40%);
+    opacity: 0.4;
+    animation: pulseGradient 20s ease-in-out infinite alternate;
   }
 
   .dark .mesh-gradient-bg {
-    opacity: 0.8;
+    opacity: 0.6;
     background-image:
-      radial-gradient(at 0% 0%, hsla(253, 50%, 15%, 1) 0, transparent 50%),
-      radial-gradient(at 50% 0%, hsla(240, 50%, 20%, 1) 0, transparent 50%),
-      radial-gradient(at 100% 0%, hsla(280, 50%, 20%, 1) 0, transparent 50%);
+      radial-gradient(at 0% 0%, hsla(253, 60%, 8%, 1) 0, transparent 40%),
+      radial-gradient(at 50% 0%, hsla(240, 60%, 10%, 1) 0, transparent 40%),
+      radial-gradient(at 100% 0%, hsla(280, 60%, 12%, 1) 0, transparent 40%);
   }
 
   @keyframes pulseGradient {

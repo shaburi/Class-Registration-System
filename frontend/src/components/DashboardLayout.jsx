@@ -124,111 +124,154 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
             {/* Mesh Gradient Background */}
             <div className="mesh-gradient-bg" />
 
-            {/* Glass Sidebar */}
+            {/* Floating Glass Sidebar (Dynamic Island Style) */}
             <motion.aside
                 initial={false}
                 animate={{ width: isCollapsed ? 90 : 280 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="relative flex flex-col h-[96vh] my-[2vh] ml-[2vh] glass-card rounded-3xl z-20 overflow-hidden"
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="relative flex flex-col h-[94vh] my-[3vh] ml-[3vh] bg-white/40 dark:bg-[#0b0d14]/60 backdrop-blur-3xl rounded-[32px] z-20 overflow-hidden border border-white/40 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,0.5)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)]"
             >
                 {/* Logo Area */}
-                <div className="h-24 flex items-center justify-center px-4 border-b border-[var(--glass-border)]">
+                <div className="h-28 flex items-center justify-center px-4 border-b border-gray-200/30 dark:border-white/5 relative z-10">
                     <motion.div
                         whileHover={{ rotate: 10, scale: 1.1 }}
-                        className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${userAccent?.gradient || getRoleGradient()} flex items-center justify-center shadow-lg ${userAccent?.shadow || 'shadow-indigo-500/20'}`}
+                        className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${userAccent?.gradient || getRoleGradient()} flex items-center justify-center shadow-lg ${userAccent?.shadow || 'shadow-indigo-500/20'} relative`}
                     >
-                        <Sparkles className="w-6 h-6 text-white" />
+                        <Sparkles className="w-6 h-6 text-white relative z-10" />
+                        {/* Glow orb behind icon */}
+                        <div className={`absolute inset-0 bg-gradient-to-br ${userAccent?.gradient || getRoleGradient()} blur-md opacity-50 rounded-2xl`}></div>
                     </motion.div>
                     <motion.div
                         initial={false}
                         animate={{ opacity: isCollapsed ? 0 : 1, width: isCollapsed ? 0 : 'auto', marginLeft: isCollapsed ? 0 : 16 }}
-                        className="overflow-hidden"
+                        className="overflow-hidden flex items-center"
                     >
-                        <span className="font-heading font-bold text-xl tracking-tight text-[var(--text-primary)] whitespace-nowrap">
-                            UPTM <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">Schedule</span>
+                        <span className="font-heading font-extrabold text-2xl tracking-tight text-[var(--text-primary)] whitespace-nowrap mt-1 drop-shadow-sm">
+                            UPTM <span className={`text-transparent bg-clip-text bg-gradient-to-r ${getRoleGradient()}`}>HUB</span>
                         </span>
                     </motion.div>
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 py-8 px-4 space-y-2 overflow-y-auto scrollbar-hide">
-                    {navItems.map((item) => (
-                        <motion.button
-                            key={item.id}
-                            onClick={() => onTabChange && onTabChange(item.id)}
-                            className={`
-                                w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group
-                                ${activeTab === item.id
-                                    ? `bg-gradient-to-r ${userAccent?.gradient || getRoleGradient()} text-white shadow-lg ${userAccent?.shadow || 'shadow-indigo-500/25'}`
-                                    : `text-[var(--text-secondary)] hover:bg-[var(--glass-border)] hover:text-[var(--text-primary)]`
-                                }
-                            `}
-                        >
-                            <div className={`${activeTab === item.id ? 'text-white' : 'text-[var(--text-secondary)] group-hover:text-[var(--neon-accent)]'} transition-colors`}>
-                                {item.icon}
+                <nav className="flex-1 py-6 px-3 space-y-1.5 overflow-y-auto scrollbar-hide relative z-10 w-full">
+                    {navItems.map((item) => {
+                        const isActive = activeTab === item.id;
+                        return (
+                            <div key={item.id} className="relative w-full">
+                                {/* Kinetic Active Indicator (Glides behind the item) */}
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="activeNavBackground"
+                                        className="absolute inset-0 bg-white/50 dark:bg-white/5 rounded-2xl border border-white/60 dark:border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.2)]"
+                                        transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                                    />
+                                )}
+                                <motion.button
+                                    onClick={() => onTabChange && onTabChange(item.id)}
+                                    className={`
+                                        w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative z-10
+                                        ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}
+                                    `}
+                                >
+                                    <div className="relative flex items-center justify-center">
+                                        <div className={`transition-all duration-300 relative z-10 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
+                                            {/* Clone icon to apply active gradient styling dynamically */}
+                                            {React.cloneElement(item.icon, {
+                                                className: isActive
+                                                    ? 'text-transparent bg-clip-text' // Need SVG styling for gradients generally, but we can simulate via a container below
+                                                    : 'text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]',
+                                                stroke: isActive ? 'url(#active-icon-gradient)' : 'currentColor',
+                                                strokeWidth: isActive ? 2.5 : 2
+                                            })}
+
+                                            {/* Deep Glow Aura underneath active icon */}
+                                            {isActive && (
+                                                <div className={`absolute inset-0 bg-gradient-to-r ${getRoleGradient()} blur-[10px] opacity-40 rounded-full z-[-1]`}></div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <motion.span
+                                        initial={false}
+                                        animate={{ opacity: isCollapsed ? 0 : 1, width: isCollapsed ? 0 : 'auto' }}
+                                        className={`font-semibold whitespace-nowrap overflow-hidden tracking-wide text-sm ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
+                                    >
+                                        {item.label}
+                                    </motion.span>
+
+                                    {/* SVG Definition for Icon Gradients (hack for Lucide icons) */}
+                                    {isActive && (
+                                        <svg width="0" height="0" className="absolute">
+                                            <linearGradient id="active-icon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                {role === 'student' && <><stop offset="0%" stopColor="#6366f1" /><stop offset="100%" stopColor="#a855f7" /></>}
+                                                {role === 'lecturer' && <><stop offset="0%" stopColor="#10b981" /><stop offset="100%" stopColor="#14b8a6" /></>}
+                                                {role === 'hop' && <><stop offset="0%" stopColor="#f43f5e" /><stop offset="100%" stopColor="#f97316" /></>}
+                                            </linearGradient>
+                                        </svg>
+                                    )}
+                                </motion.button>
                             </div>
-                            <motion.span
-                                animate={{ opacity: isCollapsed ? 0 : 1, width: isCollapsed ? 0 : 'auto' }}
-                                className="font-medium whitespace-nowrap overflow-hidden"
-                            >
-                                {item.label}
-                            </motion.span>
-                        </motion.button>
-                    ))}
+                        );
+                    })}
                 </nav>
 
-                {/* Bottom Actions */}
-                <div className="p-4 border-t border-[var(--glass-border)]">
-                    <div className="flex items-center justify-center mb-4">
-                        <ThemeToggle />
-                    </div>
+                {/* Minimal Dark Mode Toggle inside Sidebar */}
+                <div className="absolute top-4 right-4 z-30">
+                    <ThemeToggle />
                 </div>
 
-                {/* User Profile */}
-                <div className="p-4 bg-[var(--glass-bg)] border-t border-[var(--glass-border)] cursor-pointer hover:bg-[rgba(255,255,255,0.2)] transition-colors"
-                    onClick={() => setShowProfileMenu(!showProfileMenu)}
-                    ref={profileMenuRef}
-                >
-                    <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
-                        <div className={`w-10 h-10 rounded-full ${profilePicture ? '' : `bg-gradient-to-br ${getRoleGradient()}`} flex items-center justify-center text-white font-bold shadow-md`}>
-                            {profilePicture ? (
-                                <img src={profilePicture} alt={displayName} className="w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" />
-                            ) : (
-                                <span>{displayName.charAt(0).toUpperCase()}</span>
+                {/* Interactive Profile Pod */}
+                <div className="m-4 mt-auto relative z-20 group">
+                    <motion.div
+                        className="bg-white/60 dark:bg-black/30 border border-white/50 dark:border-white/10 rounded-2xl p-2 cursor-pointer backdrop-blur-md shadow-[0_4px_15px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all duration-300 hover:bg-white/80 dark:hover:bg-black/50"
+                        onClick={() => setShowProfileMenu(!showProfileMenu)}
+                        ref={profileMenuRef}
+                    >
+                        <div className={`flex items-center ${isCollapsed ? 'justify-center p-1' : 'gap-3 px-2 py-1'}`}>
+                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getRoleGradient()} flex items-center justify-center text-white font-extrabold shadow-lg shrink-0 overflow-hidden ring-2 ring-white/50 dark:ring-black/50`}>
+                                {profilePicture ? (
+                                    <img src={profilePicture} alt={displayName} className="w-full h-full object-cover rounded-xl" referrerPolicy="no-referrer" />
+                                ) : (
+                                    <span>{displayName.charAt(0).toUpperCase()}</span>
+                                )}
+                            </div>
+                            {!isCollapsed && (
+                                <div className="flex-1 min-w-0 pr-2">
+                                    <p className="text-[13px] font-extrabold text-[var(--text-primary)] truncate tracking-wide leading-tight mb-0.5">{displayName}</p>
+                                    <p className="text-[10px] text-[var(--text-secondary)] uppercase tracking-widest font-bold">{userRole}</p>
+                                </div>
+                            )}
+                            {!isCollapsed && (
+                                <ChevronUp size={14} className={`text-[var(--text-secondary)] transition-transform duration-300 ${showProfileMenu ? 'rotate-180' : ''}`} />
                             )}
                         </div>
-                        {!isCollapsed && (
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold text-[var(--text-primary)] truncate">{displayName}</p>
-                                <p className="text-xs text-[var(--text-secondary)] truncate">{userRole}</p>
-                            </div>
-                        )}
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* Profile Modal/Dropdown */}
                 <AnimatePresence>
-                    {showProfileMenu && !isCollapsed && (
+                    {showProfileMenu && (
                         <motion.div
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            transition={{ duration: 0.15 }}
-                            className="absolute bottom-20 left-4 right-4 bg-[var(--bg-secondary)] border border-[var(--glass-border)] shadow-xl rounded-2xl p-2 z-50 backdrop-blur-3xl"
+                            transition={{ duration: 0.15, ease: "easeOut" }}
+                            className={`absolute ${isCollapsed ? 'left-24 bottom-6' : 'bottom-[88px] left-4 right-4'} bg-white/90 dark:bg-[#11131e]/90 border border-white/50 dark:border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(0,0,0,0.5)] rounded-[20px] p-2 z-50 backdrop-blur-xl`}
                         >
                             <button
                                 onClick={handleSettingsClick}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[var(--glass-border)] text-[var(--text-primary)] transition-colors text-left"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 text-[var(--text-primary)] transition-colors text-left"
                             >
                                 <Settings size={18} />
-                                <span className="text-sm font-medium">Settings</span>
+                                {!isCollapsed && <span className="text-sm font-bold tracking-wide">Settings</span>}
                             </button>
+                            <div className="h-px bg-gray-200/50 dark:bg-white/5 my-1 mx-2"></div>
                             <button
                                 onClick={handleLogout}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-red-500 hover:text-red-600 transition-colors text-left"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-red-500 hover:text-red-600 transition-colors text-left group"
                             >
-                                <LogOut size={18} />
-                                <span className="text-sm font-medium">Log out</span>
+                                <LogOut size={18} className="group-hover:scale-110 transition-transform" />
+                                {!isCollapsed && <span className="text-sm font-bold tracking-wide">Log out</span>}
                             </button>
                         </motion.div>
                     )}
@@ -237,9 +280,11 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                 {/* Collapse Toggle Bubble */}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="absolute -right-3 top-12 bg-[var(--bg-secondary)] border border-[var(--glass-border)] p-1.5 rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all z-50 text-[var(--text-primary)]"
+                    className="absolute -right-3 top-1/2 -translate-y-1/2 bg-white dark:bg-[#1a1d29] border border-gray-200 dark:border-white/10 p-2 rounded-full shadow-[0_0_15px_rgba(0,0,0,0.1)] hover:shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-110 transition-all z-50 text-[var(--text-primary)] group"
                 >
-                    {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+                    <div className="group-hover:text-indigo-500 transition-colors">
+                        {isCollapsed ? <ChevronRight size={14} strokeWidth={3} /> : <ChevronLeft size={14} strokeWidth={3} />}
+                    </div>
                 </button>
             </motion.aside>
 
@@ -247,11 +292,11 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
             <main className="flex-1 overflow-hidden relative">
                 <div className="h-full overflow-y-auto p-4 sm:p-8">
                     <div className="max-w-[1600px] mx-auto space-y-8">
-                        {/* Dynamic Header */}
+                        {/* Dynamic Header (Unboxed & Airy) */}
                         <motion.div
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="relative z-50 flex flex-col md:flex-row md:items-end md:justify-between gap-4 glass-card p-6 rounded-3xl"
+                            className="relative z-50 flex flex-col md:flex-row md:items-end md:justify-between gap-4 pt-2 pb-6 px-2 border-b border-gray-200/50 dark:border-white/5"
                         >
                             <div className="flex-1">
                                 {headerContent ? headerContent : (

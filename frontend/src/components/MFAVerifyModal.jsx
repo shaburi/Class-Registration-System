@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, X, AlertTriangle, Loader2, KeyRound, Key } from 'lucide-react';
+import { Shield, X, AlertCircle, Loader2, KeyRound, Key } from 'lucide-react';
 
 /**
  * MFA Verification Modal
- * Shown during login when 2FA is enabled.
- * User enters their 6-digit TOTP code or a backup code.
+ * Refined and stylized with glassmorphism aesthetic
  */
 export default function MFAVerifyModal({ tempToken, onVerified, onCancel }) {
     const [token, setToken] = useState('');
@@ -68,49 +67,66 @@ export default function MFAVerifyModal({ tempToken, onVerified, onCancel }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#050505]/80 backdrop-blur-xl"
             >
+                {/* Immersive Background Glow */}
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                    <div className="w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[100px]" />
+                </div>
+
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                    exit={{ scale: 0.95, opacity: 0, y: 10 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+                    className="w-full max-w-sm rounded-[1.5rem] p-8 relative overflow-hidden z-10 
+                               bg-[#151720]/95 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] 
+                               border border-white/5 ring-1 ring-white/10"
                 >
                     {/* Header */}
-                    <div className="p-6 pb-0">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <div className="relative mb-6">
+                        <div className="flex items-start justify-between mb-5">
+                            <motion.div
+                                initial={{ rotate: -15, scale: 0.8 }}
+                                animate={{ rotate: 0, scale: 1 }}
+                                transition={{ type: "spring", bounce: 0.5, delay: 0.1 }}
+                                className="w-12 h-12 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 flex-shrink-0 ring-1 ring-white/20"
+                            >
                                 <Shield className="w-6 h-6 text-white" />
-                            </div>
+                            </motion.div>
+
                             {onCancel && (
                                 <button
                                     onClick={onCancel}
-                                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
+                                    className="p-2 -mr-2 text-gray-500 hover:text-white hover:bg-white/10 rounded-full transition-colors"
                                 >
-                                    <X className="w-5 h-5 text-gray-500" />
+                                    <X className="w-4 h-4" />
                                 </button>
                             )}
                         </div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+
+                        <h2 className="text-[1.35rem] font-bold text-white tracking-tight mb-2 font-heading">
                             Two-Factor Authentication
                         </h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm font-medium text-gray-400 leading-relaxed">
                             {useBackupCode
-                                ? 'Enter one of your backup codes'
-                                : 'Enter the 6-digit code from your authenticator app'
+                                ? 'Enter one of your 8-character backup codes.'
+                                : 'Enter the 6-digit code from your authenticator app.'
                             }
                         </p>
                     </div>
 
                     {/* Form */}
-                    <form onSubmit={handleVerify} className="p-6 space-y-4">
-                        <div className="relative">
-                            {useBackupCode ? (
-                                <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            ) : (
-                                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            )}
+                    <form onSubmit={handleVerify} className="relative space-y-6">
+                        <div className="relative group">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                                {useBackupCode ? (
+                                    <Key className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-400 transition-colors" />
+                                ) : (
+                                    <KeyRound className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-400 transition-colors" />
+                                )}
+                            </div>
+
                             <input
                                 ref={inputRef}
                                 type="text"
@@ -122,63 +138,81 @@ export default function MFAVerifyModal({ tempToken, onVerified, onCancel }) {
                                     let val = e.target.value;
                                     if (!useBackupCode) {
                                         val = val.replace(/\D/g, '');
+                                    } else {
+                                        val = val.toUpperCase();
                                     }
                                     setToken(val);
                                     setError('');
                                 }}
-                                placeholder={useBackupCode ? 'ABCD-EF12' : '000000'}
-                                className={`w-full pl-10 pr-4 py-3.5 text-center font-mono tracking-[0.3em] bg-white dark:bg-gray-700 border-2 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-gray-900 dark:text-white ${useBackupCode ? 'text-lg' : 'text-2xl tracking-[0.5em]'
-                                    } ${error ? 'border-red-300' : 'border-gray-200 dark:border-gray-600'}`}
+                                placeholder={useBackupCode ? 'ABCD-EF12' : '0 0 0  0 0 0'}
+                                className={`w-full pl-12 pr-4 py-4 text-center font-mono bg-white/5 border border-white/10 rounded-xl 
+                                            focus:bg-indigo-500/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 
+                                            transition-all duration-300 text-white shadow-inner placeholder:text-gray-600 outline-none
+                                            ${useBackupCode ? 'text-lg tracking-[0.2em]' : 'text-xl tracking-[0.4em]'} 
+                                            ${error ? '!border-red-500/50 !focus:ring-red-500/50' : ''}`}
                                 autoComplete="one-time-code"
+                                spellCheck="false"
                             />
                         </div>
 
-                        {error && (
-                            <motion.p
-                                initial={{ opacity: 0, y: -5 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="text-sm text-red-500 flex items-center gap-2"
-                            >
-                                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                                {error}
-                            </motion.p>
-                        )}
-
-                        <motion.button
-                            type="submit"
-                            disabled={loading || (!useBackupCode && token.length !== 6) || (useBackupCode && token.length < 8)}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
-                        >
-                            {loading ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                    Verifying...
-                                </>
-                            ) : (
-                                <>
-                                    <Shield className="w-5 h-5" />
-                                    Verify
-                                </>
+                        <AnimatePresence>
+                            {error && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                    animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-2">
+                                        <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                                        <p className="text-red-400 text-xs font-semibold">{error}</p>
+                                    </div>
+                                </motion.div>
                             )}
-                        </motion.button>
+                        </AnimatePresence>
+
+                        <div className="pt-1">
+                            <motion.button
+                                type="submit"
+                                disabled={loading || (!useBackupCode && token.length !== 6) || (useBackupCode && token.length < 8)}
+                                whileHover={{ scale: 1.01 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="w-full py-3.5 bg-[#5b45b0] hover:bg-[#6b52c9] text-white font-bold rounded-xl 
+                                           disabled:opacity-50 disabled:cursor-not-allowed transition-colors 
+                                           flex items-center justify-center gap-2 shadow-lg shadow-indigo-900/20"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin opacity-80" />
+                                        <span>Verifying...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Shield className="w-4 h-4 opacity-80" />
+                                        <span>Verify</span>
+                                    </>
+                                )}
+                            </motion.button>
+                        </div>
 
                         {/* Toggle backup code mode */}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setUseBackupCode(!useBackupCode);
-                                setToken('');
-                                setError('');
-                            }}
-                            className="w-full text-center text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium transition"
-                        >
-                            {useBackupCode
-                                ? '← Use authenticator app code'
-                                : 'Lost your phone? Use a backup code →'
-                            }
-                        </button>
+                        <div className="pt-2 text-center">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setUseBackupCode(!useBackupCode);
+                                    setToken('');
+                                    setError('');
+                                    setTimeout(() => inputRef.current?.focus(), 100);
+                                }}
+                                className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors inline-block"
+                            >
+                                {useBackupCode
+                                    ? 'Back to Authenticator App'
+                                    : 'Lost your phone? Use a backup code →'
+                                }
+                            </button>
+                        </div>
                     </form>
                 </motion.div>
             </motion.div>

@@ -7,31 +7,26 @@ import {
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 
-// Helper to get consistent color for a subject code
+// Helper to get consistent gradient color blocks for course cards
 const getSubjectColor = (code) => {
-    const colors = [
-        'bg-red-100 border-red-300 text-red-900 dark:bg-red-900/40 dark:border-red-700 dark:text-red-100',
-        'bg-orange-100 border-orange-300 text-orange-900 dark:bg-orange-900/40 dark:border-orange-700 dark:text-orange-100',
-        'bg-amber-100 border-amber-300 text-amber-900 dark:bg-amber-900/40 dark:border-amber-700 dark:text-amber-100',
-        'bg-green-100 border-green-300 text-green-900 dark:bg-green-900/40 dark:border-green-700 dark:text-green-100',
-        'bg-emerald-100 border-emerald-300 text-emerald-900 dark:bg-emerald-900/40 dark:border-emerald-700 dark:text-emerald-100',
-        'bg-teal-100 border-teal-300 text-teal-900 dark:bg-teal-900/40 dark:border-teal-700 dark:text-teal-100',
-        'bg-cyan-100 border-cyan-300 text-cyan-900 dark:bg-cyan-900/40 dark:border-cyan-700 dark:text-cyan-100',
-        'bg-sky-100 border-sky-300 text-sky-900 dark:bg-sky-900/40 dark:border-sky-700 dark:text-sky-100',
-        'bg-blue-100 border-blue-300 text-blue-900 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-100',
-        'bg-indigo-100 border-indigo-300 text-indigo-900 dark:bg-indigo-900/40 dark:border-indigo-700 dark:text-indigo-100',
-        'bg-violet-100 border-violet-300 text-violet-900 dark:bg-violet-900/40 dark:border-violet-700 dark:text-violet-100',
-        'bg-purple-100 border-purple-300 text-purple-900 dark:bg-purple-900/40 dark:border-purple-700 dark:text-purple-100',
-        'bg-fuchsia-100 border-fuchsia-300 text-fuchsia-900 dark:bg-fuchsia-900/40 dark:border-fuchsia-700 dark:text-fuchsia-100',
-        'bg-pink-100 border-pink-300 text-pink-900 dark:bg-pink-900/40 dark:border-pink-700 dark:text-pink-100',
-        'bg-rose-100 border-rose-300 text-rose-900 dark:bg-rose-900/40 dark:border-rose-700 dark:text-rose-100',
+    const gradients = [
+        'bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(99,102,241,0.3)]',
+        'bg-gradient-to-br from-rose-500 to-pink-600 border-rose-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(244,63,94,0.3)]',
+        'bg-gradient-to-br from-emerald-500 to-teal-600 border-emerald-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(16,185,129,0.3)]',
+        'bg-gradient-to-br from-amber-500 to-orange-600 border-amber-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(245,158,11,0.3)]',
+        'bg-gradient-to-br from-cyan-500 to-blue-600 border-cyan-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(6,182,212,0.3)]',
+        'bg-gradient-to-br from-violet-500 to-fuchsia-600 border-violet-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(139,92,246,0.3)]',
+        'bg-gradient-to-br from-[#1a1d29] to-[#0d0f18] border-gray-600/50 text-gray-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_4px_10px_rgba(0,0,0,0.4)]',
+        'bg-gradient-to-br from-red-600 to-rose-700 border-red-500/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(220,38,38,0.3)]',
+        'bg-gradient-to-br from-lime-500 to-green-600 border-lime-400/30 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_10px_rgba(132,204,22,0.3)]',
+        'bg-gradient-to-br from-[#0c4a6e] to-[#082f49] border-sky-600/50 text-sky-100 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_4px_10px_rgba(12,74,110,0.4)]',
     ];
-    if (!code) return colors[0];
+    if (!code) return gradients[0];
     let hash = 0;
     for (let i = 0; i < code.length; i++) {
         hash = code.charCodeAt(i) + ((hash << 5) - hash);
     }
-    return colors[Math.abs(hash) % colors.length];
+    return gradients[Math.abs(hash) % gradients.length];
 };
 
 export default function TimetableBuilder({ ascData, user, onRefresh }) {
@@ -47,16 +42,16 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
     const startHour = 8;
     const endHour = 22;
     const totalPeriods = endHour - startHour;
-    const trackHeight = 85;
+    const trackHeight = 75; // Reduced height to fit comfortably
 
     // Generate periods
     const periods = useMemo(() =>
         Array.from({ length: totalPeriods }, (_, i) => ({
             id: i,
-            name: String(startHour + i),
+            name: String(i + 1),
             starttime: `${startHour + i}:00`,
             endtime: `${startHour + i + 1}:00`
-        })), [totalPeriods]
+        })), [totalPeriods, startHour]
     );
 
     // Allowed programmes to filter by
@@ -482,26 +477,26 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
     const renderGrid = (eventsByDay, isSource = false, hasDropZone = false, trackInfo = null) => {
         return (
             <div
-                className={`overflow-x-auto ${hasDropZone ? 'min-h-[300px]' : ''}`}
+                className={`w-full overflow-hidden ${hasDropZone ? 'min-h-[300px]' : ''}`}
                 onDragOver={hasDropZone ? handleDragOver : undefined}
                 onDrop={hasDropZone ? handleDrop : undefined}
             >
-                <div className="min-w-[900px] relative">
+                <div className="w-full relative rounded-[20px] overflow-hidden border border-gray-200/50 dark:border-white/10 shadow-lg dark:shadow-2xl">
                     {/* Header */}
-                    <div className="flex border-b border-[var(--glass-border)] mb-2 sticky top-0 bg-[var(--bg-primary)]/80 backdrop-blur-xl z-20">
-                        <div className="w-16 flex-shrink-0 bg-[rgba(255,255,255,0.05)] border-r border-[var(--glass-border)]"></div>
+                    <div className="flex border-b border-gray-200/50 dark:border-white/10 sticky top-0 bg-white/95 dark:bg-[#07090e]/95 backdrop-blur-2xl z-20 shadow-sm">
+                        <div className="w-12 md:w-16 flex-shrink-0 bg-gray-50/80 dark:bg-white/5 border-r border-gray-200/50 dark:border-white/10"></div>
                         <div className="flex-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${totalPeriods}, 1fr)` }}>
                             {periods.map(period => (
-                                <div key={period.id} className="text-center p-1 border-l border-[var(--glass-border)]">
-                                    <div className="font-bold text-xs text-[var(--text-primary)]">{period.name}</div>
-                                    <div className="text-[9px] text-gray-500">{period.starttime}</div>
+                                <div key={period.id} className="text-center p-1 md:p-2 border-l border-gray-200/50 dark:border-white/5">
+                                    <div className="font-bold text-[10px] md:text-xs text-gray-900 dark:text-white uppercase tracking-wider">{period.name}</div>
+                                    <div className="text-[7.5px] md:text-[9px] text-indigo-600 dark:text-indigo-300/80 font-bold tracking-wide">{period.starttime}-{period.endtime}</div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     {/* Days */}
-                    <div className="space-y-1">
+                    <div className="bg-white/50 dark:bg-[#0b0d14]/70 backdrop-blur-md">
                         {days.map((day, dayIdx) => {
                             const dayKey = String(dayIdx);
                             const events = eventsByDay[dayKey] || [];
@@ -517,19 +512,19 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                             const rowHeight = Math.max(trackHeight, neededTracks * trackHeight);
 
                             return (
-                                <div key={day} className="flex border-b border-[var(--glass-border)]">
-                                    <div className="w-16 flex-shrink-0 flex items-center justify-center font-bold text-xs text-[var(--text-secondary)] bg-[rgba(255,255,255,0.05)] rounded-l border-y border-l border-[var(--glass-border)]">
+                                <div key={day} className="flex border-b border-gray-200/50 dark:border-white/5 group">
+                                    <div className="w-12 md:w-16 flex-shrink-0 flex items-center justify-center font-bold text-[10px] md:text-[11px] uppercase tracking-widest text-indigo-600 dark:text-indigo-300/60 bg-gray-50 dark:bg-white/5 rounded-l-sm border-r border-gray-200/50 dark:border-white/5 group-hover:bg-gray-100 dark:group-hover:bg-white/10 transition-colors">
                                         {day.substring(0, 3)}
                                     </div>
                                     <div
-                                        className={`flex-1 relative rounded-r border border-[var(--glass-border)] ${hasDropZone && draggedEvent ? 'bg-indigo-500/10 border-dashed border-indigo-500' : 'bg-[rgba(255,255,255,0.02)]'
+                                        className={`flex-1 relative transition-colors duration-300 ${hasDropZone && draggedEvent ? 'bg-indigo-50 dark:bg-indigo-500/10 shadow-[inset_0_0_50px_rgba(99,102,241,0.1)] dark:shadow-[inset_0_0_50px_rgba(99,102,241,0.2)]' : 'hover:bg-black/5 dark:hover:bg-white/5'
                                             }`}
                                         style={{ height: `${rowHeight}px` }}
                                     >
                                         {/* Grid lines */}
                                         <div className="absolute inset-0 pointer-events-none grid" style={{ gridTemplateColumns: `repeat(${totalPeriods}, 1fr)` }}>
                                             {periods.map((_, i) => (
-                                                <div key={i} className={`border-l ${i === 0 ? 'border-transparent' : 'border-[var(--glass-border)]'} h-full`}></div>
+                                                <div key={i} className={`border-l ${i === 0 ? 'border-transparent' : 'border-gray-200/50 dark:border-white/5'} h-full transition-colors group-hover:border-gray-300 dark:group-hover:border-white/10`}></div>
                                             ))}
                                         </div>
 
@@ -539,7 +534,7 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                                             const leftPercent = (event.startIndex / totalPeriods) * 100;
                                             const topPos = event.trackIndex * trackHeight;
                                             const colorClass = event.hasConflict
-                                                ? 'bg-red-200 border-red-500 text-red-900 dark:bg-red-900/60 dark:border-red-600 dark:text-red-100'
+                                                ? 'bg-gradient-to-br from-red-600 to-rose-700 border-red-400/50 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_15px_rgba(239,68,68,0.5)] ring-2 ring-red-500/50'
                                                 : getSubjectColor(event.subjectCode);
 
                                             return (
@@ -548,7 +543,7 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                                                     draggable={isSource}
                                                     onDragStart={isSource ? (e) => handleDragStart(e, event) : undefined}
                                                     onClick={isSource ? () => addCourse(event) : undefined}
-                                                    className={`absolute p-0.5 transition-all duration-200 hover:z-20 ${isSource ? 'cursor-grab active:cursor-grabbing hover:scale-[1.02]' : ''
+                                                    className={`absolute p-1 transition-all duration-300 hover:z-20 ${isSource ? 'cursor-grab active:cursor-grabbing hover:scale-[1.03]' : ''
                                                         }`}
                                                     style={{
                                                         left: `${leftPercent}%`,
@@ -557,31 +552,37 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                                                         height: `${trackHeight}px`
                                                     }}
                                                 >
-                                                    <div className={`h-full w-full rounded shadow-sm border-l-[3px] p-1.5 flex flex-col overflow-hidden ${colorClass}`}>
-                                                        <div className="flex items-start justify-between">
-                                                            <div className="font-bold text-[11px] leading-tight break-words whitespace-normal flex-1">
-                                                                {event.subjectCode}
+                                                    <div className={`h-full w-full rounded-[14px] border flex flex-col overflow-hidden relative group/event ${colorClass}`}>
+                                                        {/* Inner glow effect */}
+                                                        <div className="absolute inset-0 bg-white/20 dark:bg-white/10 opacity-0 group-hover/event:opacity-100 transition-opacity pointer-events-none rounded-[14px]"></div>
+                                                        <div className="relative z-10 p-1.5 flex flex-col h-full text-white">
+                                                            <div className="flex items-start justify-between">
+                                                                <div className="font-extrabold text-[9px] md:text-[10px] leading-tight break-words whitespace-normal drop-shadow-md">
+                                                                    {event.subjectCode}
+                                                                </div>
+                                                                {isSource && (
+                                                                    <div className="bg-black/20 dark:bg-white/20 rounded-full p-0.5 opacity-0 group-hover/event:opacity-100 transition-opacity flex-shrink-0 backdrop-blur-sm">
+                                                                        <Plus className="w-2.5 h-2.5 text-white" />
+                                                                    </div>
+                                                                )}
+                                                                {!isSource && (
+                                                                    <button
+                                                                        onClick={(e) => { e.stopPropagation(); removePlannedCourse(event.id, event.subjectCode); }}
+                                                                        className="p-1 hover:bg-red-500 hover:text-white rounded transition absolute top-0.5 right-0.5 z-10"
+                                                                        title={`Remove ${event.subjectCode}`}
+                                                                    >
+                                                                        <X className="w-3.5 h-3.5" />
+                                                                    </button>
+                                                                )}
                                                             </div>
-                                                            {isSource && (
-                                                                <Plus className="w-3 h-3 flex-shrink-0 opacity-50" />
+                                                            {event.hasConflict && (
+                                                                <div className="text-[8px] md:text-[9px] flex items-center gap-0.5 text-red-700 dark:text-red-300 mt-0.5 font-bold">
+                                                                    <AlertTriangle className="w-2.5 h-2.5" />
+                                                                    Conflict
+                                                                </div>
                                                             )}
-                                                            {!isSource && (
-                                                                <button
-                                                                    onClick={(e) => { e.stopPropagation(); removePlannedCourse(event.id, event.subjectCode); }}
-                                                                    className="p-1 hover:bg-red-500 hover:text-white rounded transition absolute top-1 right-1 z-10"
-                                                                    title={`Remove ${event.subjectCode}`}
-                                                                >
-                                                                    <X className="w-4 h-4" />
-                                                                </button>
-                                                            )}
+                                                            <div className="mt-auto text-[8px] md:text-[9px] opacity-80 truncate">{event.room}</div>
                                                         </div>
-                                                        {event.hasConflict && (
-                                                            <div className="text-[10px] flex items-center gap-0.5 text-red-700 dark:text-red-300">
-                                                                <AlertTriangle className="w-3 h-3" />
-                                                                Conflict!
-                                                            </div>
-                                                        )}
-                                                        <div className="mt-auto text-[10px] opacity-80 truncate">{event.room}</div>
                                                     </div>
                                                 </div>
                                             );
@@ -616,19 +617,24 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <Sparkles className="w-6 h-6 text-amber-500" />
-                    <h3 className="text-xl font-bold text-gray-800 dark:text-white">Timetable Builder</h3>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                        ({plannedCourses.length} selected)
-                    </span>
+                    <div className="p-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl shadow-inner relative group cursor-default">
+                        <div className="absolute inset-0 bg-indigo-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"></div>
+                        <Sparkles className="w-6 h-6 text-indigo-600 dark:text-indigo-400 relative z-10" />
+                    </div>
+                    <div>
+                        <h3 className="text-2xl font-bold font-heading tracking-tight text-gray-900 dark:text-white drop-shadow-sm dark:drop-shadow-md">Timetable Builder</h3>
+                        <p className="text-sm font-medium text-indigo-600 dark:text-indigo-300/80 uppercase tracking-widest text-[10px] mt-0.5">
+                            {plannedCourses.length} session{plannedCourses.length !== 1 ? 's' : ''} selected
+                        </p>
+                    </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 w-full sm:w-auto">
                     {plannedCourses.length > 0 && (
                         <button
                             onClick={() => setPlannedCourses([])}
-                            className="px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition flex items-center gap-2"
+                            className="px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-red-400 bg-red-500/10 border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/20 rounded-xl transition flex items-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
                         >
                             <Trash2 className="w-4 h-4" />
                             Clear
@@ -637,19 +643,23 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                     <button
                         onClick={handleRegisterAll}
                         disabled={plannedCourses.length === 0 || isRegistering || personalTimetable.conflicts.length > 0}
-                        className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition"
+                        className="flex-1 sm:flex-none py-3 px-6 rounded-xl font-bold uppercase tracking-widest text-xs relative overflow-hidden group/btn border disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300
+                            border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:text-white shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                     >
-                        {isRegistering ? (
-                            <>
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                Registering...
-                            </>
-                        ) : (
-                            <>
-                                <Check className="w-4 h-4" />
-                                Register Now
-                            </>
-                        )}
+                        {!isRegistering && !plannedCourses.length === 0 && !personalTimetable.conflicts.length > 0 && <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>}
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                            {isRegistering ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-emerald-300/50 border-t-emerald-300 rounded-full animate-spin" />
+                                    Registering...
+                                </>
+                            ) : (
+                                <>
+                                    <Check className="w-4 h-4" />
+                                    Register Now
+                                </>
+                            )}
+                        </span>
                     </button>
                 </div>
             </div>
@@ -669,26 +679,33 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
             )}
 
             {/* TOP: Programme Schedule Source */}
-            <div className="glass-card rounded-3xl border border-[var(--glass-border)] p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-                        <GripVertical className="w-4 h-4 text-gray-400" />
-                        Programme Schedule
-                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full dark:bg-blue-900/30 dark:text-blue-400">
-                            Drag to add
-                        </span>
-                    </h4>
+            <div className="bg-white/80 dark:bg-[#0b0d14]/80 backdrop-blur-2xl rounded-[32px] border border-gray-200/50 dark:border-white/5 p-8 relative overflow-hidden shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_10px_40px_-15px_rgba(0,0,0,0.5)]">
+                {/* Immersive glow */}
+                <div className="absolute top-[-50%] right-[-10%] w-[400px] h-[400px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+
+                <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between mb-6 gap-4 relative z-10">
+                    <div>
+                        <h4 className="font-bold text-gray-900 dark:text-white text-xl font-heading tracking-tight flex items-center gap-3">
+                            <span className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 shadow-inner">
+                                <GripVertical className="w-5 h-5" />
+                            </span>
+                            Programme Schedule
+                        </h4>
+                        <p className="text-[10px] uppercase tracking-widest font-bold text-indigo-600/80 dark:text-indigo-300/60 mt-1 pl-[52px]">
+                            Drag courses to build your timetable
+                        </p>
+                    </div>
 
                     {/* Class Search */}
-                    <div className="flex items-center gap-2">
-                        <div className="relative">
-                            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
+                        <div className="relative w-full sm:w-64">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input
                                 type="text"
                                 placeholder="Search class or subject..."
                                 value={classSearch}
                                 onChange={(e) => setClassSearch(e.target.value)}
-                                className="pl-8 pr-3 py-1.5 text-sm glass-input text-[var(--text-primary)] w-48"
+                                className="w-full pl-11 pr-4 py-3 text-sm bg-black/5 dark:bg-white/5 border border-gray-200/50 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500/50 focus:shadow-[0_0_20px_rgba(99,102,241,0.1)] dark:focus:shadow-[0_0_20px_rgba(99,102,241,0.2)] shadow-inner transition-all font-medium"
                             />
                         </div>
                         <select
@@ -697,7 +714,7 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                                 const cls = classList.find(c => c.id === e.target.value);
                                 setSelectedSourceClass(cls || null);
                             }}
-                            className="px-3 py-1.5 text-sm glass-input text-[var(--text-primary)] max-w-[280px]"
+                            className="w-full sm:w-auto px-4 py-3 text-sm bg-white dark:bg-[#0b0d14] border border-gray-200/50 dark:border-white/10 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:border-indigo-500/50 shadow-inner transition-all appearance-none cursor-pointer"
                         >
                             <option value="">Select class...</option>
                             {filteredClasses.map(c => {
@@ -718,43 +735,51 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                     </div>
                 </div>
 
-                {selectedSourceClass && sourceTimetable ? (
-                    renderGrid(sourceTimetable.eventsByDay, true, false, sourceTimetable.days)
-                ) : (
-                    <div className="text-center py-8 text-gray-500">
-                        <Search className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                        <p>Select a class above to view its schedule</p>
-                    </div>
-                )}
+                <div className="relative z-10">
+                    {selectedSourceClass && sourceTimetable ? (
+                        renderGrid(sourceTimetable.eventsByDay, true, false, sourceTimetable.days)
+                    ) : (
+                        <div className="text-center py-16 text-gray-500 border border-gray-200/50 dark:border-white/5 rounded-2xl bg-black/5 dark:bg-white/5 backdrop-blur-sm">
+                            <Search className="w-12 h-12 mx-auto mb-3 opacity-30 text-indigo-400" />
+                            <p className="font-medium">Select a class above to view its schedule</p>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* BOTTOM: Personal Timetable (Drop Zone) */}
-            <div className="glass-card rounded-3xl border-2 border-dashed border-[var(--glass-border)] p-6 bg-[var(--glass-bg)]/50">
-                <h4 className="font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-indigo-500" />
-                    Your Timetable
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full dark:bg-green-900/30 dark:text-green-400">
-                        Drop zone
-                    </span>
-                </h4>
+            <div className="bg-gray-50/50 dark:bg-[#0b0d14]/40 backdrop-blur-xl rounded-[32px] border-2 border-dashed border-gray-300 dark:border-white/10 p-8 shadow-inner relative overflow-hidden transition-colors duration-500">
+                {draggedEvent && <div className="absolute inset-0 bg-indigo-500/5 animate-pulse rounded-[32px] pointer-events-none"></div>}
 
-                {plannedCourses.length === 0 ? (
-                    <div
-                        className={`text-center py-12 border-2 border-dashed rounded-xl transition-colors ${draggedEvent
-                            ? 'border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20'
-                            : 'border-gray-200 dark:border-gray-700'
-                            }`}
-                        onDragOver={handleDragOver}
-                        onDrop={handleDrop}
-                    >
-                        <Sparkles className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-                        <p className="text-gray-500 dark:text-gray-400">
-                            {draggedEvent ? 'Drop here to add!' : 'Drag courses here to build your timetable'}
-                        </p>
-                    </div>
-                ) : (
-                    renderGrid(personalTimetable.eventsByDay, false, true)
-                )}
+                <div className="relative z-10">
+                    <h4 className="font-bold text-gray-900 dark:text-white text-xl font-heading tracking-tight flex items-center gap-3 mb-6">
+                        <span className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shadow-[inset_0_0_15px_rgba(16,185,129,0.1)]">
+                            <Calendar className="w-5 h-5" />
+                        </span>
+                        Your Timetable
+                        <span className="text-[10px] uppercase tracking-widest font-bold text-emerald-600/80 dark:text-emerald-400/80 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full ml-auto">
+                            Drop zone
+                        </span>
+                    </h4>
+
+                    {plannedCourses.length === 0 ? (
+                        <div
+                            className={`text-center py-16 border-2 border-dashed rounded-[20px] transition-all duration-300 ${draggedEvent
+                                ? 'border-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 shadow-[inset_0_0_50px_rgba(99,102,241,0.1)] dark:shadow-[inset_0_0_50px_rgba(99,102,241,0.2)]'
+                                : 'border-gray-200 dark:border-white/10 bg-black/5 dark:bg-white/5'
+                                }`}
+                            onDragOver={handleDragOver}
+                            onDrop={handleDrop}
+                        >
+                            <Sparkles className={`w-14 h-14 mx-auto mb-4 transition-colors ${draggedEvent ? 'text-indigo-600 dark:text-indigo-400 animate-pulse' : 'text-gray-400 dark:text-gray-600'}`} />
+                            <p className={`font-semibold text-lg ${draggedEvent ? 'text-indigo-600 dark:text-indigo-200' : 'text-gray-500 dark:text-gray-400'}`}>
+                                {draggedEvent ? 'Drop course here!' : 'Construct your schedule here'}
+                            </p>
+                        </div>
+                    ) : (
+                        renderGrid(personalTimetable.eventsByDay, false, true)
+                    )}
+                </div>
             </div>
         </motion.div>
     );
