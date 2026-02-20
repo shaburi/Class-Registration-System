@@ -189,9 +189,10 @@ const getDropRequestsForStudent = async (studentId, status = null) => {
 /**
  * Get all drop requests (HOP only)
  * @param {string} status - Filter by status (optional)
+ * @param {string} hopProgramme - HOP's assigned programme for data isolation (optional)
  * @returns {Promise<Array>} - List of all drop requests
  */
-const getAllDropRequests = async (status = null) => {
+const getAllDropRequests = async (status = null, hopProgramme = null) => {
     let queryText = `
         SELECT 
             dr.*,
@@ -210,10 +211,32 @@ const getAllDropRequests = async (status = null) => {
     `;
 
     const params = [];
+    let paramCount = 1;
 
     if (status) {
-        queryText += ` AND dr.status = $1`;
+        queryText += ` AND dr.status = $${paramCount}`;
         params.push(status);
+        paramCount++;
+    }
+
+    // HOP programme isolation
+    if (hopProgramme) {
+        queryText += ` AND (
+            sub.programme = $${paramCount}
+            OR sub.code IN (
+                SELECT DISTINCT sub2.code FROM subjects sub2
+                WHERE sub2.programme = $${paramCount}
+            )
+            OR sub.code IN (
+                SELECT DISTINCT sub3.code
+                FROM program_structure_courses psc
+                JOIN program_structures ps ON psc.structure_id = ps.id
+                JOIN subjects sub3 ON psc.subject_id = sub3.id
+                WHERE ps.programme = $${paramCount}
+            )
+        )`;
+        params.push(hopProgramme);
+        paramCount++;
     }
 
     queryText += ` ORDER BY dr.created_at DESC`;

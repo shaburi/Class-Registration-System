@@ -5,6 +5,26 @@ const jwt = require('jsonwebtoken');
 // List of HOP email addresses (can be moved to environment variables)
 const HOP_EMAILS = (process.env.HOP_EMAILS || 'hop@uptm.edu.my').split(',').map(e => e.trim());
 
+// HOP-to-Programme mapping (e.g., "email1:CT206,email2:CT204,email3:CC101")
+const HOP_PROGRAMME_MAP = {};
+if (process.env.HOP_PROGRAMME_MAP) {
+    process.env.HOP_PROGRAMME_MAP.split(',').forEach(pair => {
+        const [email, programme] = pair.trim().split(':');
+        if (email && programme) {
+            HOP_PROGRAMME_MAP[email.toLowerCase().trim()] = programme.trim();
+        }
+    });
+}
+
+/**
+ * Get the programme assigned to a HOP email
+ * @param {string} email
+ * @returns {string|null}
+ */
+function getHopProgramme(email) {
+    return HOP_PROGRAMME_MAP[email.toLowerCase().trim()] || null;
+}
+
 /**
  * Determine user role based on email pattern
  * @param {string} email - User's email address
@@ -87,6 +107,38 @@ async function verifyGoogleToken(idToken) {
                     [user.id]
                 );
             }
+
+            // For existing HOP users: ensure their programme is set from the map
+            if (user.role === 'hop' && !user.programme) {
+                const hopProgramme = getHopProgramme(email);
+                if (hopProgramme) {
+                    await query(
+                        'UPDATE users SET programme = $1 WHERE id = $2',
+                        [hopProgramme, user.id]
+                    );
+                    user.programme = hopProgramme;
+                    console.log(`[AUTH] Updated HOP ${email} programme to ${hopProgramme}`);
+                }
+            }
+        }
+
+        // Check if MFA is enabled - if so, return temp token for MFA step
+        if (user.mfa_enabled) {
+            const tempToken = jwt.sign(
+                { id: user.id, mfaPending: true },
+                process.env.JWT_SECRET,
+                { expiresIn: '5m' }
+            );
+
+            return {
+                success: true,
+                requiresMfa: true,
+                tempToken,
+                user: {
+                    id: user.id,
+                    email: user.email
+                }
+            };
         }
 
         // Generate JWT token for API authentication
@@ -166,15 +218,16 @@ async function createUserFromGoogle(email, firebaseUid, name, picture, role) {
             RETURNING *
         `, [email, firebaseUid, role, lecturerId, name, defaultDepartment]);
     } else if (role === 'hop') {
-        // HOP is a special lecturer
+        // HOP is a special lecturer with assigned programme
         const lecturerId = 'L' + Date.now().toString().slice(-6);
         const defaultDepartment = 'Computer Science';
+        const hopProgramme = getHopProgramme(email);
 
         result = await query(`
-            INSERT INTO users (email, firebase_uid, role, lecturer_id, lecturer_name, department)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO users (email, firebase_uid, role, lecturer_id, lecturer_name, department, programme)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
-        `, [email, firebaseUid, role, lecturerId, name, defaultDepartment]);
+        `, [email, firebaseUid, role, lecturerId, name, defaultDepartment, hopProgramme]);
     }
 
     return result.rows[0];
@@ -182,5 +235,6 @@ async function createUserFromGoogle(email, firebaseUid, name, picture, role) {
 
 module.exports = {
     verifyGoogleToken,
-    determineRole
+    determineRole,
+    getHopProgramme
 };

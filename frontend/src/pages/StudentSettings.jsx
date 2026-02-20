@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme, ACCENT_COLORS } from '../context/ThemeContext';
 import {
@@ -14,10 +14,16 @@ import {
     Palette,
     Sun,
     Moon,
-    Check
+    Check,
+    Shield,
+    ShieldCheck,
+    ShieldOff,
+    Loader2,
+    KeyRound
 } from 'lucide-react';
 import api from '../services/api';
 import DashboardLayout from '../components/DashboardLayout';
+import MFASetupModal from '../components/MFASetupModal';
 
 // Programme options
 const PROGRAMMES = [
@@ -37,10 +43,51 @@ export default function StudentSettings() {
         semester: ''
     });
     const [message, setMessage] = useState({ type: '', text: '' });
+    const [showMfaSetup, setShowMfaSetup] = useState(false);
+    const [mfaEnabled, setMfaEnabled] = useState(false);
+    const [mfaLoading, setMfaLoading] = useState(true);
+    const [disableToken, setDisableToken] = useState('');
+    const [disableError, setDisableError] = useState('');
+    const [disabling, setDisabling] = useState(false);
+    const [showDisableForm, setShowDisableForm] = useState(false);
 
     useEffect(() => {
         loadProfile();
+        loadMfaStatus();
     }, []);
+
+    const loadMfaStatus = async () => {
+        try {
+            setMfaLoading(true);
+            const response = await api.get('/auth/mfa/status');
+            setMfaEnabled(response.data.mfaEnabled);
+        } catch (err) {
+            console.error('Failed to load MFA status:', err);
+        } finally {
+            setMfaLoading(false);
+        }
+    };
+
+    const handleDisableMfa = async (e) => {
+        e.preventDefault();
+        if (disableToken.length !== 6) {
+            setDisableError('Please enter a 6-digit code');
+            return;
+        }
+        setDisabling(true);
+        setDisableError('');
+        try {
+            await api.post('/auth/mfa/disable', { token: disableToken });
+            setMfaEnabled(false);
+            setShowDisableForm(false);
+            setDisableToken('');
+            setMessage({ type: 'success', text: 'Two-factor authentication disabled.' });
+        } catch (err) {
+            setDisableError(err.response?.data?.message || 'Invalid code');
+        } finally {
+            setDisabling(false);
+        }
+    };
 
     const loadProfile = async () => {
         try {
@@ -266,6 +313,135 @@ export default function StudentSettings() {
                     </div>
                 </motion.div>
 
+                {/* Security / 2FA Card */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800"
+                >
+                    <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
+                        <div className={`w-16 h-16 bg-gradient-to-br ${mfaEnabled ? 'from-emerald-500 to-teal-600' : 'from-gray-400 to-gray-500'} rounded-2xl flex items-center justify-center shadow-lg transition-all`}>
+                            {mfaEnabled ? (
+                                <ShieldCheck className="w-8 h-8 text-white" />
+                            ) : (
+                                <Shield className="w-8 h-8 text-white" />
+                            )}
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Security</h2>
+                            <p className="text-gray-500 dark:text-gray-400">Two-Factor Authentication (2FA)</p>
+                        </div>
+                    </div>
+
+                    {mfaLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                        </div>
+                    ) : mfaEnabled ? (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-700">
+                                <ShieldCheck className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+                                <div>
+                                    <p className="font-medium text-emerald-800 dark:text-emerald-300">2FA is Enabled</p>
+                                    <p className="text-sm text-emerald-600 dark:text-emerald-400">Your account is protected with two-factor authentication.</p>
+                                </div>
+                            </div>
+
+                            {!showDisableForm ? (
+                                <button
+                                    onClick={() => setShowDisableForm(true)}
+                                    className="px-5 py-2.5 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-700 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition font-medium text-sm"
+                                >
+                                    Disable 2FA
+                                </button>
+                            ) : (
+                                <form onSubmit={handleDisableMfa} className="space-y-3 p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-800">
+                                    <p className="text-sm text-red-700 dark:text-red-400 font-medium">Enter your authenticator code to disable 2FA:</p>
+                                    <div className="flex gap-2">
+                                        <div className="relative flex-1">
+                                            <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                pattern="[0-9]*"
+                                                maxLength={6}
+                                                value={disableToken}
+                                                onChange={(e) => {
+                                                    setDisableToken(e.target.value.replace(/\D/g, ''));
+                                                    setDisableError('');
+                                                }}
+                                                placeholder="000000"
+                                                className="w-full pl-9 pr-4 py-2.5 text-center font-mono tracking-[0.3em] bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500"
+                                            />
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            disabled={disabling || disableToken.length !== 6}
+                                            className="px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium disabled:opacity-50 hover:bg-red-700 transition text-sm"
+                                        >
+                                            {disabling ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirm'}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => { setShowDisableForm(false); setDisableToken(''); setDisableError(''); }}
+                                            className="px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                    {disableError && (
+                                        <p className="text-sm text-red-600 flex items-center gap-1">
+                                            <AlertCircle className="w-3.5 h-3.5" />
+                                            {disableError}
+                                        </p>
+                                    )}
+                                </form>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-700">
+                                <ShieldOff className="w-6 h-6 text-amber-600 flex-shrink-0" />
+                                <div>
+                                    <p className="font-medium text-amber-800 dark:text-amber-300">2FA is Not Enabled</p>
+                                    <p className="text-sm text-amber-600 dark:text-amber-400">Add an extra layer of security to your account.</p>
+                                </div>
+                            </div>
+
+                            <motion.button
+                                onClick={() => setShowMfaSetup(true)}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition"
+                            >
+                                <Shield className="w-5 h-5" />
+                                Enable Two-Factor Authentication
+                            </motion.button>
+
+                            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                                <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">How it works</h4>
+                                <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                                    <li>1. Scan a QR code with Google Authenticator or Authy</li>
+                                    <li>2. Enter a 6-digit code to verify</li>
+                                    <li>3. Every login will require a code from your app</li>
+                                </ul>
+                            </div>
+                        </div>
+                    )}
+                </motion.div>
+
+                {/* MFA Setup Modal */}
+                {showMfaSetup && (
+                    <MFASetupModal
+                        onClose={() => setShowMfaSetup(false)}
+                        onEnabled={() => {
+                            setMfaEnabled(true);
+                            setMessage({ type: 'success', text: 'Two-factor authentication enabled!' });
+                        }}
+                    />
+                )}
+
                 {/* Theme Customization Card */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -294,8 +470,8 @@ export default function StudentSettings() {
                             <button
                                 onClick={() => theme === 'dark' && toggleTheme()}
                                 className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-3 ${theme === 'light'
-                                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
-                                        : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300'
+                                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
+                                    : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300'
                                     }`}
                             >
                                 <Sun className="w-5 h-5" />
@@ -305,8 +481,8 @@ export default function StudentSettings() {
                             <button
                                 onClick={() => theme === 'light' && toggleTheme()}
                                 className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-3 ${theme === 'dark'
-                                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
-                                        : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300'
+                                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
+                                    : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300'
                                     }`}
                             >
                                 <Moon className="w-5 h-5" />
@@ -330,8 +506,8 @@ export default function StudentSettings() {
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     className={`relative p-4 rounded-xl border-2 transition-all ${accentColor === key
-                                            ? 'border-gray-900 dark:border-white shadow-lg'
-                                            : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                                        ? 'border-gray-900 dark:border-white shadow-lg'
+                                        : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
                                         }`}
                                 >
                                     <div className={`w-full aspect-square rounded-lg bg-gradient-to-br ${color.gradient} shadow-md`} />

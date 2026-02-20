@@ -20,9 +20,10 @@
     /* Indigo */
     --neon-glow: rgba(99, 102, 241, 0.3);
 
-    /* Text */
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
+    /* Text - High Contrast for Light Mode */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #94a3b8;
   }
 
   .dark {
@@ -90,8 +91,9 @@
 
   .glass-input {
     @apply w-full px-4 py-3 rounded-xl outline-none transition-all duration-300;
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: var(--text-primary);
     backdrop-filter: blur(4px);
   }
 

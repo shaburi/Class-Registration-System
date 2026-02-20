@@ -84,40 +84,39 @@ export const AuthProvider = ({ children }) => {
             const idToken = await userCredential.user.getIdToken();
 
             setToken(idToken);
-            localStorage.setItem('token', idToken); // ← Save token to localStorage!
+            localStorage.setItem('token', idToken);
 
-            // Detect role from email first
-            const emailRole = userCredential.user.email.includes('student') ? 'student'
-                : userCredential.user.email.includes('lecturer') ? 'lecturer'
-                    : userCredential.user.email.includes('hop') ? 'hop'
-                        : 'student';
-
-            // Only fetch student profile for actual students
-            if (emailRole === 'student') {
-                try {
-                    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/student/profile`, {
-                        headers: {
-                            'Authorization': `Bearer ${idToken}`
-                        }
-                    });
-
-                    if (response.ok) {
-                        const userData = await response.json();
-                        const userWithAuth = {
-                            uid: userCredential.user.uid,
-                            email: userCredential.user.email,
-                            ...userData.data
-                        };
-                        setUser(userWithAuth);
-                        localStorage.setItem('user', JSON.stringify(userWithAuth));
-                        return { user: userWithAuth, token: idToken };
+            // Always fetch the full user profile from backend first
+            // This ensures we get the correct role (especially for HOPs) and programme
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/v1/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`
                     }
-                } catch (profileError) {
-                    console.log('Could not fetch student profile');
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const userWithAuth = {
+                        uid: userCredential.user.uid,
+                        email: userCredential.user.email,
+                        photoURL: userCredential.user.photoURL,
+                        displayName: userCredential.user.displayName,
+                        ...data.user
+                    };
+                    setUser(userWithAuth);
+                    localStorage.setItem('user', JSON.stringify(userWithAuth));
+                    return { user: userWithAuth, token: idToken };
                 }
+            } catch (profileError) {
+                console.log('Could not fetch user profile from /auth/me, using email-based role detection');
             }
 
-            // For HOP, lecturer, or if student profile fetch failed
+            // Fallback: detect role from email if /auth/me fails
+            const emailRole = userCredential.user.email.includes('student') ? 'student'
+                : userCredential.user.email.includes('lecturer') ? 'lecturer'
+                    : 'lecturer'; // Default to lecturer for @uptm.edu.my staff
+
             const defaultUser = {
                 uid: userCredential.user.uid,
                 email: userCredential.user.email,

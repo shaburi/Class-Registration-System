@@ -51,10 +51,10 @@ router.use(permissions.canManageSubjects);
  */
 router.delete('/sections/all', async (req, res) => {
     try {
-        const result = await hopService.deleteAllSections();
+        const result = await hopService.deleteAllSections(req.user.programme);
         res.json({
             success: true,
-            message: `Deleted ${result.deletedCount} sections`,
+            message: `Unlinked ${result.unlinkedCount} sections from your programme${result.deletedOrphans ? ` (${result.deletedOrphans} orphaned sections cleaned up)` : ''}`,
             data: result
         });
     } catch (error) {
@@ -73,10 +73,10 @@ router.delete('/sections/all', async (req, res) => {
  */
 router.delete('/subjects/all', async (req, res) => {
     try {
-        const result = await hopService.deleteAllSubjects();
+        const result = await hopService.deleteAllSubjects(req.user.programme);
         res.json({
             success: true,
-            message: `Deleted ${result.deletedCount} subjects`,
+            message: `Deleted ${result.deletedCount} subjects${result.unlinkedCount ? ` (${result.unlinkedCount} shared subjects unlinked)` : ''}`,
             data: result
         });
     } catch (error) {
@@ -100,72 +100,86 @@ router.delete('/subjects/all', async (req, res) => {
 router.get('/analytics', async (req, res) => {
     try {
         const { query } = require('../database/connection');
+        const hopProgramme = req.user.programme;
 
-        // Get enrollment trend (last 7 days)
+        // Common section filter: only sections linked to this HOP's programme
+        const sectionFilterSQL = `
+            SELECT psl.section_id FROM programme_section_links psl WHERE psl.programme = $1
+        `;
+
+        // Get enrollment trend (last 7 days) — scoped
         const enrollmentTrendResult = await query(`
             SELECT 
-                DATE(registered_at) as date,
+                DATE(r.registered_at) as date,
                 COUNT(*) as count
-            FROM registrations
-            WHERE registered_at >= CURRENT_DATE - INTERVAL '7 days'
-            GROUP BY DATE(registered_at)
+            FROM registrations r
+            JOIN sections sec ON r.section_id = sec.id
+            WHERE r.registered_at >= CURRENT_DATE - INTERVAL '7 days'
+              AND sec.id IN (${sectionFilterSQL})
+            GROUP BY DATE(r.registered_at)
             ORDER BY date ASC
-        `);
+        `, [hopProgramme]);
 
-        // Get subject popularity
+        // Get subject popularity — scoped
         const subjectPopularityResult = await query(`
             SELECT 
                 s.code,
                 s.name,
                 COUNT(r.id) as students
             FROM subjects s
-            LEFT JOIN sections sec ON s.id = sec.subject_id
+            LEFT JOIN sections sec ON s.id = sec.subject_id AND sec.id IN (${sectionFilterSQL})
             LEFT JOIN registrations r ON sec.id = r.section_id
+            WHERE s.id IN (SELECT DISTINCT sub.subject_id FROM sections sub WHERE sub.id IN (${sectionFilterSQL}))
             GROUP BY s.id, s.code, s.name
             ORDER BY students DESC
             LIMIT 10
-        `);
+        `, [hopProgramme]);
 
-        // Get overall capacity utilization
+        // Get overall capacity utilization — scoped
         const utilizationResult = await query(`
             SELECT 
-                COALESCE(SUM(capacity), 0) as total_capacity,
-                COALESCE(SUM(enrolled_count), 0) as current_enrollment
-            FROM sections
-        `);
+                COALESCE(SUM(sec.capacity), 0) as total_capacity,
+                COALESCE(SUM(sec.enrolled_count), 0) as current_enrollment
+            FROM sections sec
+            WHERE sec.id IN (${sectionFilterSQL})
+        `, [hopProgramme]);
 
-        // Get section stats (full vs available)
+        // Get section stats (full vs available) — scoped
         const sectionStatsResult = await query(`
             SELECT 
                 COUNT(*) as total,
-                COUNT(CASE WHEN enrolled_count >= capacity THEN 1 END) as full_sections,
-                COUNT(CASE WHEN enrolled_count < capacity THEN 1 END) as available_sections
-            FROM sections
-        `);
+                COUNT(CASE WHEN sec.enrolled_count >= sec.capacity THEN 1 END) as full_sections,
+                COUNT(CASE WHEN sec.enrolled_count < sec.capacity THEN 1 END) as available_sections
+            FROM sections sec
+            WHERE sec.id IN (${sectionFilterSQL})
+        `, [hopProgramme]);
 
-        // Get registration activity by day of week
+        // Get registration activity by day of week — scoped
         const dayActivityResult = await query(`
             SELECT 
-                EXTRACT(DOW FROM registered_at) as day_of_week,
+                EXTRACT(DOW FROM r.registered_at) as day_of_week,
                 COUNT(*) as count
-            FROM registrations
-            WHERE registered_at >= CURRENT_DATE - INTERVAL '30 days'
-            GROUP BY EXTRACT(DOW FROM registered_at)
+            FROM registrations r
+            JOIN sections sec ON r.section_id = sec.id
+            WHERE r.registered_at >= CURRENT_DATE - INTERVAL '30 days'
+              AND sec.id IN (${sectionFilterSQL})
+            GROUP BY EXTRACT(DOW FROM r.registered_at)
             ORDER BY day_of_week
-        `);
+        `, [hopProgramme]);
 
-        // Get section utilization breakdown
+        // Get section utilization breakdown — scoped
         const utilizationBreakdownResult = await query(`
             SELECT 
                 CASE 
-                    WHEN (enrolled_count::float / NULLIF(capacity, 0) * 100) >= 90 THEN 'full'
-                    WHEN (enrolled_count::float / NULLIF(capacity, 0) * 100) >= 50 THEN 'moderate'
+                    WHEN (sec.enrolled_count::float / NULLIF(sec.capacity, 0) * 100) >= 90 THEN 'full'
+                    WHEN (sec.enrolled_count::float / NULLIF(sec.capacity, 0) * 100) >= 50 THEN 'moderate'
                     ELSE 'low'
                 END as category,
                 COUNT(*) as count
-            FROM sections
+            FROM sections sec
+            WHERE sec.id IN (${sectionFilterSQL})
             GROUP BY category
-        `);
+        `, [hopProgramme]);
 
         const utilization = utilizationResult.rows[0];
         const utilizationPercent = utilization.total_capacity > 0
@@ -216,13 +230,17 @@ router.get('/analytics', async (req, res) => {
  */
 router.get('/schedule-heatmap', async (req, res) => {
     try {
+        const hopProgramme = req.user.programme;
         const result = await query(`
-            SELECT day, start_time, COUNT(*) as section_count
-            FROM sections
-            WHERE is_active = true
-            GROUP BY day, start_time
-            ORDER BY day, start_time
-        `);
+            SELECT sec.day, sec.start_time, COUNT(*) as section_count
+            FROM sections sec
+            WHERE sec.is_active = true
+              AND sec.id IN (
+                  SELECT psl.section_id FROM programme_section_links psl WHERE psl.programme = $1
+              )
+            GROUP BY sec.day, sec.start_time
+            ORDER BY sec.day, sec.start_time
+        `, [hopProgramme]);
 
         // Convert to heatmap format
         const heatmap = {};
@@ -289,7 +307,9 @@ router.get('/students', async (req, res) => {
  */
 router.get('/activity-log', async (req, res) => {
     try {
-        // Get recent registrations
+        const hopProgramme = req.user.programme;
+
+        // Get recent registrations — scoped via section links
         const registrations = await query(`
             SELECT 
                 r.id,
@@ -302,11 +322,14 @@ router.get('/activity-log', async (req, res) => {
             JOIN users u ON r.student_id = u.id
             JOIN sections sec ON r.section_id = sec.id
             JOIN subjects sub ON sec.subject_id = sub.id
+            WHERE sec.id IN (
+                SELECT psl.section_id FROM programme_section_links psl WHERE psl.programme = $1
+            )
             ORDER BY r.registered_at DESC
             LIMIT 20
-        `);
+        `, [hopProgramme]);
 
-        // Get recent drop requests
+        // Get recent drop requests — scoped via section links
         const drops = await query(`
             SELECT 
                 dr.id,
@@ -321,9 +344,12 @@ router.get('/activity-log', async (req, res) => {
             JOIN sections sec ON r.section_id = sec.id
             JOIN subjects sub ON sec.subject_id = sub.id
             WHERE dr.status = 'approved'
+              AND sec.id IN (
+                  SELECT psl.section_id FROM programme_section_links psl WHERE psl.programme = $1
+              )
             ORDER BY dr.created_at DESC
             LIMIT 10
-        `);
+        `, [hopProgramme]);
 
         // Combine and sort by date
         const activities = [...registrations.rows, ...drops.rows]
@@ -685,7 +711,10 @@ router.get('/student-logs', async (req, res) => {
 router.get('/subjects', async (req, res) => {
     try {
         const { semester, programme, isActive } = req.query;
-        const subjects = await hopService.getAllSubjects({ semester, programme, isActive });
+        const subjects = await hopService.getAllSubjects({
+            semester, programme, isActive,
+            hopProgramme: req.user.programme  // HOP programme isolation
+        });
 
         res.json({ success: true, data: subjects });
     } catch (error) {
@@ -718,7 +747,7 @@ router.put('/subjects/:id', async (req, res) => {
 
 router.delete('/subjects/:id', async (req, res) => {
     try {
-        const result = await hopService.deleteSubject(req.params.id);
+        const result = await hopService.deleteSubject(req.params.id, req.user.programme);
         res.json(result);
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
@@ -749,7 +778,10 @@ router.get('/lecturers', async (req, res) => {
 router.get('/sections', async (req, res) => {
     try {
         const { subjectId, lecturerId, isActive, semester } = req.query;
-        const sections = await hopService.getAllSections({ subjectId, lecturerId, isActive, semester });
+        const sections = await hopService.getAllSections({
+            subjectId, lecturerId, isActive, semester,
+            hopProgramme: req.user.programme  // HOP programme isolation
+        });
 
         res.json({ success: true, data: sections });
     } catch (error) {
@@ -762,7 +794,7 @@ router.post('/sections', async (req, res) => {
         const { subjectId, sectionNumber, capacity, day, startTime, endTime, room, building, lecturerId } = req.body;
 
         const section = await hopService.createSection(
-            subjectId, sectionNumber, capacity, day, startTime, endTime, room, building, lecturerId
+            subjectId, sectionNumber, capacity, day, startTime, endTime, room, building, lecturerId, req.user.programme
         );
 
         res.status(201).json({ success: true, data: section });
@@ -797,7 +829,7 @@ router.put('/sections/:id/assign-lecturer', async (req, res) => {
 
 router.delete('/sections/:id', async (req, res) => {
     try {
-        const result = await hopService.deleteSection(req.params.id);
+        const result = await hopService.deleteSection(req.params.id, req.user.programme);
         res.json(result);
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
@@ -850,7 +882,7 @@ router.get('/swap-requests', async (req, res) => {
 router.get('/manual-join-requests', async (req, res) => {
     try {
         const { status } = req.query;
-        const requests = await manualJoinService.getAllManualJoinRequests(status);
+        const requests = await manualJoinService.getAllManualJoinRequests(status, req.user.programme);
 
         res.json({ success: true, data: requests });
     } catch (error) {
@@ -896,7 +928,9 @@ router.put('/manual-join-requests/:id/reject', async (req, res) => {
 
 router.get('/timetable', async (req, res) => {
     try {
-        const { semester, programme, day } = req.query;
+        const { semester, day } = req.query;
+        // Default to the HOP's programme if no programme specified
+        const programme = req.query.programme || req.user.programme;
         const timetable = await schedulingService.getGlobalTimetable({ semester, programme, day });
 
         res.json({ success: true, data: timetable });
@@ -907,7 +941,7 @@ router.get('/timetable', async (req, res) => {
 
 router.get('/statistics', async (req, res) => {
     try {
-        const stats = await schedulingService.getEnrollmentStatistics();
+        const stats = await schedulingService.getEnrollmentStatistics(req.user.programme);
         res.json({ success: true, data: stats });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -925,7 +959,7 @@ router.get('/statistics', async (req, res) => {
 router.get('/drop-requests/pending', async (req, res) => {
     try {
         const dropRequestService = require('../services/dropRequest.service');
-        const requests = await dropRequestService.getAllDropRequests('pending');
+        const requests = await dropRequestService.getAllDropRequests('pending', req.user.programme);
 
         res.json({
             success: true,

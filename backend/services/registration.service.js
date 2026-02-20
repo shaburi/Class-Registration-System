@@ -65,8 +65,22 @@ const registerForSection = async (studentId, sectionId, registrationType = 'norm
             throw new Error(`Cannot register for section. Subject is for semester ${section.semester}, but student is in semester ${student.semester}`);
         }
 
+        // 3b. Check if subject belongs to student's programme (allow shared subjects)
         if (section.programme !== student.programme) {
-            throw new Error(`Cannot register for section. Subject is for ${section.programme} programme`);
+            // Check if this subject is shared with the student's programme
+            const sharedCheck = await client.query(`
+                SELECT 1 FROM subjects WHERE code = $1 AND programme = $2
+                UNION
+                SELECT 1 FROM program_structure_courses psc
+                JOIN program_structures ps ON psc.structure_id = ps.id
+                WHERE psc.subject_id = (SELECT subject_id FROM sections WHERE id = $3)
+                  AND ps.programme = $2
+                LIMIT 1
+            `, [section.code, student.programme, sectionId]);
+
+            if (sharedCheck.rows.length === 0) {
+                throw new Error(`Cannot register for section. Subject is for ${section.programme} programme`);
+            }
         }
 
         // 4. Check if already registered for ANY section of this subject
@@ -261,7 +275,7 @@ const getAvailableSections = async (semester, programme) => {
         FROM subjects sub
         JOIN sections s ON sub.id = s.subject_id
         LEFT JOIN users u ON s.lecturer_id = u.id
-        WHERE sub.semester <= $1 
+        WHERE sub.semester = $1 
             AND sub.programme = $2 
             AND sub.is_active = true 
             AND s.is_active = true

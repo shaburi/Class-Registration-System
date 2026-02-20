@@ -33,6 +33,25 @@ async function traditionalLogin(email, password) {
             throw new Error('Invalid email or password');
         }
 
+        // Check if MFA is enabled - if so, return temp token for MFA step
+        if (user.mfa_enabled) {
+            const tempToken = jwt.sign(
+                { id: user.id, mfaPending: true },
+                process.env.JWT_SECRET,
+                { expiresIn: '5m' } // Short-lived token for MFA step
+            );
+
+            return {
+                success: true,
+                requiresMfa: true,
+                tempToken,
+                user: {
+                    id: user.id,
+                    email: user.email
+                }
+            };
+        }
+
         // Update last login
         await query(
             'UPDATE users SET last_login_at = NOW() WHERE id = $1',

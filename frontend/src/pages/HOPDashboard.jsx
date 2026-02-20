@@ -19,7 +19,8 @@ import {
     XCircle,
     Clock,
     ChevronDown,
-    Upload
+    Upload,
+    Search
 } from 'lucide-react';
 import api from '../services/api';
 import Modal from '../components/ui/Modal';
@@ -51,6 +52,7 @@ export default function HOPDashboard() {
     const [printMode, setPrintMode] = useState(false);
     const [printSection, setPrintSection] = useState(null);
     const [printStudents, setPrintStudents] = useState([]);
+    const [subjectProgrammeMap, setSubjectProgrammeMap] = useState({});
 
     // CSV Import Modal States
     const [showSubjectsImport, setShowSubjectsImport] = useState(false);
@@ -66,7 +68,7 @@ export default function HOPDashboard() {
     const loadData = async () => {
         try {
             setLoading(true);
-            const [subjectsRes, sectionsRes, lecturersRes, statsRes, dropReqRes, manualReqRes] = await Promise.all([
+            const [subjectsRes, sectionsRes, lecturersRes, statsRes, dropReqRes, manualReqRes, mappingRes] = await Promise.all([
                 api.get('/hop/subjects'),
                 api.get('/hop/sections'),
                 api.get('/hop/lecturers'),
@@ -75,6 +77,10 @@ export default function HOPDashboard() {
                 api.get('/hop/manual-join-requests?status=pending').catch(err => {
                     console.error('Manual requests API failed:', err);
                     return { data: { data: [] } };
+                }),
+                api.get('/program-structures/subject-mapping').catch(err => {
+                    console.error('Subject mapping API failed:', err);
+                    return { data: { data: {} } };
                 })
             ]);
 
@@ -85,6 +91,7 @@ export default function HOPDashboard() {
             setStatistics(statsRes.data.data || statsRes.data || {});
             setDropRequests(dropReqRes.data.data || dropReqRes.data || []);
             setManualRequests(manualReqRes.data.data || manualReqRes.data || []);
+            setSubjectProgrammeMap(mappingRes.data.data || mappingRes.data || {});
             console.log('✅ Loaded data from backend:', {
                 subjects: subjectsRes.data.data?.length || 0,
                 sections: sectionsRes.data.data?.length || 0
@@ -466,7 +473,7 @@ export default function HOPDashboard() {
     return (
         <DashboardLayout
             role="hop"
-            title="Head of Programme Dashboard"
+            title={`Head of Programme Dashboard${user?.programme ? ` — ${user.programme}` : ''}`}
             activeTab={activeTab}
             onTabChange={setActiveTab}
             notifications={[
@@ -532,6 +539,7 @@ export default function HOPDashboard() {
                     {activeTab === 'subjects' && (
                         <SubjectsTab
                             subjects={subjects}
+                            subjectProgrammeMap={subjectProgrammeMap}
                             onRefresh={loadData}
                             onAdd={handleAddSubject}
                             onEdit={handleEditSubject}
@@ -546,6 +554,7 @@ export default function HOPDashboard() {
                         <SectionsTab
                             sections={sections}
                             subjects={subjects}
+                            subjectProgrammeMap={subjectProgrammeMap}
                             onRefresh={loadData}
                             onAdd={handleAddSection}
                             onEdit={handleEditSection}
@@ -727,26 +736,26 @@ export default function HOPDashboard() {
                 >
                     <form onSubmit={handleSaveSubject} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-white/60 mb-1.5">Subject Code</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-white/60 mb-1.5">Subject Code</label>
                             <input
                                 name="code"
                                 defaultValue={editingSubject?.code}
                                 required
-                                className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
+                                className="mt-1 block w-full rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:border-indigo-500/50 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-white/60 mb-1.5">Subject Name</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-white/60 mb-1.5">Subject Name</label>
                             <input
                                 name="name"
                                 defaultValue={editingSubject?.name}
                                 required
-                                className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
+                                className="mt-1 block w-full rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:border-indigo-500/50 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                             />
                         </div>
                         <div className="grid grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-white/60 mb-1.5">Credit Hours</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-white/60 mb-1.5">Credit Hours</label>
                                 <input
                                     name="credit_hours"
                                     type="number"
@@ -754,34 +763,34 @@ export default function HOPDashboard() {
                                     required
                                     min="1"
                                     max="6"
-                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
+                                    className="mt-1 block w-full rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:border-indigo-500/50 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-white/60 mb-1.5">Semester</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-white/60 mb-1.5">Semester</label>
                                 <select
                                     name="semester"
                                     defaultValue={editingSubject?.semester || 1}
                                     disabled={!!editingSubject}
-                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3 disabled:bg-white/5 disabled:text-white/30"
+                                    className="mt-1 block w-full rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:border-indigo-500/50 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3 disabled:bg-gray-100 dark:disabled:bg-white/5 disabled:text-gray-500 dark:disabled:text-white/30"
                                 >
                                     {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => (
-                                        <option key={sem} value={sem}>Sem {sem}</option>
+                                        <option key={sem} value={sem} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">Sem {sem}</option>
                                     ))}
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-white/60 mb-1.5">Programme</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-white/60 mb-1.5">Programme</label>
                                 <select
                                     name="programme"
                                     defaultValue={editingSubject?.programme || 'CT206'}
                                     disabled={!!editingSubject}
-                                    className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-indigo-500/50 focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3 disabled:bg-white/5 disabled:text-white/30"
+                                    className="mt-1 block w-full rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:border-indigo-500/50 focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-indigo-500/50 transition-all sm:text-sm p-3 disabled:bg-gray-100 dark:disabled:bg-white/5 disabled:text-gray-500 dark:disabled:text-white/30"
                                 >
-                                    <option value="CT206">CT206 - Bachelor of IT (Cyber Security)</option>
-                                    <option value="CT204">CT204 - Bachelor of IT (Computer App Development)</option>
-                                    <option value="CC101">CC101 - Diploma in Computer Science</option>
-                                    <option value="ALL">ALL - All Programmes</option>
+                                    <option value="CT206" className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">CT206 - Bachelor of IT (Cyber Security)</option>
+                                    <option value="CT204" className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">CT204 - Bachelor of IT (Computer App Development)</option>
+                                    <option value="CC101" className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">CC101 - Diploma in Computer Science</option>
+                                    <option value="ALL" className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">ALL - All Programmes</option>
                                 </select>
                             </div>
                         </div>
@@ -1149,7 +1158,30 @@ function OverviewTab({ subjects, sections }) {
 }
 
 // Subjects Tab
-function SubjectsTab({ subjects, onRefresh, onAdd, onEdit, onDelete, onDeleteAll, onImport, onImportFile }) {
+function SubjectsTab({ subjects, subjectProgrammeMap, onRefresh, onAdd, onEdit, onDelete, onDeleteAll, onImport, onImportFile }) {
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Helper: get all programmes a subject belongs to
+    const getProgrammes = (code) => {
+        const fromMap = subjectProgrammeMap[code] || [];
+        // Also include the subject's own programme field as fallback
+        const subjectOwn = subjects.filter(s => s.code === code).map(s => s.programme).filter(Boolean);
+        const all = [...new Set([...fromMap, ...subjectOwn])];
+        return all.length > 0 ? all : ['—'];
+    };
+
+    const filteredSubjects = subjects.filter(subject => {
+        // Search filter
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            if (!(subject.code || '').toLowerCase().includes(q) &&
+                !(subject.name || '').toLowerCase().includes(q)) {
+                return false;
+            }
+        }
+        return true;
+    });
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1199,6 +1231,28 @@ function SubjectsTab({ subjects, onRefresh, onAdd, onEdit, onDelete, onDeleteAll
                 </div>
             </div>
 
+
+
+            {/* Search Bar */}
+            <div className="relative">
+                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/30" />
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search subjects by code or name..."
+                    className="w-full pl-11 pr-10 py-3 bg-white/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all text-sm"
+                />
+                {searchQuery && (
+                    <button
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-gray-400 dark:text-white/30 hover:text-gray-600 dark:hover:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                    >
+                        <X size={16} />
+                    </button>
+                )}
+            </div>
+
             {subjects.length === 0 ? (
                 <div className="glass-card p-12 rounded-3xl border border-gray-200 dark:border-white/10 text-center flex flex-col items-center justify-center bg-white/60 dark:bg-black/20">
                     <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center mb-6 relative group">
@@ -1217,9 +1271,15 @@ function SubjectsTab({ subjects, onRefresh, onAdd, onEdit, onDelete, onDeleteAll
                         Add First Subject
                     </button>
                 </div>
+            ) : filteredSubjects.length === 0 ? (
+                <div className="glass-card p-12 rounded-3xl border border-gray-200 dark:border-white/10 text-center bg-white/60 dark:bg-black/20">
+                    <Search size={40} className="mx-auto mb-4 text-gray-300 dark:text-white/20" />
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">No results found</h3>
+                    <p className="text-gray-500 dark:text-white/40 text-sm">No subjects match "{searchQuery}"</p>
+                </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {subjects.map((subject, index) => (
+                    {filteredSubjects.map((subject, index) => (
                         <motion.div
                             key={subject.id}
                             initial={{ opacity: 0, y: 20 }}
@@ -1267,7 +1327,7 @@ function SubjectsTab({ subjects, onRefresh, onAdd, onEdit, onDelete, onDeleteAll
                                 </span>
                                 <span className="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 text-xs text-gray-500 dark:text-white/50 flex items-center gap-1.5">
                                     <Users size={12} className="text-pink-500 dark:text-pink-400" />
-                                    {subject.programme}
+                                    {getProgrammes(subject.code).join(', ')}
                                 </span>
                             </div>
                         </motion.div>
@@ -1279,8 +1339,9 @@ function SubjectsTab({ subjects, onRefresh, onAdd, onEdit, onDelete, onDeleteAll
 }
 
 // Sections Tab - Grouped by Subject with Expandable List
-function SectionsTab({ sections, subjects, onRefresh, onAdd, onEdit, onDelete, onViewStudents, onImport, onAssignLecturers, onClearAll }) {
+function SectionsTab({ sections, subjects, subjectProgrammeMap, onRefresh, onAdd, onEdit, onDelete, onViewStudents, onImport, onAssignLecturers, onClearAll }) {
     const [expandedSubject, setExpandedSubject] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Group sections by subject
     const groupedSections = sections.reduce((acc, section) => {
@@ -1297,6 +1358,18 @@ function SectionsTab({ sections, subjects, onRefresh, onAdd, onEdit, onDelete, o
     }, {});
 
     const subjectGroups = Object.values(groupedSections);
+
+    const filteredGroups = subjectGroups.filter(group => {
+        // Search filter
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            if (!(group.code || '').toLowerCase().includes(q) &&
+                !(group.name || '').toLowerCase().includes(q)) {
+                return false;
+            }
+        }
+        return true;
+    });
 
     return (
         <div className="space-y-8">
@@ -1346,6 +1419,28 @@ function SectionsTab({ sections, subjects, onRefresh, onAdd, onEdit, onDelete, o
                 </div>
             </div>
 
+
+
+            {/* Search Bar */}
+            <div className="relative">
+                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/30" />
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search sections by subject code or name..."
+                    className="w-full pl-11 pr-10 py-3 bg-white/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all text-sm"
+                />
+                {searchQuery && (
+                    <button
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-gray-400 dark:text-white/30 hover:text-gray-600 dark:hover:text-white/60 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                    >
+                        <X size={16} />
+                    </button>
+                )}
+            </div>
+
             {/* Content */}
             {subjectGroups.length === 0 ? (
                 <div className="glass-card bg-white/80 dark:bg-black/40 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-3xl p-16 text-center">
@@ -1360,9 +1455,15 @@ function SectionsTab({ sections, subjects, onRefresh, onAdd, onEdit, onDelete, o
                         Create First Section
                     </Button>
                 </div>
+            ) : filteredGroups.length === 0 ? (
+                <div className="glass-card bg-white/80 dark:bg-black/40 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-3xl p-12 text-center">
+                    <Search size={40} className="mx-auto mb-4 text-gray-300 dark:text-white/20" />
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">No results found</h3>
+                    <p className="text-gray-500 dark:text-white/40 text-sm">No sections match "{searchQuery}"</p>
+                </div>
             ) : (
                 <div className="space-y-4">
-                    {subjectGroups.map(subject => {
+                    {filteredGroups.map(subject => {
                         const isExpanded = expandedSubject === subject.code;
                         const totalStudents = subject.sections.reduce((sum, s) => sum + (s.enrolled_count || 0), 0);
                         const totalCapacity = subject.sections.reduce((sum, s) => sum + (s.capacity || 0), 0);

@@ -344,38 +344,62 @@ const exportSectionSummaryToCSV = async (filters = {}) => {
 };
 
 /**
- * Get enrollment statistics
+ * Get enrollment statistics — programme-scoped for HOPs
+ * @param {string} hopProgramme - The HOP's programme code (optional — if omitted returns global stats)
  * @returns {Promise<Object>} - Various enrollment statistics
  */
-const getEnrollmentStatistics = async () => {
-    // Total students
-    const totalStudents = await query('SELECT COUNT(*) as count FROM users WHERE role = $1', ['student']);
+const getEnrollmentStatistics = async (hopProgramme) => {
+    // Filter sections by programme_section_links
+    const sectionFilter = hopProgramme ? `
+        AND sec.id IN (
+            SELECT psl.section_id FROM programme_section_links psl WHERE psl.programme = $1
+        )
+    ` : '';
+    const params = hopProgramme ? [hopProgramme] : [];
 
-    // Total sections
-    const totalSections = await query('SELECT COUNT(*) as count FROM sections WHERE is_active = true');
+    // Total students registered in this programme's sections
+    const totalStudents = await query(`
+        SELECT COUNT(DISTINCT r.student_id) as count
+        FROM registrations r
+        JOIN sections sec ON r.section_id = sec.id
+        WHERE 1=1 ${sectionFilter}
+    `, params);
 
-    // Total registrations
-    const totalRegistrations = await query('SELECT COUNT(*) as count FROM registrations');
+    // Total sections for this programme
+    const totalSections = await query(`
+        SELECT COUNT(*) as count FROM sections sec
+        WHERE sec.is_active = true ${sectionFilter}
+    `, params);
+
+    // Total registrations for this programme
+    const totalRegistrations = await query(`
+        SELECT COUNT(*) as count FROM registrations r
+        JOIN sections sec ON r.section_id = sec.id
+        WHERE 1=1 ${sectionFilter}
+    `, params);
 
     // Sections at capacity
-    const fullSections = await query('SELECT COUNT(*) as count FROM sections WHERE enrolled_count >= capacity AND is_active = true');
+    const fullSections = await query(`
+        SELECT COUNT(*) as count FROM sections sec
+        WHERE sec.enrolled_count >= sec.capacity AND sec.is_active = true ${sectionFilter}
+    `, params);
 
-    // Average utilization - FIXED: Calculate (total enrolled / total capacity) instead of averaging percentages
+    // Average utilization
     const avgUtilization = await query(`
         SELECT 
             CASE 
-                WHEN SUM(capacity) > 0 
-                THEN (SUM(enrolled_count)::numeric / SUM(capacity)) * 100
+                WHEN SUM(sec.capacity) > 0 
+                THEN (SUM(sec.enrolled_count)::numeric / SUM(sec.capacity)) * 100
                 ELSE 0
             END as avg_utilization,
-            SUM(enrolled_count) as total_enrolled,
-            SUM(capacity) as total_capacity,
+            SUM(sec.enrolled_count) as total_enrolled,
+            SUM(sec.capacity) as total_capacity,
             COUNT(*) as section_count
-        FROM sections
-        WHERE is_active = true AND capacity > 0
-    `);
+        FROM sections sec
+        WHERE sec.is_active = true AND sec.capacity > 0 ${sectionFilter}
+    `, params);
 
-    // Pending requests
+    // Pending requests (these remain global — or could be scoped later)
     const pendingSwaps = await query('SELECT COUNT(*) as count FROM swap_requests WHERE status = $1', ['pending']);
     const pendingManualJoins = await query('SELECT COUNT(*) as count FROM manual_join_requests WHERE status = $1', ['pending']);
 

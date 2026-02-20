@@ -247,6 +247,32 @@ async function toggleStructureActive(structureId, isActive) {
     return result.rows[0];
 }
 
+/**
+ * Get a mapping of subject_code -> [programmes] from all program structures
+ * Used to determine which subjects are shared across programmes
+ */
+async function getSubjectProgrammeMapping() {
+    const result = await query(`
+        SELECT DISTINCT s.code AS subject_code, ps.programme
+        FROM program_structure_courses psc
+        JOIN subjects s ON psc.subject_id = s.id
+        JOIN program_structures ps ON psc.structure_id = ps.id
+        WHERE ps.is_active = true
+        ORDER BY s.code, ps.programme
+    `);
+
+    const mapping = {};
+    for (const row of result.rows) {
+        if (!mapping[row.subject_code]) {
+            mapping[row.subject_code] = [];
+        }
+        if (!mapping[row.subject_code].includes(row.programme)) {
+            mapping[row.subject_code].push(row.programme);
+        }
+    }
+    return mapping;
+}
+
 module.exports = {
     getIntakeTypeFromSession,
     getStructureForStudent,
@@ -256,5 +282,6 @@ module.exports = {
     createStructure,
     bulkAddCourses,
     deleteStructure,
-    toggleStructureActive
+    toggleStructureActive,
+    getSubjectProgrammeMapping
 };

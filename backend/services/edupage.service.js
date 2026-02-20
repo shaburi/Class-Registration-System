@@ -100,7 +100,7 @@ class EdupageService {
 
         // Use format=json as recommended by API docs
         const url = this.config.buildUrl(this.config.commands.getBaseData, { format: 'json' });
-        
+
         try {
             logger.info(`Fetching base data from Edupage API: ${url.replace(this.config.apiKey, 'API_KEY_HIDDEN')}`);
             const response = await axios.get(url, {
@@ -121,7 +121,7 @@ class EdupageService {
                 }
             }
 
-            logger.info('Edupage API response received', { 
+            logger.info('Edupage API response received', {
                 status: response.status,
                 hasData: !!response.data,
                 apiStatus: response.data?.__eduapi_status
@@ -150,7 +150,7 @@ class EdupageService {
         }
 
         const url = this.config.buildUrl(this.config.commands.listTimetables);
-        
+
         try {
             logger.info(`Fetching timetable list from Edupage API: ${url.replace(this.config.apiKey, 'API_KEY_HIDDEN')}`);
             const response = await axios.get(url, {
@@ -177,13 +177,13 @@ class EdupageService {
                 logger.info(`Found ${response.data.length} timetables`);
                 return response.data;
             }
-            
+
             // If it's an object, look for timetables array
             if (response.data?.timetables) {
                 logger.info(`Found ${response.data.timetables.length} timetables`);
                 return response.data.timetables;
             }
-            
+
             return response.data;
         } catch (error) {
             logger.error('Failed to list timetables from Edupage:', error.message);
@@ -212,7 +212,7 @@ class EdupageService {
         if (!timetableId) {
             logger.info('No timetableid specified, fetching timetable list first...');
             const timetables = await this.listTimetables();
-            
+
             if (Array.isArray(timetables) && timetables.length > 0) {
                 // Log all available timetables for debugging
                 logger.info('Available timetables:', timetables.map(t => ({
@@ -226,7 +226,7 @@ class EdupageService {
                 // Find official timetables
                 const officialTimetables = timetables.filter(t => t.state === 'official');
                 logger.info(`Found ${officialTimetables.length} official timetables out of ${timetables.length} total`);
-                
+
                 // Sort by year (descending) then by datefrom (descending) to get the most recent
                 const sortedOfficial = officialTimetables.sort((a, b) => {
                     const yearDiff = (parseInt(b.year) || 0) - (parseInt(a.year) || 0);
@@ -236,10 +236,10 @@ class EdupageService {
                 });
 
                 // Use the most recent official timetable, or the most recent of all if no official
-                const selected = sortedOfficial.length > 0 
+                const selected = sortedOfficial.length > 0
                     ? sortedOfficial[0]  // Most recent official
                     : timetables[timetables.length - 1];
-                    
+
                 timetableId = selected.timetableid || selected.id;
                 logger.info(`Selected timetable: id=${timetableId}, state=${selected.state}, year=${selected.year}, datefrom=${selected.datefrom}`);
             } else {
@@ -255,9 +255,9 @@ class EdupageService {
             format: 'json',
             idmode: 'edupage'  // Use edupage IDs to match with getbasedata
         };
-        
+
         const url = this.config.buildUrl(this.config.commands.getTimetable, params);
-        
+
         try {
             logger.info(`Fetching timetable from Edupage API: ${url.replace(this.config.apiKey, 'API_KEY_HIDDEN')}`);
             const response = await axios.get(url, {
@@ -284,7 +284,7 @@ class EdupageService {
                 hasCards: !!response.data?.cards,
                 hasLessons: !!response.data?.lessons
             });
-            
+
             return response.data;
         } catch (error) {
             logger.error('Failed to fetch timetable from Edupage:', error.message);
@@ -324,8 +324,8 @@ class EdupageService {
         if (baseData?.teachers) {
             parsed.teachers = getRows(baseData.teachers).map(teacher => ({
                 id: teacher.id || '',
-                name: teacher.firstname && teacher.lastname 
-                    ? `${teacher.firstname} ${teacher.lastname}` 
+                name: teacher.firstname && teacher.lastname
+                    ? `${teacher.firstname} ${teacher.lastname}`
                     : (teacher.name || ''),
                 short: teacher.short || '',
                 color: teacher.color || null,
@@ -363,7 +363,7 @@ class EdupageService {
         // Parse from timetableData (gettimetable TimetableJson format)
         // TimetableJson has subjects, teachers, classes, classrooms, periods, days, lessons, cards
         // IMPORTANT: Use timetable data for subjects/teachers/classes because lessons reference these IDs
-        
+
         // Always use timetable subjects since lessons reference them by timetable ID
         if (timetableData?.subjects) {
             const ttSubjects = getRows(timetableData.subjects);
@@ -395,8 +395,8 @@ class EdupageService {
                 ttTeachers.forEach(teacher => {
                     teacherMap.set(teacher.id, {
                         id: teacher.id || '',
-                        name: teacher.firstname && teacher.lastname 
-                            ? `${teacher.firstname} ${teacher.lastname}` 
+                        name: teacher.firstname && teacher.lastname
+                            ? `${teacher.firstname} ${teacher.lastname}`
                             : (teacher.name || teacher.short || ''),
                         short: teacher.short || '',
                         color: teacher.color || null,
@@ -488,10 +488,10 @@ class EdupageService {
             if (cardRows.length > 0) {
                 console.log('Sample card:', cardRows[0]);
             }
-            
+
             // Days bitmask: '1000000' = Monday, '0100000' = Tuesday, etc.
             const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-            
+
             parsed.cards = cardRows.map(card => {
                 // Parse days bitmask to get day index
                 const daysBitmask = card.days || '';
@@ -500,11 +500,11 @@ class EdupageService {
                 for (let i = 0; i < daysBitmask.length; i++) {
                     if (daysBitmask[i] === '1') {
                         dayIndex = i;
-                        dayName = dayNames[i] || `Day ${i+1}`;
+                        dayName = dayNames[i] || `Day ${i + 1}`;
                         break;
                     }
                 }
-                
+
                 return {
                     id: card.id || '',
                     lessonid: card.lessonid || null,
@@ -545,7 +545,7 @@ class EdupageService {
                 hasClassrooms: !!baseData?.classrooms,
                 sampleKeys: Object.keys(baseData || {}).slice(0, 10)
             });
-            
+
             // Fetch timetable data
             const timetableData = await this.fetchTimetable();
             logger.info('Timetable data received:', {
@@ -555,7 +555,7 @@ class EdupageService {
                 hasDays: !!timetableData?.days,
                 sampleKeys: Object.keys(timetableData || {}).slice(0, 10)
             });
-            
+
             // Parse the data
             const parsed = this.parseEdupageData(baseData, timetableData);
             logger.info('Parsed data:', {
@@ -568,13 +568,13 @@ class EdupageService {
                 periods: parsed.periods.length,
                 days: parsed.days.length
             });
-            
+
             // Calculate total records
-            recordCount = 
-                parsed.teachers.length + 
-                parsed.subjects.length + 
-                parsed.classes.length + 
-                parsed.classrooms.length + 
+            recordCount =
+                parsed.teachers.length +
+                parsed.subjects.length +
+                parsed.classes.length +
+                parsed.classrooms.length +
                 parsed.lessons.length +
                 parsed.cards.length;
 
@@ -587,7 +587,7 @@ class EdupageService {
                 lessons: parsed.lessons,
                 cards: parsed.cards
             };
-            
+
             await query(`
                 INSERT INTO edupage_timetables (
                     teachers, subjects, classes, classrooms, lessons, periods, days,
@@ -704,7 +704,7 @@ class EdupageService {
             syncedAt: row.synced_at,
             daysSinceSync,
             isStale,
-            message: isStale 
+            message: isStale
                 ? `Data is ${daysSinceSync} days old. Consider refreshing.`
                 : null
         };
@@ -744,7 +744,7 @@ class EdupageService {
      */
     async importSectionsFromTimetable(targetPrefixes = ['CT206', 'CT204', 'CC101']) {
         logger.info(`Starting section import for prefixes: ${targetPrefixes.join(', ')}`);
-        
+
         // Get stored Edupage data
         const storedData = await this.getStoredData();
         if (!storedData.success || !storedData.data) {
@@ -752,91 +752,91 @@ class EdupageService {
         }
 
         const { subjects, teachers, classes, classrooms, lessons, cards, periods } = storedData.data;
-        
+
         // Day mapping from index to day_of_week enum
         const dayMapping = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-        
+
         // Build lookup maps
         const subjectById = {};
         subjects.forEach(s => { subjectById[s.id] = s; });
-        
+
         const teacherById = {};
         teachers.forEach(t => { teacherById[t.id] = t; });
-        
+
         const classroomById = {};
         classrooms.forEach(r => { classroomById[r.id] = r; });
-        
+
         const periodById = {};
         periods.forEach(p => { periodById[p.id] = p; });
-        
+
         // Filter classes by target prefixes
-        const targetClasses = classes.filter(c => 
-            targetPrefixes.some(prefix => 
-                c.short?.toUpperCase().startsWith(prefix) || 
+        const targetClasses = classes.filter(c =>
+            targetPrefixes.some(prefix =>
+                c.short?.toUpperCase().startsWith(prefix) ||
                 c.name?.toUpperCase().startsWith(prefix)
             )
         );
-        
+
         logger.info(`Found ${targetClasses.length} classes matching prefixes`);
-        
+
         const sectionsToImport = [];
         const errors = [];
         const skipped = [];
-        
+
         // Process each target class
         for (const cls of targetClasses) {
             // Find lessons for this class
             const classLessons = lessons.filter(l => l.classids?.includes(cls.id));
-            
+
             for (const lesson of classLessons) {
                 const subject = subjectById[lesson.subjectid];
                 if (!subject) {
                     skipped.push({ reason: 'No subject found', lessonId: lesson.id });
                     continue;
                 }
-                
+
                 // Parse subject code and section from subject.short (e.g., "STA2133_02")
                 const subjectShort = subject.short || '';
                 const parts = subjectShort.split('_');
                 const subjectCode = parts[0] || subjectShort;
                 const sectionNumber = parts[1] || '01';
-                
+
                 // Skip if subject code is too short or looks invalid
                 if (subjectCode.length < 4) {
                     skipped.push({ reason: 'Invalid subject code', subjectShort });
                     continue;
                 }
-                
+
                 // Get teacher info
                 const teacherIds = lesson.teacherids || [];
                 const teacherNames = teacherIds
                     .map(tid => teacherById[tid])
                     .filter(Boolean)
                     .map(t => t.name || t.short);
-                
+
                 // Find cards (scheduled instances) for this lesson
                 const lessonCards = cards.filter(c => c.lessonid === lesson.id);
-                
+
                 if (lessonCards.length === 0) {
                     skipped.push({ reason: 'No schedule (cards) found', lessonId: lesson.id, subjectShort });
                     continue;
                 }
-                
+
                 // Process each card (a lesson can have multiple schedule slots)
                 for (const card of lessonCards) {
                     const dayIndex = card.dayIndex;
                     const day = dayIndex >= 0 && dayIndex < 7 ? dayMapping[dayIndex] : null;
-                    
+
                     if (!day) {
                         skipped.push({ reason: 'Invalid day', cardId: card.id });
                         continue;
                     }
-                    
+
                     // Get period info for time
                     const period = periodById[card.periodid];
                     const startTime = period?.starttime || '08:00';
                     const duration = lesson.durationperiods || 1;
-                    
+
                     // Calculate end time based on duration
                     let endTime = period?.endtime || '09:00';
                     if (duration > 1 && period) {
@@ -847,12 +847,12 @@ class EdupageService {
                             endTime = endPeriod.endtime || endTime;
                         }
                     }
-                    
+
                     // Get room info
                     const roomIds = card.classroomids?.filter(rid => rid && rid.trim() !== '') || [];
                     const rooms = roomIds.map(rid => classroomById[rid]).filter(Boolean);
                     const roomName = rooms.length > 0 ? rooms[0].short || rooms[0].name : null;
-                    
+
                     sectionsToImport.push({
                         subject_code: subjectCode,
                         subject_name: subject.name || subjectShort,
@@ -869,50 +869,50 @@ class EdupageService {
                 }
             }
         }
-        
+
         logger.info(`Prepared ${sectionsToImport.length} sections for import, ${skipped.length} skipped`);
-        
+
         // Subjects to ignore (non-academic)
         const ignoredSubjects = ['HUFFAZ', 'MENTOR', 'MENTOR_MENTEE', 'MENTEE', 'COCURRICULAR', 'KOKURIKULUM'];
-        
+
         // Filter out ignored subjects
         const filteredSections = sectionsToImport.filter(section => {
             const code = section.subject_code.toUpperCase();
             return !ignoredSubjects.some(ignored => code.includes(ignored));
         });
-        
+
         logger.info(`After filtering ignored subjects: ${filteredSections.length} sections to process`);
-        
+
         // First pass: Check which subjects are missing from database
         // For combined codes like "UCS3083/UCS3103", try to find ANY matching code
         const missingSubjects = [];
         const subjectCache = {}; // cache subject_code -> subject_id
         const missingSubjectCodes = new Set();
-        
+
         // Collect all unique subject codes that need to be checked
         const uniqueSubjectCodes = [...new Set(filteredSections.map(s => s.subject_code))];
-        
+
         for (const subjectCode of uniqueSubjectCodes) {
             // Handle combined codes like "UCS3083/UCS3103" - split and try each
             const codesToTry = subjectCode.split('/').map(c => c.trim());
             let foundSubjectId = null;
             let matchedCode = null;
-            
+
             for (const code of codesToTry) {
                 if (!code || code.length < 4) continue;
-                
+
                 const existingSubject = await query(
                     'SELECT id, code FROM subjects WHERE code = $1',
                     [code]
                 );
-                
+
                 if (existingSubject.rows.length > 0) {
                     foundSubjectId = existingSubject.rows[0].id;
                     matchedCode = existingSubject.rows[0].code;
                     break; // Found a match, use this one
                 }
             }
-            
+
             if (foundSubjectId) {
                 subjectCache[subjectCode] = { id: foundSubjectId, matchedCode };
                 logger.info(`Matched "${subjectCode}" to existing subject "${matchedCode}"`);
@@ -920,13 +920,13 @@ class EdupageService {
                 missingSubjectCodes.add(subjectCode);
             }
         }
-        
+
         // Build missing subjects list with details (excluding ignored ones)
         if (missingSubjectCodes.size > 0) {
             for (const section of filteredSections) {
-                if (missingSubjectCodes.has(section.subject_code) && 
+                if (missingSubjectCodes.has(section.subject_code) &&
                     !missingSubjects.find(m => m.code === section.subject_code)) {
-                    
+
                     // Skip if it's an ignored subject
                     const code = section.subject_code.toUpperCase();
                     if (ignoredSubjects.some(ignored => code.includes(ignored))) {
@@ -935,12 +935,12 @@ class EdupageService {
                     // Extract semester from class name (e.g., CT206_1.1 -> semester 1)
                     const semesterMatch = section.class_name.match(/_(\d)/);
                     const semester = semesterMatch ? parseInt(semesterMatch[1]) : 1;
-                    
+
                     // Extract programme from class name (e.g., CT206_1.1 -> CT206)
                     // Try multiple patterns to match the programme code
                     let programme = 'UNKNOWN';
                     const className = section.class_name || '';
-                    
+
                     // Pattern 1: Extract leading programme code (e.g., CT206, CC101)
                     const programmeMatch = className.match(/^([A-Z]{2,}\d{3})/i);
                     if (programmeMatch) {
@@ -955,9 +955,9 @@ class EdupageService {
                             }
                         }
                     }
-                    
+
                     logger.info(`Missing subject ${section.subject_code}: class_name="${className}", programme="${programme}"`);
-                    
+
                     missingSubjects.push({
                         code: section.subject_code,
                         name: section.subject_name,
@@ -968,7 +968,7 @@ class EdupageService {
                     });
                 }
             }
-            
+
             // If there are missing subjects, return early with the list
             // User needs to add these subjects first before re-importing
             logger.info(`Found ${missingSubjects.length} missing subjects that need to be added first`);
@@ -989,10 +989,10 @@ class EdupageService {
                 skipped: skipped.slice(0, 20)
             };
         }
-        
+
         // Now insert into database - all subjects exist
         const imported = [];
-        
+
         for (const section of filteredSections) {
             try {
                 // Get subject ID from cache (we know it exists)
@@ -1002,7 +1002,7 @@ class EdupageService {
                     continue;
                 }
                 const subjectId = cachedSubject.id;
-                
+
                 // Check if this section already exists (by subject + section_number only)
                 let sectionId;
                 const existingSection = await query(
@@ -1010,7 +1010,7 @@ class EdupageService {
                      WHERE subject_id = $1 AND section_number = $2`,
                     [subjectId, section.section_number]
                 );
-                
+
                 if (existingSection.rows.length > 0) {
                     sectionId = existingSection.rows[0].id;
                 } else {
@@ -1024,7 +1024,37 @@ class EdupageService {
                     sectionId = newSection.rows[0].id;
                     imported.push({ ...section, action: 'created', id: sectionId });
                 }
-                
+
+                // Ensure programme_section_links exist for this section
+                // Link to the programme extracted from the class name (e.g., CT206_1.1 → CT206)
+                const classProgMatch = (section.class_name || '').match(/^([A-Z]{2,}\d{3})/i);
+                const classProgramme = classProgMatch ? classProgMatch[1].toUpperCase() : null;
+
+                // Also link to all programmes that have this subject (by ID, code, or structure)
+                const linkedProgs = await query(`
+                    SELECT DISTINCT prog FROM (
+                        SELECT sub.programme AS prog FROM subjects sub WHERE sub.id = $1
+                        UNION
+                        SELECT sub2.programme AS prog FROM subjects sub2
+                        WHERE sub2.code = (SELECT code FROM subjects WHERE id = $1)
+                        UNION
+                        SELECT ps.programme AS prog FROM program_structure_courses psc
+                        JOIN program_structures ps ON psc.structure_id = ps.id
+                        WHERE psc.subject_id = $1
+                    ) all_progs
+                `, [subjectId]);
+
+                const allProgs = new Set(linkedProgs.rows.map(r => r.prog));
+                if (classProgramme) allProgs.add(classProgramme);
+
+                for (const prog of allProgs) {
+                    await query(`
+                        INSERT INTO programme_section_links (programme, section_id)
+                        VALUES ($1, $2)
+                        ON CONFLICT (programme, section_id) DO NOTHING
+                    `, [prog, sectionId]);
+                }
+
                 // Now add/update the schedule in section_schedules table
                 // Check if this specific schedule already exists
                 const existingSchedule = await query(
@@ -1032,7 +1062,7 @@ class EdupageService {
                      WHERE section_id = $1 AND day = $2 AND start_time = $3`,
                     [sectionId, section.day, section.start_time]
                 );
-                
+
                 if (existingSchedule.rows.length > 0) {
                     // Update existing schedule
                     await query(
@@ -1060,7 +1090,7 @@ class EdupageService {
                 logger.error(`Failed to import section: ${err.message}`, { section });
             }
         }
-        
+
         const result = {
             success: true,
             summary: {
@@ -1076,9 +1106,9 @@ class EdupageService {
             errors,
             skipped: skipped.slice(0, 20) // Limit skipped for response size
         };
-        
+
         logger.info(`Section import complete: ${result.summary.created} created, ${result.summary.updated} updated, ${result.summary.errors} errors, ${result.summary.ignored} ignored`);
-        
+
         return result;
     }
 }

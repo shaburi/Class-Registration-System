@@ -1,5 +1,6 @@
 const admin = require('firebase-admin');
 const dotenv = require('dotenv');
+const speakeasy = require('speakeasy');
 const { query } = require('../database/connection');
 
 dotenv.config();
@@ -217,9 +218,8 @@ const verifyMFA = async (req, res, next) => {
             });
         }
 
-        // Verify TOTP token (implementation depends on TOTP library)
-        // This is a placeholder - implement with speakeasy or similar library
-        const isValid = verifytOTP(result.rows[0].mfa_secret, mfaToken);
+        // Verify TOTP token using speakeasy
+        const isValid = verifyTOTP(result.rows[0].mfa_secret, mfaToken);
 
         if (!isValid) {
             return res.status(403).json({
@@ -242,13 +242,15 @@ const verifyMFA = async (req, res, next) => {
 };
 
 /**
- * Placeholder TOTP verification (replace with actual implementation)
+ * Verify TOTP token using speakeasy
  */
 const verifyTOTP = (secret, token) => {
-    // TODO: Implement with speakeasy or similar library
-    // const speakeasy = require('speakeasy');
-    // return speakeasy.totp.verify({ secret, encoding: 'base32', token });
-    return true; // Placeholder
+    return speakeasy.totp.verify({
+        secret,
+        encoding: 'base32',
+        token: token.toString(),
+        window: 1 // Allow 30 seconds tolerance
+    });
 };
 
 /**

@@ -15,9 +15,16 @@ import {
     GraduationCap,
     Calendar,
     IdCard,
-    Save
+    Save,
+    Shield,
+    ShieldCheck,
+    ShieldOff,
+    KeyRound,
+    Loader2,
+    AlertCircle
 } from 'lucide-react';
 import api from '../services/api';
+import MFASetupModal from './MFASetupModal';
 
 // Programme options
 const PROGRAMMES = [
@@ -65,6 +72,13 @@ const SettingsModal = ({ isOpen, onClose }) => {
         intake_session: ''
     });
     const [message, setMessage] = useState({ type: '', text: '' });
+    const [mfaEnabled, setMfaEnabled] = useState(false);
+    const [mfaLoading, setMfaLoading] = useState(true);
+    const [showMfaSetup, setShowMfaSetup] = useState(false);
+    const [disableToken, setDisableToken] = useState('');
+    const [disableError, setDisableError] = useState('');
+    const [disabling, setDisabling] = useState(false);
+    const [showDisableForm, setShowDisableForm] = useState(false);
 
     useEffect(() => {
         if (isOpen && user) {
@@ -74,8 +88,42 @@ const SettingsModal = ({ isOpen, onClose }) => {
                 semester: user?.semester || '',
                 intake_session: user?.intake_session || ''
             });
+            // Load MFA status
+            loadMfaStatus();
         }
     }, [isOpen, user]);
+
+    const loadMfaStatus = async () => {
+        try {
+            setMfaLoading(true);
+            const response = await api.get('/auth/mfa/status');
+            setMfaEnabled(response.data.mfaEnabled);
+        } catch (err) {
+            console.error('Failed to load MFA status:', err);
+        } finally {
+            setMfaLoading(false);
+        }
+    };
+
+    const handleDisableMfa = async (e) => {
+        e.preventDefault();
+        if (disableToken.length !== 6) {
+            setDisableError('Please enter a 6-digit code');
+            return;
+        }
+        setDisabling(true);
+        setDisableError('');
+        try {
+            await api.post('/auth/mfa/disable', { token: disableToken });
+            setMfaEnabled(false);
+            setShowDisableForm(false);
+            setDisableToken('');
+        } catch (err) {
+            setDisableError(err.response?.data?.message || 'Invalid code');
+        } finally {
+            setDisabling(false);
+        }
+    };
 
     const handleLogout = async () => {
         try {
@@ -128,19 +176,19 @@ const SettingsModal = ({ isOpen, onClose }) => {
     const selectedProgramme = PROGRAMMES.find(p => p.code === profile.programme);
     const maxSemester = selectedProgramme?.type === 'diploma' ? 6 : 8;
 
-    // Navigation items for settings sidebar
     const settingsNav = [
         ...(isStudent ? [{ id: 'profile', label: 'Profile', icon: <User size={18} /> }] : []),
+        { id: 'security', label: 'Security', icon: <Shield size={18} /> },
         { id: 'appearance', label: 'Appearance', icon: <Palette size={18} /> },
     ];
 
     if (!isStudent && activeSection === 'profile') {
-        setActiveSection('appearance');
+        setActiveSection('security');
     }
 
 
 
-    return createPortal(
+    const modal = createPortal(
         <AnimatePresence>
             {isOpen && (
                 <>
@@ -348,6 +396,120 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                         </div>
                                     )}
 
+                                    {/* Security Section */}
+                                    {activeSection === 'security' && (
+                                        <div className="space-y-6">
+                                            <div className="flex items-center gap-3">
+                                                {mfaEnabled ? (
+                                                    <ShieldCheck size={24} className="text-emerald-500" />
+                                                ) : (
+                                                    <Shield size={24} className="text-gray-400" />
+                                                )}
+                                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Security</h2>
+                                            </div>
+
+                                            {/* 2FA Status Card */}
+                                            <div className="bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
+                                                <div className="p-4 border-b border-gray-200 dark:border-white/10">
+                                                    <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                                                        <KeyRound size={18} className="text-indigo-500" />
+                                                        Two-Factor Authentication
+                                                    </h3>
+                                                    <p className="text-sm text-gray-500 dark:text-white/50 mt-1">Add an extra layer of security to your account using an authenticator app.</p>
+                                                </div>
+
+                                                <div className="p-4">
+                                                    {mfaLoading ? (
+                                                        <div className="flex items-center justify-center py-6">
+                                                            <Loader2 className="w-6 h-6 text-indigo-500 animate-spin" />
+                                                        </div>
+                                                    ) : mfaEnabled ? (
+                                                        <div className="space-y-4">
+                                                            <div className="flex items-center gap-3 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                                                                <ShieldCheck size={20} className="text-emerald-500 flex-shrink-0" />
+                                                                <div>
+                                                                    <p className="font-medium text-emerald-700 dark:text-emerald-300 text-sm">2FA is Active</p>
+                                                                    <p className="text-xs text-emerald-600 dark:text-emerald-400">Your account is protected.</p>
+                                                                </div>
+                                                            </div>
+
+                                                            {!showDisableForm ? (
+                                                                <button
+                                                                    onClick={() => setShowDisableForm(true)}
+                                                                    className="text-sm text-red-500 hover:text-red-600 dark:text-red-400 font-medium hover:underline transition"
+                                                                >
+                                                                    Disable 2FA
+                                                                </button>
+                                                            ) : (
+                                                                <form onSubmit={handleDisableMfa} className="space-y-3 p-3 bg-red-500/5 rounded-xl border border-red-500/20">
+                                                                    <p className="text-sm text-red-600 dark:text-red-400 font-medium">Enter your authenticator code to confirm:</p>
+                                                                    <div className="flex gap-2">
+                                                                        <input
+                                                                            type="text"
+                                                                            inputMode="numeric"
+                                                                            pattern="[0-9]*"
+                                                                            maxLength={6}
+                                                                            value={disableToken}
+                                                                            onChange={(e) => {
+                                                                                setDisableToken(e.target.value.replace(/\D/g, ''));
+                                                                                setDisableError('');
+                                                                            }}
+                                                                            placeholder="000000"
+                                                                            className="flex-1 px-3 py-2 text-center font-mono tracking-[0.3em] bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                                                                        />
+                                                                        <button
+                                                                            type="submit"
+                                                                            disabled={disabling || disableToken.length !== 6}
+                                                                            className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-red-600 transition"
+                                                                        >
+                                                                            {disabling ? <Loader2 size={16} className="animate-spin" /> : 'Disable'}
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => { setShowDisableForm(false); setDisableToken(''); setDisableError(''); }}
+                                                                            className="px-3 py-2 border border-gray-200 dark:border-white/10 rounded-lg text-gray-500 dark:text-white/50 text-sm hover:bg-gray-100 dark:hover:bg-white/5 transition"
+                                                                        >
+                                                                            Cancel
+                                                                        </button>
+                                                                    </div>
+                                                                    {disableError && (
+                                                                        <p className="text-xs text-red-500 flex items-center gap-1">
+                                                                            <AlertCircle size={14} /> {disableError}
+                                                                        </p>
+                                                                    )}
+                                                                </form>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="space-y-4">
+                                                            <div className="flex items-center gap-3 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                                                                <ShieldOff size={20} className="text-amber-500 flex-shrink-0" />
+                                                                <div>
+                                                                    <p className="font-medium text-amber-700 dark:text-amber-300 text-sm">2FA is Not Enabled</p>
+                                                                    <p className="text-xs text-amber-600 dark:text-amber-400">Your account could be more secure.</p>
+                                                                </div>
+                                                            </div>
+
+                                                            <button
+                                                                onClick={() => setShowMfaSetup(true)}
+                                                                className="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+                                                            >
+                                                                <Shield size={18} />
+                                                                Enable Two-Factor Authentication
+                                                            </button>
+
+                                                            <div className="text-xs text-gray-500 dark:text-white/40 space-y-1.5 px-1">
+                                                                <p>1. Scan a QR code with Google Authenticator or Authy</p>
+                                                                <p>2. Enter a 6-digit code to verify</p>
+                                                                <p>3. Every login will require a code from your app</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* Appearance Section */}
                                     {activeSection === 'appearance' && (
                                         <div className="space-y-8">
@@ -427,6 +589,21 @@ const SettingsModal = ({ isOpen, onClose }) => {
             )}
         </AnimatePresence>,
         document.body
+    );
+
+    return (
+        <>
+            {modal}
+            {showMfaSetup && (
+                <MFASetupModal
+                    onClose={() => setShowMfaSetup(false)}
+                    onEnabled={() => {
+                        setMfaEnabled(true);
+                        setShowMfaSetup(false);
+                    }}
+                />
+            )}
+        </>
     );
 };
 

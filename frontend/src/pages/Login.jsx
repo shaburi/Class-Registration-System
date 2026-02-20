@@ -6,6 +6,7 @@ import { LogIn, Mail, Lock, AlertCircle, Sparkles, GraduationCap } from 'lucide-
 import ThemeToggle from '../components/ThemeToggle';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 import TiltCard from '../components/TiltCard';
+import MFAVerifyModal from '../components/MFAVerifyModal';
 import axios from 'axios';
 
 // Floating shapes component
@@ -16,6 +17,8 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showMfaModal, setShowMfaModal] = useState(false);
+    const [tempToken, setTempToken] = useState('');
     const { setUser } = useAuth();
     const navigate = useNavigate();
 
@@ -31,6 +34,13 @@ export default function Login() {
             );
 
             if (response.data.success) {
+                if (response.data.requiresMfa) {
+                    // MFA required — show verification modal
+                    setTempToken(response.data.tempToken);
+                    setShowMfaModal(true);
+                    setLoading(false);
+                    return;
+                }
                 localStorage.setItem('token', response.data.token);
                 setUser(response.data.user);
                 navigate('/dashboard');
@@ -54,6 +64,12 @@ export default function Login() {
             );
 
             if (response.data.success) {
+                if (response.data.requiresMfa) {
+                    setTempToken(response.data.tempToken);
+                    setShowMfaModal(true);
+                    setLoading(false);
+                    return;
+                }
                 localStorage.setItem('token', response.data.token);
                 setUser(response.data.user);
                 navigate('/dashboard');
@@ -74,6 +90,13 @@ export default function Login() {
         setEmail(demoEmail);
         setPassword(demoPassword);
         setError('');
+    };
+
+    const handleMfaVerified = (data) => {
+        localStorage.setItem('token', data.token);
+        setUser(data.user);
+        setShowMfaModal(false);
+        navigate('/dashboard');
     };
 
     return (
@@ -260,10 +283,28 @@ export default function Login() {
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     type="button"
-                                    onClick={() => fillDemoAccount('hop@uptm.edu.my', 'password123')}
+                                    onClick={() => fillDemoAccount('hop1@uptm.edu.my', 'password123')}
                                     className="px-4 py-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-bold rounded-lg hover:bg-purple-500/20 transition border border-purple-500/20"
                                 >
-                                    HOP
+                                    HOP CT206
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    type="button"
+                                    onClick={() => fillDemoAccount('hop2@uptm.edu.my', 'password123')}
+                                    className="px-4 py-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold rounded-lg hover:bg-amber-500/20 transition border border-amber-500/20"
+                                >
+                                    HOP CT204
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    type="button"
+                                    onClick={() => fillDemoAccount('hop3@uptm.edu.my', 'password123')}
+                                    className="px-4 py-2 bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-lg hover:bg-rose-500/20 transition border border-rose-500/20"
+                                >
+                                    HOP CC101
                                 </motion.button>
                             </div>
                         </div>
@@ -280,6 +321,19 @@ export default function Login() {
                     © 2025 UPTM FCOM. All rights reserved.
                 </motion.div>
             </motion.div >
+
+            {/* MFA Verification Modal */}
+            {showMfaModal && (
+                <MFAVerifyModal
+                    tempToken={tempToken}
+                    onVerified={handleMfaVerified}
+                    onCancel={() => {
+                        setShowMfaModal(false);
+                        setTempToken('');
+                        setLoading(false);
+                    }}
+                />
+            )}
         </div >
     );
 }

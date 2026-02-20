@@ -116,14 +116,14 @@ export default function ProgramStructureManager() {
             {/* Sidebar - Structure List */}
             <div className="w-1/3 flex flex-col gap-4">
                 {/* Programme Selector */}
-                <div className="glass-card p-1 rounded-2xl flex gap-1 bg-black/20">
+                <div className="glass-card p-1 rounded-2xl flex gap-1 bg-gray-100 dark:bg-black/20">
                     {PROGRAMMES.map(prog => (
                         <button
                             key={prog.code}
                             onClick={() => setSelectedProgramme(prog.code)}
                             className={`flex-1 py-2 rounded-xl text-sm font-bold transition-all ${selectedProgramme === prog.code
                                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25'
-                                : 'text-white/60 hover:bg-white/5 hover:text-white'
+                                : 'text-gray-600 dark:text-white/60 hover:bg-white/50 dark:hover:bg-white/5 hover:text-indigo-600 dark:hover:text-white'
                                 }`}
                         >
                             {prog.code}
@@ -164,24 +164,24 @@ export default function ProgramStructureManager() {
                                 onClick={() => fetchStructureDetails(struct.id)}
                                 className={`glass-card p-4 rounded-2xl cursor-pointer group transition-all border ${selectedStructure?.id === struct.id
                                     ? 'bg-indigo-500/10 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.2)]'
-                                    : 'hover:bg-white/5 border-transparent hover:border-white/10'
+                                    : 'hover:bg-gray-50 dark:hover:bg-white/5 border-transparent hover:border-gray-200 dark:hover:border-white/10'
                                     }`}
                             >
                                 <div className="flex justify-between items-start mb-2">
                                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${getIntakeColor(struct.intake_type)}`}>
                                         {struct.intake_type}
                                     </span>
-                                    <span className="text-white/40 text-xs font-mono">{struct.effective_year}</span>
+                                    <span className="text-gray-400 dark:text-white/40 text-xs font-mono">{struct.effective_year}</span>
                                 </div>
-                                <h3 className={`font-bold transition-colors ${selectedStructure?.id === struct.id ? 'text-white' : 'text-white/80 group-hover:text-white'}`}>
+                                <h3 className={`font-bold transition-colors ${selectedStructure?.id === struct.id ? 'text-indigo-600 dark:text-white' : 'text-gray-700 dark:text-white/80 group-hover:text-indigo-600 dark:group-hover:text-white'}`}>
                                     {struct.name}
                                 </h3>
-                                <div className="mt-3 flex items-center justify-between text-xs text-white/40">
+                                <div className="mt-3 flex items-center justify-between text-xs text-gray-400 dark:text-white/40">
                                     <span className="flex items-center gap-1">
                                         <BookOpen className="w-3 h-3" />
                                         {struct.total_courses || 0} Courses
                                     </span>
-                                    <div className={`w-2 h-2 rounded-full ${struct.is_active ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-white/20'}`} />
+                                    <div className={`w-2 h-2 rounded-full ${struct.is_active ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-gray-300 dark:bg-white/20'}`} />
                                 </div>
                             </motion.div>
                         ))}
@@ -199,19 +199,19 @@ export default function ProgramStructureManager() {
             <div className="flex-1 glass-card rounded-3xl overflow-hidden flex flex-col relative">
                 {selectedStructure ? (
                     <>
-                        <div className="p-6 border-b border-white/10 bg-white/5 flex justify-between items-start z-10 relative">
+                        <div className="p-6 border-b border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 flex justify-between items-start z-10 relative">
                             <div>
                                 <div className="flex items-center gap-3 mb-2">
-                                    <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">
+                                    <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-white/60">
                                         {selectedStructure.name}
                                     </h2>
-                                    <span className="px-2 py-0.5 bg-white/10 rounded-full text-xs font-mono text-white/60 border border-white/10">
+                                    <span className="px-2 py-0.5 bg-gray-200 dark:bg-white/10 rounded-full text-xs font-mono text-gray-600 dark:text-white/60 border border-gray-200 dark:border-white/10">
                                         ID: {selectedStructure.id.slice(0, 8)}
                                     </span>
                                 </div>
-                                <div className="flex gap-4 text-sm text-white/50">
-                                    <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-indigo-400" /> Effective {selectedStructure.effective_year}</span>
-                                    <span className="flex items-center gap-1.5"><Layers className="w-4 h-4 text-pink-400" /> {selectedStructure.programme}</span>
+                                <div className="flex gap-4 text-sm text-gray-500 dark:text-white/50">
+                                    <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-indigo-500 dark:text-indigo-400" /> Effective {selectedStructure.effective_year}</span>
+                                    <span className="flex items-center gap-1.5"><Layers className="w-4 h-4 text-pink-500 dark:text-pink-400" /> {selectedStructure.programme}</span>
                                 </div>
                             </div>
                             <div className="flex gap-2">
@@ -226,16 +226,16 @@ export default function ProgramStructureManager() {
                             </div>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-black/20">
+                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-gray-50/30 dark:bg-black/20">
                             <SemesterList structure={selectedStructure} />
                         </div>
                     </>
                 ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center text-white/30">
-                        <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/5">
+                    <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-white/30">
+                        <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center mb-6 border border-gray-200 dark:border-white/5">
                             <Layers className="w-12 h-12 opacity-50" />
                         </div>
-                        <h3 className="text-xl font-bold text-white/60 mb-2">No Structure Selected</h3>
+                        <h3 className="text-xl font-bold text-gray-600 dark:text-white/60 mb-2">No Structure Selected</h3>
                         <p className="max-w-xs text-center">Select a program structure from the list or create a new one to manage courses.</p>
                     </div>
                 )}
@@ -249,33 +249,33 @@ export default function ProgramStructureManager() {
             >
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm text-white/60 mb-1">Structure Name</label>
+                        <label className="block text-sm text-gray-700 dark:text-white/60 mb-1">Structure Name</label>
                         <input
                             type="text"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none"
+                            className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:border-indigo-500/50 outline-none"
                             placeholder="e.g. BCS SE May 2024"
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm text-white/60 mb-1">Intake</label>
+                            <label className="block text-sm text-gray-700 dark:text-white/60 mb-1">Intake</label>
                             <select
                                 value={formData.intake_type}
                                 onChange={(e) => setFormData({ ...formData, intake_type: e.target.value })}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none appearance-none"
+                                className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:border-indigo-500/50 outline-none appearance-none"
                             >
-                                {INTAKES.map(i => <option key={i.id} value={i.id} className="bg-gray-900">{i.label}</option>)}
+                                {INTAKES.map(i => <option key={i.id} value={i.id} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">{i.label}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm text-white/60 mb-1">Effective Year</label>
+                            <label className="block text-sm text-gray-700 dark:text-white/60 mb-1">Effective Year</label>
                             <input
                                 type="number"
                                 value={formData.effective_year}
                                 onChange={(e) => setFormData({ ...formData, effective_year: parseInt(e.target.value) })}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500/50 outline-none"
+                                className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:border-indigo-500/50 outline-none"
                             />
                         </div>
                     </div>
@@ -355,19 +355,19 @@ function SemesterList({ structure }) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {coursesBySem[sem].map(course => (
-                            <div key={course.id} className="glass-card p-4 rounded-xl border border-white/5 hover:border-white/20 transition-all group">
+                            <div key={course.id} className="glass-card p-4 rounded-xl border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/20 transition-all group">
                                 <div className="flex justify-between items-start">
-                                    <span className="font-bold text-white group-hover:text-cyan-400 transition-colors">{course.subject_code}</span>
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/50">{course.credit_hours} Cr</span>
+                                    <span className="font-bold text-gray-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">{course.subject_code}</span>
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/50">{course.credit_hours} Cr</span>
                                 </div>
-                                <h4 className="text-sm text-white/70 mt-1 line-clamp-2 min-h-[2.5em]">{course.subject_name}</h4>
-                                <div className="mt-3 pt-3 border-t border-white/5 flex justify-between items-center text-xs">
-                                    <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${course.status?.toLowerCase().includes('core') ? 'text-emerald-400 bg-emerald-500/10' : 'text-amber-400 bg-amber-500/10'
+                                <h4 className="text-sm text-gray-600 dark:text-white/70 mt-1 line-clamp-2 min-h-[2.5em]">{course.subject_name}</h4>
+                                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-white/5 flex justify-between items-center text-xs">
+                                    <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-bold ${course.status?.toLowerCase().includes('core') ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10' : 'text-amber-600 dark:text-amber-400 bg-amber-500/10'
                                         }`}>
                                         {course.status || 'Core'}
                                     </span>
                                     {course.prerequisite_codes?.length > 0 && (
-                                        <span className="text-white/30" title={`Prereq: ${course.prerequisite_codes.join(', ')}`}>
+                                        <span className="text-gray-400 dark:text-white/30" title={`Prereq: ${course.prerequisite_codes.join(', ')}`}>
                                             Pre: {course.prerequisite_codes[0]}
                                         </span>
                                     )}

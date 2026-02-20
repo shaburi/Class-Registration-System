@@ -40,6 +40,20 @@ router.get('/', authenticate, requireRole('hop'), async (req, res) => {
 });
 
 /**
+ * GET /api/program-structures/subject-mapping
+ * Get a mapping of subject_code -> [programmes] from all active program structures
+ */
+router.get('/subject-mapping', authenticate, requireRole('hop'), async (req, res) => {
+    try {
+        const mapping = await programStructureService.getSubjectProgrammeMapping();
+        res.json({ success: true, data: mapping });
+    } catch (error) {
+        console.error('Error fetching subject-programme mapping:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+/**
  * GET /api/program-structures/:id
  * Get a specific structure with its courses
  */

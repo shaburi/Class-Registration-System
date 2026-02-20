@@ -136,6 +136,22 @@ CREATE INDEX idx_sections_lecturer_id ON sections(lecturer_id);
 CREATE INDEX idx_sections_schedule ON sections(day, start_time, end_time);
 
 -- ============================================================================
+-- PROGRAMME SECTION LINKS TABLE (Visibility layer)
+-- Controls which programmes can see which sections.
+-- Sections are shared; this table acts as a "bookmark" per programme.
+-- ============================================================================
+CREATE TABLE programme_section_links (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    programme VARCHAR(100) NOT NULL,
+    section_id UUID NOT NULL REFERENCES sections(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    CONSTRAINT unique_programme_section UNIQUE(programme, section_id)
+);
+
+CREATE INDEX idx_psl_programme ON programme_section_links(programme);
+CREATE INDEX idx_psl_section_id ON programme_section_links(section_id);
+
+-- ============================================================================
 -- REGISTRATIONS TABLE
 -- ============================================================================
 CREATE TABLE registrations (
