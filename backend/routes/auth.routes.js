@@ -25,7 +25,7 @@ router.post('/google', async (req, res) => {
         console.error('Google auth error:', error);
         res.status(401).json({
             success: false,
-            message: error.message || 'Authentication failed'
+            message: 'Authentication failed'
         });
     }
 });
@@ -52,7 +52,7 @@ router.post('/login', async (req, res) => {
         console.error('Login error:', error);
         res.status(401).json({
             success: false,
-            message: error.message || 'Login failed'
+            message: 'Invalid email or password'
         });
     }
 });
@@ -270,7 +270,7 @@ router.post('/mfa/verify', async (req, res) => {
         res.json(response);
     } catch (error) {
         console.error('MFA verify error:', error);
-        res.status(401).json({ success: false, message: error.message });
+        res.status(401).json({ success: false, message: 'MFA verification failed' });
     }
 });
 

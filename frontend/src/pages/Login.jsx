@@ -93,11 +93,7 @@ export default function Login() {
         setError(errorMessage);
     };
 
-    const fillDemoAccount = (demoEmail, demoPassword) => {
-        setEmail(demoEmail);
-        setPassword(demoPassword);
-        setError('');
-    };
+
 
     const handleMfaVerified = (data) => {
         localStorage.setItem('token', data.token);
@@ -251,35 +247,7 @@ export default function Login() {
                     </div>
                 </motion.div>
 
-                {/* Demo Accounts */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.6, duration: 0.8 }}
-                    className="mt-8 text-center"
-                >
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-heading mb-3">
-                        Sandbox Identities
-                    </p>
-                    <div className="flex justify-center gap-2 flex-wrap max-w-xs mx-auto">
-                        {[
-                            { label: 'Student', email: 'student1@student.uptm.edu.my' },
-                            { label: 'Lecturer', email: 'lecturer1@uptm.edu.my' },
-                            { label: 'CT206', email: 'hop1@uptm.edu.my' },
-                            { label: 'CT204', email: 'hop2@uptm.edu.my' },
-                            { label: 'CC101', email: 'hop3@uptm.edu.my' }
-                        ].map((demo) => (
-                            <button
-                                key={demo.label}
-                                type="button"
-                                onClick={() => fillDemoAccount(demo.email, 'password123')}
-                                className="px-3 py-1.5 bg-white/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 text-[11px] font-medium tracking-wide rounded-lg transition-all duration-200 hover:shadow-sm"
-                            >
-                                {demo.label}
-                            </button>
-                        ))}
-                    </div>
-                </motion.div>
+
 
                 <div className="mt-8 text-center">
                     <p className="text-gray-400 dark:text-gray-600 text-[10px] tracking-widest uppercase font-semibold">

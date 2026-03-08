@@ -26,7 +26,7 @@ const hashUserId = (userId) => {
 // ============================================================================
 
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 64 hex characters (32 bytes)
-const ALGORITHM = 'aes-256-cbc';
+const ALGORITHM = 'aes-256-gcm';
 
 /**
  * Encrypt sensitive data using AES-256-CBC
@@ -38,15 +38,16 @@ const encrypt = (text) => {
         throw new Error('Invalid encryption key. Must be 64 hex characters.');
     }
 
-    const iv = crypto.randomBytes(16);
+    const iv = crypto.randomBytes(12); // 12 bytes recommended for GCM
     const key = Buffer.from(ENCRYPTION_KEY, 'hex');
     const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
 
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
+    const authTag = cipher.getAuthTag().toString('hex');
 
-    // Return IV + encrypted data (IV needed for decryption)
-    return iv.toString('hex') + ':' + encrypted;
+    // Return IV + AuthTag + encrypted data (all needed for decryption)
+    return iv.toString('hex') + ':' + authTag + ':' + encrypted;
 };
 
 /**
@@ -60,11 +61,17 @@ const decrypt = (encryptedText) => {
     }
 
     const parts = encryptedText.split(':');
+    if (parts.length !== 3) {
+        throw new Error('Invalid encrypted data format');
+    }
+
     const iv = Buffer.from(parts[0], 'hex');
-    const encryptedData = parts[1];
+    const authTag = Buffer.from(parts[1], 'hex');
+    const encryptedData = parts[2];
     const key = Buffer.from(ENCRYPTION_KEY, 'hex');
 
     const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+    decipher.setAuthTag(authTag);
 
     let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
@@ -87,8 +94,13 @@ const verifyRecaptcha = async (token, expectedAction = 'submit') => {
     const minScore = parseFloat(process.env.RECAPTCHA_MIN_SCORE) || 0.5;
 
     if (!secretKey) {
-        console.warn('reCAPTCHA secret key not configured');
-        return { success: true, score: 1.0 }; // Allow in development
+        // Fail closed in production — only allow bypass in development
+        if (process.env.NODE_ENV === 'production') {
+            console.error('reCAPTCHA secret key not configured in production!');
+            return { success: false, error: 'Bot protection not configured' };
+        }
+        console.warn('[DEV] reCAPTCHA secret key not configured, bypassing in development');
+        return { success: true, score: 1.0 };
     }
 
     try {
