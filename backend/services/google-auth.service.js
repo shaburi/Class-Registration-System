@@ -1,6 +1,9 @@
 const { admin } = require('../config/firebase-admin');
 const { query } = require('../database/connection');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
+const DEFAULT_PASSWORD = 'kptm1234';
 
 // List of HOP email addresses (can be moved to environment variables)
 const HOP_EMAILS = (process.env.HOP_EMAILS || 'hop@uptm.edu.my').split(',').map(e => e.trim());
@@ -108,6 +111,15 @@ async function verifyGoogleToken(idToken) {
                 );
             }
 
+            // Backfill: set default password for existing Google users who don't have one
+            if (!user.password_hash) {
+                const hashedPassword = await bcrypt.hash(DEFAULT_PASSWORD, 12);
+                await query(
+                    'UPDATE users SET password_hash = $1 WHERE id = $2',
+                    [hashedPassword, user.id]
+                );
+            }
+
             // For existing HOP users: ensure their programme is set from the map
             if (user.role === 'hop' && !user.programme) {
                 const hopProgramme = getHopProgramme(email);
@@ -199,6 +211,9 @@ async function verifyGoogleToken(idToken) {
 async function createUserFromGoogle(email, firebaseUid, name, picture, role) {
     let result;
 
+    // Hash the default password so users can also login with email/password
+    const hashedPassword = await bcrypt.hash(DEFAULT_PASSWORD, 12);
+
     if (role === 'student') {
         // Extract student ID from email (e.g., KL123456@uptm.edu.my -> KL123456)
         const studentId = email.split('@')[0];
@@ -209,20 +224,20 @@ async function createUserFromGoogle(email, firebaseUid, name, picture, role) {
         const defaultProgramme = 'Computer Science';
 
         result = await query(`
-            INSERT INTO users (email, firebase_uid, role, student_id, student_name, semester, programme)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            INSERT INTO users (email, firebase_uid, role, student_id, student_name, semester, programme, password_hash)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
-        `, [email, firebaseUid, role, studentId, name, defaultSemester, defaultProgramme]);
+        `, [email, firebaseUid, role, studentId, name, defaultSemester, defaultProgramme, hashedPassword]);
     } else if (role === 'lecturer') {
         // Generate lecturer ID (you may want a different strategy)
         const lecturerId = 'L' + Date.now().toString().slice(-6);
         const defaultDepartment = 'Computer Science';
 
         result = await query(`
-            INSERT INTO users (email, firebase_uid, role, lecturer_id, lecturer_name, department)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO users (email, firebase_uid, role, lecturer_id, lecturer_name, department, password_hash)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
-        `, [email, firebaseUid, role, lecturerId, name, defaultDepartment]);
+        `, [email, firebaseUid, role, lecturerId, name, defaultDepartment, hashedPassword]);
     } else if (role === 'hop') {
         // HOP is a special lecturer with assigned programme
         const lecturerId = 'L' + Date.now().toString().slice(-6);
@@ -230,10 +245,10 @@ async function createUserFromGoogle(email, firebaseUid, name, picture, role) {
         const hopProgramme = getHopProgramme(email);
 
         result = await query(`
-            INSERT INTO users (email, firebase_uid, role, lecturer_id, lecturer_name, department, programme)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            INSERT INTO users (email, firebase_uid, role, lecturer_id, lecturer_name, department, programme, password_hash)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
-        `, [email, firebaseUid, role, lecturerId, name, defaultDepartment, hopProgramme]);
+        `, [email, firebaseUid, role, lecturerId, name, defaultDepartment, hopProgramme, hashedPassword]);
     }
 
     return result.rows[0];
