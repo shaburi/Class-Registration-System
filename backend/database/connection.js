@@ -11,6 +11,8 @@ const pool = new Pool({
     max: parseInt(process.env.DB_POOL_MAX || '20'),
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,
+    // Enable SSL for cloud-hosted databases (Neon, Supabase, etc.)
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 });
 
 // Test database connection
