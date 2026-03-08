@@ -8,15 +8,15 @@ import GoogleSignInButton from '../components/GoogleSignInButton';
 import MFAVerifyModal from '../components/MFAVerifyModal';
 import axios from 'axios';
 
-// Sophisticated ambient background
+// Sophisticated ambient background (optimized for mobile)
 const AmbientBackground = () => (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-[#fafafa] dark:bg-[#050505] transition-colors duration-700">
-        <div className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-blue-400/10 dark:bg-blue-600/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen opacity-70" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-rose-400/10 dark:bg-rose-900/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen opacity-70" />
-        <div className="absolute top-[40%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-violet-400/5 dark:bg-violet-600/5 blur-[100px] mix-blend-multiply dark:mix-blend-screen opacity-50" />
+        <div className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-blue-400/10 dark:bg-blue-600/10 blur-[60px] sm:blur-[120px] mix-blend-multiply dark:mix-blend-screen opacity-70 will-change-transform" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-rose-400/10 dark:bg-rose-900/10 blur-[60px] sm:blur-[120px] mix-blend-multiply dark:mix-blend-screen opacity-70 will-change-transform" />
+        <div className="absolute top-[40%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-violet-400/5 dark:bg-violet-600/5 blur-[40px] sm:blur-[100px] mix-blend-multiply dark:mix-blend-screen opacity-50 will-change-transform" />
 
-        {/* Subtle noise texture */}
-        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04] mix-blend-overlay" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.8\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\"/%3E%3C/svg%3E')" }}></div>
+        {/* Subtle noise texture — hidden on mobile for performance */}
+        <div className="hidden sm:block absolute inset-0 opacity-[0.03] dark:opacity-[0.04] mix-blend-overlay" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.8\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\"/%3E%3C/svg%3E')" }}></div>
     </div>
 );
 
@@ -148,7 +148,7 @@ export default function Login() {
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3, duration: 0.6 }}
-                    className="w-full bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-2xl rounded-[20px] p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-gray-200/50 dark:border-white/5 relative"
+                    className="w-full bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-xl sm:backdrop-blur-2xl rounded-[20px] p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-gray-200/50 dark:border-white/5 relative"
                 >
                     <AnimatePresence>
                         {error && (
