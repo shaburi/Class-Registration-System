@@ -125,7 +125,12 @@ async function verifyGoogleToken(idToken) {
         // Check if MFA is enabled - if so, return temp token for MFA step
         if (user.mfa_enabled) {
             const tempToken = jwt.sign(
-                { id: user.id, mfaPending: true },
+                {
+                    id: user.id,
+                    mfaPending: true,
+                    photoURL: picture,
+                    name: name
+                },
                 process.env.JWT_SECRET,
                 { expiresIn: '5m' }
             );
@@ -171,6 +176,7 @@ async function verifyGoogleToken(idToken) {
                 lecturerName: user.lecturer_name,
                 semester: user.semester,
                 programme: user.programme,
+                profile_completed: user.profile_completed,
                 photoURL: picture, // Google profile picture
                 displayName: name
             }

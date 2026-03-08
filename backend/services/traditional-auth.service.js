@@ -90,7 +90,8 @@ async function traditionalLogin(email, password) {
                 semester: user.semester,
                 programme: user.programme,
                 department: user.department,
-                intake_session: user.intake_session
+                intake_session: user.intake_session,
+                profile_completed: user.profile_completed
             }
         };
     } catch (error) {

@@ -33,7 +33,8 @@ router.get('/profile', async (req, res) => {
                 student_name: req.user.studentName || req.user.student_name,
                 semester: req.user.semester,
                 programme: req.user.programme,
-                intake_session: req.user.intake_session
+                intake_session: req.user.intake_session,
+                profile_completed: req.user.profile_completed
             }
         });
     } catch (error) {
@@ -50,7 +51,7 @@ router.get('/profile', async (req, res) => {
  */
 router.put('/profile', async (req, res) => {
     try {
-        const { semester, programme, student_name, intake_session } = req.body;
+        const { semester, programme, student_name, intake_session, student_id } = req.body;
 
         // Allowed programmes
         const allowedProgrammes = ['CT206', 'CT204', 'CC101'];
@@ -102,6 +103,13 @@ router.put('/profile', async (req, res) => {
             updates.push(`intake_session = $${paramCount++}`);
             values.push(intake_session);
         }
+        if (student_id) {
+            updates.push(`student_id = $${paramCount++}`);
+            values.push(student_id);
+        }
+
+        // Always mark profile as completed when saving profile
+        updates.push(`profile_completed = TRUE`);
 
         if (updates.length === 0) {
             return res.status(400).json({
@@ -130,7 +138,8 @@ router.put('/profile', async (req, res) => {
                 student_name: updatedUser.student_name,
                 semester: updatedUser.semester,
                 programme: updatedUser.programme,
-                intake_session: updatedUser.intake_session
+                intake_session: updatedUser.intake_session,
+                profile_completed: updatedUser.profile_completed
             }
         });
     } catch (error) {

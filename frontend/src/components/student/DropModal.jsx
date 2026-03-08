@@ -1,6 +1,8 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, X, Trash2 } from 'lucide-react';
+import { showGlassToast } from '../GlassToast';
 
 const DropModal = ({ isOpen, onClose, registration, onConfirm }) => {
     const [reason, setReason] = React.useState('');
@@ -10,7 +12,7 @@ const DropModal = ({ isOpen, onClose, registration, onConfirm }) => {
 
     const handleSubmit = async () => {
         if (!reason.trim()) {
-            alert('Please provide a reason for dropping the course.');
+            showGlassToast.error('Please provide a reason for dropping the course.');
             return;
         }
         setIsSubmitting(true);
@@ -20,7 +22,7 @@ const DropModal = ({ isOpen, onClose, registration, onConfirm }) => {
         setReason('');
     };
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -75,7 +77,8 @@ const DropModal = ({ isOpen, onClose, registration, onConfirm }) => {
                     </div>
                 </div>
             </motion.div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

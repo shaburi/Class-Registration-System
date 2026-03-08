@@ -80,11 +80,14 @@ const authenticate = async (req, res, next) => {
                                 role: u.role,
                                 studentId: u.student_id,
                                 studentName: u.student_name,
+                                student_id: u.student_id,
+                                student_name: u.student_name,
                                 lecturerId: u.lecturer_id,
                                 lecturerName: u.lecturer_name,
                                 semester: u.semester,
                                 programme: u.programme,
                                 intake_session: u.intake_session,
+                                profile_completed: u.profile_completed,
                                 photoURL: payload.picture,
                                 displayName: payload.name
                             };
@@ -150,11 +153,14 @@ const authenticate = async (req, res, next) => {
             role: user.role,
             studentId: user.student_id,
             studentName: user.student_name,
+            student_id: user.student_id,
+            student_name: user.student_name,
             lecturerId: user.lecturer_id,
             lecturerName: user.lecturer_name,
             semester: user.semester,
             programme: user.programme,
             intake_session: user.intake_session,
+            profile_completed: user.profile_completed,
             photoURL: decodedToken.picture,
             displayName: decodedToken.name
         };

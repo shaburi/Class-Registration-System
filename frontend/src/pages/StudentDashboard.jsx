@@ -8,6 +8,7 @@ import RegistrationSection from '../components/student/RegistrationSection';
 import RequestSection from '../components/student/RequestSection';
 import SwapRequestModal from '../components/student/SwapRequestModal';
 import DropModal from '../components/student/DropModal';
+import OnboardingTutorial, { shouldShowTutorial } from '../components/OnboardingTutorial';
 import { useAuth } from '../contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
@@ -19,29 +20,7 @@ import {
     Clock, MapPin, Sparkles, Trash2, Building2
 } from 'lucide-react';
 import api from '../services/api';
-
-// Helper to get consistent color for a subject code (UPTM Brand Colors)
-const getSubjectColor = (code) => {
-    const colors = [
-        'bg-blue-100 border-blue-300 text-blue-900 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-100',
-        'bg-cyan-100 border-cyan-300 text-cyan-900 dark:bg-cyan-900/40 dark:border-cyan-700 dark:text-cyan-100', // Keeps navy tone
-        'bg-slate-100 border-slate-300 text-slate-900 dark:bg-slate-900/40 dark:border-slate-700 dark:text-slate-100',
-        'bg-gray-100 border-gray-300 text-gray-900 dark:bg-gray-900/40 dark:border-gray-700 dark:text-gray-100',
-        'bg-amber-100 border-amber-300 text-amber-900 dark:bg-amber-900/40 dark:border-amber-700 dark:text-amber-100', // Warning/accent
-        'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-200',
-        'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200',
-    ];
-
-    if (!code) return colors[0];
-
-    let hash = 0;
-    for (let i = 0; i < code.length; i++) {
-        hash = code.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    const index = Math.abs(hash) % colors.length;
-    return colors[index];
-};
+import getSubjectColor from '../utils/getSubjectColor';
 
 export default function StudentDashboard() {
     const { user } = useAuth();
@@ -68,6 +47,7 @@ export default function StudentDashboard() {
 
     // UI State
     const [activeTab, setActiveTab] = useState('timetable');
+    const [showTutorial, setShowTutorial] = useState(false);
 
     // Modal States
     const [swapModalOpen, setSwapModalOpen] = useState(false);
@@ -118,6 +98,14 @@ export default function StudentDashboard() {
             }
         }
     };
+
+    // Show tutorial for first-time users after data loads
+    useEffect(() => {
+        if (!loading && shouldShowTutorial()) {
+            const timer = setTimeout(() => setShowTutorial(true), 600);
+            return () => clearTimeout(timer);
+        }
+    }, [loading]);
 
     // Load semester timetable when tab is active
     useEffect(() => {
@@ -577,7 +565,7 @@ export default function StudentDashboard() {
     const displayName = user?.displayName || user?.student_name || user?.studentName || user?.lecturerName || user?.name || user?.email?.split('@')[0] || 'Student';
 
     const headerContent = (
-        <div className="flex flex-col gap-2 relative z-10">
+        <div className="flex flex-col gap-2 relative z-10" data-tour="welcome-header">
             <h2 className="text-3xl md:text-5xl font-bold mb-1 font-heading tracking-tight text-gray-900 dark:text-white drop-shadow-sm dark:drop-shadow-lg">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-red-600 to-blue-600 dark:from-blue-400 dark:via-red-400 dark:to-blue-400 animate-gradient-x">
                     Welcome back
@@ -601,7 +589,18 @@ export default function StudentDashboard() {
             activeTab={activeTab}
             onTabChange={setActiveTab}
             headerContent={headerContent}
+            onReplayTutorial={() => setShowTutorial(true)}
+            badges={{
+                'requests': (swapRequests?.length || 0) + (manualRequests?.length || 0) + (dropRequests?.length || 0)
+            }}
         >
+            {showTutorial && (
+                <OnboardingTutorial
+                    onComplete={() => setShowTutorial(false)}
+                    onTabChange={setActiveTab}
+                />
+            )}
+
             <motion.div
                 variants={containerVariants}
                 initial="hidden"

@@ -13,6 +13,7 @@ import Login from './pages/Login';
 const StudentDashboard = React.lazy(() => import('./pages/StudentDashboard'));
 const LecturerDashboard = React.lazy(() => import('./pages/LecturerDashboard'));
 const HOPDashboard = React.lazy(() => import('./pages/HOPDashboard'));
+const StudentOnboarding = React.lazy(() => import('./pages/StudentOnboarding'));
 
 // Loading fallback for lazy components
 function DashboardLoading() {
@@ -46,6 +47,18 @@ function App() {
                   <ProtectedRoute>
                     <Suspense fallback={<DashboardLoading />}>
                       <DashboardRouter />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Student Onboarding */}
+              <Route
+                path="/onboarding"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<DashboardLoading />}>
+                      <StudentOnboarding />
                     </Suspense>
                   </ProtectedRoute>
                 }
@@ -102,6 +115,10 @@ function DashboardRouter() {
 
   switch (user.role) {
     case 'student':
+      // Redirect to onboarding if profile is not completed
+      if (!user.profile_completed) {
+        return <Navigate to="/onboarding" replace />;
+      }
       return <StudentDashboard />;
     case 'lecturer':
       return <LecturerDashboard />;

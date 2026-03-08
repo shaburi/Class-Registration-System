@@ -233,7 +233,10 @@ router.post('/mfa/verify', async (req, res) => {
                 lecturer_name: user.lecturer_name,
                 semester: user.semester,
                 programme: user.programme,
-                intake_session: user.intake_session
+                intake_session: user.intake_session,
+                profile_completed: user.profile_completed,
+                photoURL: decoded.photoURL || null,
+                displayName: decoded.name || null
             },
             process.env.JWT_SECRET,
             { expiresIn: '7d' }
@@ -253,7 +256,10 @@ router.post('/mfa/verify', async (req, res) => {
                 semester: user.semester,
                 programme: user.programme,
                 department: user.department,
-                intake_session: user.intake_session
+                intake_session: user.intake_session,
+                profile_completed: user.profile_completed,
+                photoURL: decoded.photoURL || null,
+                displayName: decoded.name || null
             }
         };
 

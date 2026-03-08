@@ -21,10 +21,12 @@ import {
     ShieldOff,
     KeyRound,
     Loader2,
-    AlertCircle
+    AlertCircle,
+    RotateCcw
 } from 'lucide-react';
 import api from '../services/api';
 import MFASetupModal from './MFASetupModal';
+import { resetTutorial } from './OnboardingTutorial';
 
 // Programme options
 const PROGRAMMES = [
@@ -60,7 +62,7 @@ const generateIntakeSessions = () => {
 
 const INTAKE_SESSIONS = generateIntakeSessions();
 
-const SettingsModal = ({ isOpen, onClose }) => {
+const SettingsModal = ({ isOpen, onClose, onReplayTutorial }) => {
     const { user, logout, setUser } = useAuth();
     const { theme, toggleTheme, accentColor, setAccentColor, accentColors } = useTheme();
     const [activeSection, setActiveSection] = useState('profile');
@@ -579,6 +581,32 @@ const SettingsModal = ({ isOpen, onClose }) => {
                                                     ))}
                                                 </div>
                                             </div>
+
+                                            {/* Replay Tutorial */}
+                                            {onReplayTutorial && (
+                                                <div className="bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
+                                                    <div className="p-4 border-b border-gray-200 dark:border-white/10">
+                                                        <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                                                            <RotateCcw size={18} className="text-blue-500 dark:text-blue-400" />
+                                                            Onboarding Tutorial
+                                                        </h3>
+                                                        <p className="text-sm text-gray-500 dark:text-white/50 mt-1">Replay the guided tour to learn about all dashboard features.</p>
+                                                    </div>
+                                                    <div className="p-4">
+                                                        <button
+                                                            onClick={() => {
+                                                                resetTutorial();
+                                                                onClose();
+                                                                onReplayTutorial();
+                                                            }}
+                                                            className="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl text-sm font-semibold flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/25 transition-all active:scale-95"
+                                                        >
+                                                            <RotateCcw size={16} />
+                                                            Replay Tutorial
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>

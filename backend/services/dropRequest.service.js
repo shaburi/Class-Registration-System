@@ -219,22 +219,9 @@ const getAllDropRequests = async (status = null, hopProgramme = null) => {
         paramCount++;
     }
 
-    // HOP programme isolation
+    // HOP programme isolation: only show drop requests from students in this HOP's programme
     if (hopProgramme) {
-        queryText += ` AND (
-            sub.programme = $${paramCount}
-            OR sub.code IN (
-                SELECT DISTINCT sub2.code FROM subjects sub2
-                WHERE sub2.programme = $${paramCount}
-            )
-            OR sub.code IN (
-                SELECT DISTINCT sub3.code
-                FROM program_structure_courses psc
-                JOIN program_structures ps ON psc.structure_id = ps.id
-                JOIN subjects sub3 ON psc.subject_id = sub3.id
-                WHERE ps.programme = $${paramCount}
-            )
-        )`;
+        queryText += ` AND student.programme = $${paramCount}`;
         params.push(hopProgramme);
         paramCount++;
     }
@@ -244,6 +231,7 @@ const getAllDropRequests = async (status = null, hopProgramme = null) => {
     const result = await query(queryText, params);
     return result.rows;
 };
+
 
 module.exports = {
     createDropRequest,

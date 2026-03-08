@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { RefreshCw, XCircle, CheckCircle, ArrowRightLeft, Clock } from 'lucide-react';
+import { RefreshCw, XCircle, CheckCircle, ArrowRightLeft, Clock, Shield } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
+import { showGlassToast } from '../GlassToast';
 
 const RequestSection = ({
     swapRequests,
@@ -11,12 +13,10 @@ const RequestSection = ({
     onRefresh
 }) => {
     const [clearing, setClearing] = useState(false);
+    const [confirmClearModal, setConfirmClearModal] = useState(false);
 
-    const handleClearCompleted = async () => {
-        if (!window.confirm('Are you sure you want to permanently delete all completed requests? This action cannot be undone.')) {
-            return;
-        }
-
+    const executeClear = async () => {
+        setConfirmClearModal(false);
         setClearing(true);
         try {
             const completedSwaps = swapRequests.filter(r => r.status !== 'pending').map(r => r.id);
@@ -25,7 +25,7 @@ const RequestSection = ({
 
             const total = completedSwaps.length + completedManual.length + completedDrops.length;
             if (total === 0) {
-                alert('No completed requests to clear.');
+                showGlassToast.info('No completed requests to clear.');
                 setClearing(false);
                 return;
             }
@@ -38,13 +38,17 @@ const RequestSection = ({
 
             await Promise.all(deletePromises);
             await onRefresh();
-            alert(`Cleared ${total} completed requests.`);
+            showGlassToast.success(`Cleared ${total} completed requests.`);
         } catch (error) {
             console.error('Failed to clear requests', error);
-            alert('Failed to clear some requests.');
+            showGlassToast.error('Failed to clear some requests.');
         } finally {
             setClearing(false);
         }
+    };
+
+    const handleClearCompleted = () => {
+        setConfirmClearModal(true);
     };
 
     const hasCompletedRequests =
@@ -53,83 +57,133 @@ const RequestSection = ({
         dropRequests.some(r => r.status !== 'pending');
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            {/* Header / Actions */}
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">My Requests</h2>
-                {hasCompletedRequests && (
-                    <button
-                        onClick={handleClearCompleted}
-                        disabled={clearing}
-                        className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 rounded-lg transition text-sm font-medium flex items-center gap-2 disabled:opacity-50"
-                    >
-                        {clearing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                        Clear Completed
-                    </button>
-                )}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Swap Requests Column */}
-                <div className="space-y-4">
-                    <h3 className="font-bold text-lg text-gray-700 dark:text-gray-200 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
-                        <ArrowRightLeft className="w-5 h-5 text-blue-500" />
-                        Swap Requests
-                    </h3>
-                    {swapRequests.length === 0 ? (
-                        <EmptyState message="No active swap requests" />
-                    ) : (
-                        <div className="space-y-3">
-                            {swapRequests.map(req => (
-                                <SwapRequestCard
-                                    key={req.id}
-                                    req={req}
-                                    currentUserId={currentUserId}
-                                    onResponse={onSwapResponse}
-                                />
-                            ))}
-                        </div>
+        <>
+            <div className="space-y-8 animate-in fade-in duration-500">
+                {/* Header / Actions */}
+                <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white">My Requests</h2>
+                    {hasCompletedRequests && (
+                        <button
+                            onClick={handleClearCompleted}
+                            disabled={clearing}
+                            className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50 rounded-lg transition text-sm font-medium flex items-center gap-2 disabled:opacity-50"
+                        >
+                            {clearing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                            Clear Completed
+                        </button>
                     )}
                 </div>
 
-                {/* Other Requests Column */}
-                <div className="space-y-8">
-                    {/* Manual Join Requests */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Swap Requests Column */}
                     <div className="space-y-4">
                         <h3 className="font-bold text-lg text-gray-700 dark:text-gray-200 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
-                            <Clock className="w-5 h-5 text-amber-500" />
-                            Manual Join Requests
+                            <ArrowRightLeft className="w-5 h-5 text-blue-500" />
+                            Swap Requests
                         </h3>
-                        {manualRequests.length === 0 ? (
-                            <EmptyState message="No manual join requests" />
+                        {swapRequests.length === 0 ? (
+                            <EmptyState message="No active swap requests" />
                         ) : (
                             <div className="space-y-3">
-                                {manualRequests.map(req => (
-                                    <ManualRequestCard key={req.id} req={req} />
+                                {swapRequests.map(req => (
+                                    <SwapRequestCard
+                                        key={req.id}
+                                        req={req}
+                                        currentUserId={currentUserId}
+                                        onResponse={onSwapResponse}
+                                    />
                                 ))}
                             </div>
                         )}
                     </div>
 
-                    {/* Drop Requests */}
-                    <div className="space-y-4">
-                        <h3 className="font-bold text-lg text-gray-700 dark:text-gray-200 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
-                            <XCircle className="w-5 h-5 text-red-500" />
-                            Drop Requests
-                        </h3>
-                        {dropRequests.length === 0 ? (
-                            <EmptyState message="No drop requests" />
-                        ) : (
-                            <div className="space-y-3">
-                                {dropRequests.map(req => (
-                                    <DropRequestCard key={req.id} req={req} />
-                                ))}
-                            </div>
-                        )}
+                    {/* Other Requests Column */}
+                    <div className="space-y-8">
+                        {/* Manual Join Requests */}
+                        <div className="space-y-4">
+                            <h3 className="font-bold text-lg text-gray-700 dark:text-gray-200 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
+                                <Clock className="w-5 h-5 text-amber-500" />
+                                Manual Join Requests
+                            </h3>
+                            {manualRequests.length === 0 ? (
+                                <EmptyState message="No manual join requests" />
+                            ) : (
+                                <div className="space-y-3">
+                                    {manualRequests.map(req => (
+                                        <ManualRequestCard key={req.id} req={req} />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Drop Requests */}
+                        <div className="space-y-4">
+                            <h3 className="font-bold text-lg text-gray-700 dark:text-gray-200 flex items-center gap-2 border-b pb-2 dark:border-gray-700">
+                                <XCircle className="w-5 h-5 text-red-500" />
+                                Drop Requests
+                            </h3>
+                            {dropRequests.length === 0 ? (
+                                <EmptyState message="No drop requests" />
+                            ) : (
+                                <div className="space-y-3">
+                                    {dropRequests.map(req => (
+                                        <DropRequestCard key={req.id} req={req} />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+            {/* Confirmation Modal */}
+            <AnimatePresence>
+                {confirmClearModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+                        onClick={() => setConfirmClearModal(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full max-w-md bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+                        >
+                            <div className="p-6">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center">
+                                        <Shield className="w-5 h-5 text-amber-500" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Clear Completed Requests</h3>
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                                    Are you sure you want to permanently delete all completed requests? This action cannot be undone.
+                                </p>
+                                <div className="flex justify-end gap-3">
+                                    <button
+                                        onClick={() => setConfirmClearModal(false)}
+                                        className="px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={executeClear}
+                                        className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 shadow-lg shadow-red-500/30 transition-all"
+                                    >
+                                        Clear All
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
     );
 };
 

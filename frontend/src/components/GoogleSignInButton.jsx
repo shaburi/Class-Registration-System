@@ -49,10 +49,10 @@ const GoogleSignInButton = ({ onSuccess, onError }) => {
         <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3.5 glass-button bg-white/40 dark:bg-white/5 hover:bg-white/60 dark:hover:bg-white/10 border border-gray-200 dark:border-[var(--glass-border)] rounded-xl transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white/40 dark:bg-white/5 hover:bg-white/60 dark:hover:bg-white/10 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] border border-gray-200 dark:border-[var(--glass-border)] rounded-xl transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed"
         >
             {loading ? (
-                <div className="w-5 h-5 border-2 border-[var(--neon-accent)] border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
             ) : (
                 <svg className="w-5 h-5 transition-transform group-hover:scale-110 duration-300" viewBox="0 0 24 24">
                     <path
@@ -74,7 +74,7 @@ const GoogleSignInButton = ({ onSuccess, onError }) => {
                     />
                 </svg>
             )}
-            <span className="font-heading font-semibold text-[var(--text-primary)] group-hover:text-[var(--neon-accent)] transition-colors">
+            <span className="font-heading font-semibold text-[var(--text-primary)] group-hover:text-blue-500 transition-colors">
                 {loading ? 'Signing in...' : 'Sign in with Google'}
             </span>
         </button>

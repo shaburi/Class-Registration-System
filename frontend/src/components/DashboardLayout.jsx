@@ -29,14 +29,15 @@ import {
     CloudDownload,
     User,
     Menu,
-    X
+    X,
+    Bell
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import SettingsModal from './SettingsModal';
 import StaggeredText from './Anime/StaggeredText';
 import NotificationBell from './hop/NotificationBell';
 
-const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGreeting = false, headerContent, notifications, onNotificationClick }) => {
+const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGreeting = false, headerContent, notifications, onNotificationClick, onReplayTutorial, badges = {} }) => {
     const { user, logout } = useAuth();
     const { accent: userAccent } = useTheme();
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -137,22 +138,22 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                 {/* ... */}
                 {/* Fast forwarding to the updated SVG def ... */}
                 {/* Logo Area */}
-                <div className="h-28 flex items-center justify-center px-4 border-b border-gray-200/30 dark:border-white/5 relative z-10">
+                <div className="h-24 flex items-center justify-center px-4 border-b border-gray-200/30 dark:border-white/5 relative z-10 transition-all duration-300">
                     <motion.div
-                        whileHover={{ rotate: 10, scale: 1.1 }}
-                        className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${userAccent?.gradient || getRoleGradient()} flex items-center justify-center shadow-lg ${userAccent?.shadow || 'shadow-blue-500/20'} relative`}
+                        whileHover={{ scale: 1.05 }}
+                        className={`h-9 flex items-center justify-center relative shrink-0 transition-all duration-300`}
                     >
-                        <Sparkles className="w-6 h-6 text-white relative z-10" />
-                        {/* Glow orb behind icon */}
-                        <div className={`absolute inset-0 bg-gradient-to-br ${userAccent?.gradient || getRoleGradient()} blur-md opacity-50 rounded-2xl`}></div>
+                        <img src="/logo.png" alt="RNS Logo" className="h-full w-auto object-contain relative z-10 drop-shadow-sm" />
                     </motion.div>
                     <motion.div
                         initial={false}
-                        animate={{ opacity: isCollapsed ? 0 : 1, width: isCollapsed ? 0 : 'auto', marginLeft: isCollapsed ? 0 : 16 }}
+                        animate={{ opacity: isCollapsed ? 0 : 1, width: isCollapsed ? 0 : 'auto', marginLeft: isCollapsed ? 0 : 4 }}
                         className="overflow-hidden flex items-center"
                     >
-                        <span className="font-heading font-extrabold text-2xl tracking-tight text-[var(--text-primary)] whitespace-nowrap mt-1 drop-shadow-sm">
-                            UPTM <span className={`text-transparent bg-clip-text bg-gradient-to-r ${getRoleGradient()}`}>HUB</span>
+                        <span className="font-heading font-black text-[1.5rem] tracking-[-0.05em] whitespace-nowrap mt-1 drop-shadow-sm">
+                            <span className="text-[#1e3a8a] dark:text-blue-500">R</span>
+                            <span className="text-[#e11d48] dark:text-red-500">N</span>
+                            <span className="text-[#1e3a8a] dark:text-blue-500">S</span>
                         </span>
                     </motion.div>
                 </div>
@@ -162,7 +163,7 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                     {navItems.map((item) => {
                         const isActive = activeTab === item.id;
                         return (
-                            <div key={item.id} className="relative w-full">
+                            <div key={item.id} className="relative w-full" data-tour={`nav-${item.id}`}>
                                 {/* Kinetic Active Indicator (Glides behind the item) */}
                                 {isActive && (
                                     <motion.div
@@ -199,10 +200,23 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                                     <motion.span
                                         initial={false}
                                         animate={{ opacity: isCollapsed ? 0 : 1, width: isCollapsed ? 0 : 'auto' }}
-                                        className={`font-semibold whitespace-nowrap overflow-hidden tracking-wide text-sm ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
+                                        className={`font-semibold whitespace-nowrap overflow-hidden tracking-wide text-sm flex-1 ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
                                     >
                                         {item.label}
                                     </motion.span>
+
+                                    {!isCollapsed && badges[item.id] > 0 && (
+                                        <motion.div
+                                            initial={{ scale: 0.5, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            className="flex items-center gap-1.5 ml-auto"
+                                        >
+                                            <div className="flex items-center justify-center gap-1 bg-red-500 shadow-lg shadow-red-500/40 text-white rounded-full h-6 px-2 min-w-[24px]">
+                                                <Bell className="w-3 h-3 fill-white" />
+                                                <span className="text-[11px] font-bold leading-none">{badges[item.id] > 99 ? '99+' : badges[item.id]}</span>
+                                            </div>
+                                        </motion.div>
+                                    )}
 
                                     {/* SVG Definition for Icon Gradients (hack for Lucide icons) */}
                                     {isActive && (
@@ -231,7 +245,7 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                 </div>
 
                 {/* Interactive Profile Pod */}
-                <div className="mx-4 mb-4 relative z-20 group">
+                <div className="mx-4 mb-4 relative z-20 group" data-tour="profile-pod">
                     <motion.div
                         className="bg-white/60 dark:bg-black/30 border border-white/50 dark:border-white/10 rounded-2xl p-2 cursor-pointer backdrop-blur-md shadow-[0_4px_15px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all duration-300 hover:bg-white/80 dark:hover:bg-black/50"
                         onClick={() => setShowProfileMenu(!showProfileMenu)}
@@ -324,13 +338,15 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
                             className="absolute inset-y-0 left-0 w-[85%] max-w-[320px] bg-white/80 dark:bg-[#0b0d14]/90 backdrop-blur-3xl border-r border-white/40 dark:border-white/10 flex flex-col shadow-2xl"
                         >
-                            <div className="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-white/10">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${getRoleGradient()} flex items-center justify-center shadow-lg relative`}>
-                                        <Sparkles className="w-5 h-5 text-white relative z-10" />
+                            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200/50 dark:border-white/10">
+                                <div className="flex items-center gap-1.5">
+                                    <div className={`h-8 flex items-center justify-center relative shrink-0`}>
+                                        <img src="/logo.png" alt="RNS Logo" className="h-full w-auto object-contain relative z-10 drop-shadow-sm" />
                                     </div>
-                                    <span className="font-heading font-extrabold text-xl tracking-tight text-[var(--text-primary)]">
-                                        UPTM <span className={`text-transparent bg-clip-text bg-gradient-to-r ${getRoleGradient()}`}>HUB</span>
+                                    <span className="font-heading font-black text-[1.3rem] tracking-[-0.05em] mt-0.5">
+                                        <span className="text-[#1e3a8a] dark:text-blue-500">R</span>
+                                        <span className="text-[#e11d48] dark:text-red-500">N</span>
+                                        <span className="text-[#1e3a8a] dark:text-blue-500">S</span>
                                     </span>
                                 </div>
                                 <button
@@ -416,16 +432,21 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
 
                 {/* Mobile Header */}
                 <div className="md:hidden flex flex-shrink-0 items-center justify-between px-4 py-3 bg-white/70 dark:bg-[#0b0d14]/80 backdrop-blur-xl border-b border-white/40 dark:border-white/10 z-[40]">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
                         <motion.button
                             whileTap={{ scale: 0.9 }}
                             onClick={() => setIsMobileMenuOpen(true)}
-                            className="p-2 bg-white/50 dark:bg-white/5 rounded-xl border border-white/50 dark:border-white/10 text-[var(--text-primary)] shadow-sm"
+                            className="p-1.5 bg-white/50 dark:bg-white/5 rounded-lg border border-white/50 dark:border-white/10 text-[var(--text-primary)] shadow-sm"
                         >
                             <Menu size={20} />
                         </motion.button>
-                        <span className="font-heading font-extrabold text-xl tracking-tight text-[var(--text-primary)]">
-                            UPTM <span className={`text-transparent bg-clip-text bg-gradient-to-r ${getRoleGradient()}`}>HUB</span>
+                        <div className="h-[22px] flex items-center justify-center relative shrink-0 ml-1">
+                            <img src="/logo.png" alt="RNS Logo" className="h-full w-auto object-contain relative z-10 drop-shadow-sm" />
+                        </div>
+                        <span className="font-heading font-black text-[1.25rem] tracking-[-0.05em] mt-0.5">
+                            <span className="text-[#1e3a8a] dark:text-blue-500">R</span>
+                            <span className="text-[#e11d48] dark:text-red-500">N</span>
+                            <span className="text-[#1e3a8a] dark:text-blue-500">S</span>
                         </span>
                     </div>
                 </div>
@@ -475,6 +496,7 @@ const DashboardLayout = ({ children, role, title, activeTab, onTabChange, hideGr
             <SettingsModal
                 isOpen={showSettingsModal}
                 onClose={() => setShowSettingsModal(false)}
+                onReplayTutorial={onReplayTutorial}
             />
         </div>
     );
@@ -519,7 +541,7 @@ const SessionSelector = () => {
     };
 
     return (
-        <div className="relative z-[60]" ref={dropdownRef}>
+        <div className="relative z-[60]" ref={dropdownRef} data-tour="session-selector">
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-3 px-5 py-3 glass-input rounded-xl hover:translate-y-[-2px] hover:shadow-lg transition-all border border-gray-200 dark:border-gray-700"

@@ -2,36 +2,21 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogIn, Mail, Lock, AlertCircle, Sparkles, GraduationCap } from 'lucide-react';
+import { Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import GoogleSignInButton from '../components/GoogleSignInButton';
-import TiltCard from '../components/TiltCard';
 import MFAVerifyModal from '../components/MFAVerifyModal';
 import axios from 'axios';
 
-// Decorative Volumetric Glows
-const BackgroundGlows = () => (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <motion.div
-            animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.15, 0.25, 0.15],
-                rotate: [0, 90, 0]
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-[20%] -right-[10%] w-[70vw] h-[70vw] rounded-full bg-gradient-to-br from-blue-600/30 to-red-600/10 blur-[120px]"
-        />
-        <motion.div
-            animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.1, 0.15, 0.1],
-                x: [0, -100, 0]
-            }}
-            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -bottom-[20%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr from-red-600/20 to-blue-600/20 blur-[100px]"
-        />
-        {/* Subtle grid texture overlay */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMSkiLz48L3N2Zz4=')] opacity-50 mix-blend-overlay"></div>
+// Sophisticated ambient background
+const AmbientBackground = () => (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-[#fafafa] dark:bg-[#050505] transition-colors duration-700">
+        <div className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-blue-400/10 dark:bg-blue-600/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen opacity-70" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-rose-400/10 dark:bg-rose-900/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen opacity-70" />
+        <div className="absolute top-[40%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-violet-400/5 dark:bg-violet-600/5 blur-[100px] mix-blend-multiply dark:mix-blend-screen opacity-50" />
+
+        {/* Subtle noise texture */}
+        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04] mix-blend-overlay" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.8\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\"/%3E%3C/svg%3E')" }}></div>
     </div>
 );
 
@@ -58,7 +43,6 @@ export default function Login() {
 
             if (response.data.success) {
                 if (response.data.requiresMfa) {
-                    // MFA required — show verification modal
                     setTempToken(response.data.tempToken);
                     setShowMfaModal(true);
                     setLoading(false);
@@ -70,7 +54,7 @@ export default function Login() {
             }
         } catch (err) {
             console.error('Login error:', err);
-            setError(err.response?.data?.message || 'Invalid email or password');
+            setError(err.response?.data?.message || 'Invalid credentials');
         } finally {
             setLoading(false);
         }
@@ -99,7 +83,7 @@ export default function Login() {
             }
         } catch (err) {
             console.error('Login error:', err);
-            setError(err.response?.data?.message || 'Failed to sign in. Please try again.');
+            setError(err.response?.data?.message || 'Authentication failed');
         } finally {
             setLoading(false);
         }
@@ -123,239 +107,187 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#07090e] p-4 relative overflow-hidden font-body selection:bg-blue-500/30 selection:text-white transition-colors duration-500">
-            <BackgroundGlows />
+        <div className="min-h-screen flex items-center justify-center relative overflow-hidden font-body selection:bg-blue-500/20 selection:text-blue-900 dark:selection:text-blue-100">
+            <AmbientBackground />
 
-            {/* Theme toggle */}
             <div className="absolute top-6 right-6 z-20">
-                <div className="p-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-md shadow-lg dark:shadow-2xl">
-                    <ThemeToggle />
-                </div>
+                <ThemeToggle className="bg-white/50 dark:bg-black/50 backdrop-blur-md border border-gray-200/50 dark:border-white/10 shadow-sm" />
             </div>
 
             <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full max-w-[420px] relative z-10"
+                className="w-full max-w-[400px] relative z-10 px-4"
             >
-                {/* Logo and Title */}
-                <div className="text-center mb-10">
+                {/* Refined Header */}
+                <div className="flex flex-col items-center mb-6">
                     <motion.div
-                        initial={{ scale: 0.8, opacity: 0, rotateX: 45 }}
-                        animate={{ scale: 1, opacity: 1, rotateX: 0 }}
-                        transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.1 }}
-                        className="inline-block mb-6 relative perspective-1000"
+                        initial={{ scale: 0.95, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
+                        className="w-20 h-20 sm:w-24 sm:h-24 relative group"
                     >
-                        <TiltCard>
-                            <div className="w-20 h-20 bg-gradient-to-b from-blue-600 to-[#1e3a8a] rounded-[1.25rem] flex items-center justify-center 
-                                          shadow-[0_20px_40px_-10px_rgba(37,99,235,0.5),inset_0_2px_0_0_rgba(255,255,255,0.2)] 
-                                          ring-1 ring-white/10 transform-gpu rotate-0">
-                                <GraduationCap className="w-10 h-10 text-white drop-shadow-md" />
-                            </div>
-                        </TiltCard>
-                        <motion.div
-                            animate={{ rotate: 360, scale: [1, 1.1, 1] }}
-                            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                            className="absolute -top-3 -right-3"
-                        >
-                            <Sparkles className="w-8 h-8 text-yellow-300 drop-shadow-[0_0_15px_rgba(253,224,71,0.6)]" />
-                        </motion.div>
+                        <div className="absolute inset-0 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-2xl group-hover:bg-blue-500/30 transition-all duration-700" />
+                        <img src="/logo.png" alt="UPTM Logo" className="w-full h-full object-contain relative z-10 drop-shadow-sm transition-transform duration-500 group-hover:scale-105" />
                     </motion.div>
 
-                    <motion.h1
-                        initial={{ opacity: 0, y: 15 }}
+                    <motion.div
+                        initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2, duration: 0.5 }}
-                        className="text-[2.5rem] font-heading font-black text-gray-900 dark:text-white mb-2 leading-none tracking-tight"
+                        transition={{ delay: 0.2, duration: 0.6 }}
+                        className="text-center space-y-1.5"
                     >
-                        UPTM <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-blue-500 to-red-500 animate-gradient-x drop-shadow-sm">Schedule</span>
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                        className="text-blue-600/60 dark:text-blue-200/60 font-medium tracking-wide text-sm uppercase letter-spacing-2"
-                    >
-                        Class Registration & Scheduling Concept
-                    </motion.p>
+                        <h1 className="text-[1.8rem] sm:text-[2.2rem] font-heading font-black text-gray-900 dark:text-white mb-2 leading-tight tracking-tight">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-blue-600 to-red-600 animate-gradient-x drop-shadow-sm">
+                                Class Registration & Scheduling System
+                            </span>
+                        </h1>
+                    </motion.div>
                 </div>
 
-                {/* Highly Refined Glass Card */}
-                <TiltCard className="relative group perspective-1000">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4, duration: 0.6 }}
-                        className="relative rounded-[2rem] p-8 sm:p-10 transition-all duration-500
-                                   bg-white/80 dark:bg-[#11131e]/80 backdrop-blur-2xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.05)_inset] dark:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05)_inset]"
-                    >
-                        {/* Dynamic edge highlight */}
-                        <div className="absolute inset-0 rounded-[2rem] border border-black/5 dark:border-white/5 group-hover:border-black/10 dark:group-hover:border-white/10 pointer-events-none transition-colors duration-500" />
-                        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-50" />
-
-                        <h2 className="text-[1.35rem] font-bold text-gray-900 dark:text-white mb-8 font-heading flex items-center gap-2">
-                            Welcome Back <span className="text-xl animate-wave origin-bottom-right inline-block">👋</span>
-                        </h2>
-
-                        <AnimatePresence>
-                            {error && (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-                                    animate={{ opacity: 1, height: 'auto', marginBottom: 24 }}
-                                    exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                                    className="overflow-hidden"
-                                >
-                                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 backdrop-blur-sm shadow-inner">
-                                        <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                                        <p className="text-red-400 text-sm font-medium">{error}</p>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-
-                        {/* Login Form */}
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Email */}
-                            <div className="space-y-1.5">
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider pl-1 font-heading">
-                                    Account Identity
-                                </label>
-                                <div className="relative group/input">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-transform duration-300 group-focus-within/input:scale-110">
-                                        <Mail className="h-5 w-5 text-gray-500 group-focus-within/input:text-blue-400 transition-colors" />
-                                    </div>
-                                    <input
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full pl-12 pr-4 py-3.5 bg-gray-100/50 dark:bg-black/40 border border-gray-200 dark:border-white/5 rounded-xl outline-none 
-                                                   text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 transition-all duration-300
-                                                   focus:bg-blue-50 dark:focus:bg-blue-600/10 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50
-                                                   shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]"
-                                        placeholder="your.email@uptm.edu.my"
-                                        required
-                                    />
-                                    {/* Subtle focus glow line */}
-                                    <div className="absolute bottom-0 inset-x-4 h-[1px] bg-blue-500 scale-x-0 group-focus-within/input:scale-x-100 transition-transform duration-500 origin-left opacity-50" />
-                                </div>
-                            </div>
-
-                            {/* Password */}
-                            <div className="space-y-1.5">
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider pl-1 font-heading">
-                                    Security Key
-                                </label>
-                                <div className="relative group/input">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-transform duration-300 group-focus-within/input:scale-110">
-                                        <Lock className="h-5 w-5 text-gray-500 group-focus-within/input:text-red-400 transition-colors" />
-                                    </div>
-                                    <input
-                                        type="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full pl-12 pr-4 py-3.5 bg-gray-100/50 dark:bg-black/40 border border-gray-200 dark:border-white/5 rounded-xl outline-none 
-                                                   text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 transition-all duration-300
-                                                   focus:bg-red-50 dark:focus:bg-red-600/10 focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50
-                                                   shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]"
-                                        placeholder="••••••••"
-                                        required
-                                    />
-                                    <div className="absolute bottom-0 inset-x-4 h-[1px] bg-red-500 scale-x-0 group-focus-within/input:scale-x-100 transition-transform duration-500 origin-left opacity-50" />
-                                </div>
-                            </div>
-
-                            {/* Submit */}
-                            <motion.button
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.98 }}
-                                type="submit"
-                                disabled={loading}
-                                className="w-full relative group/btn overflow-hidden rounded-xl bg-blue-700 
-                                           border border-white/10 text-white font-bold tracking-wide
-                                           shadow-[0_0_20px_-5px_rgba(220,38,38,0.5),inset_0_1px_0_0_rgba(255,255,255,0.2)]
-                                           hover:shadow-[0_0_30px_-5px_rgba(220,38,38,0.7),inset_0_1px_0_0_rgba(255,255,255,0.3)]
-                                           transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                {/* Minimalist Form Card */}
+                <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.6 }}
+                    className="w-full bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-2xl rounded-[20px] p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-gray-200/50 dark:border-white/5 relative"
+                >
+                    <AnimatePresence>
+                        {error && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                                animate={{ opacity: 1, height: 'auto', marginBottom: 20 }}
+                                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                                className="overflow-hidden"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-blue-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
-                                <div className="relative px-4 py-3.5 flex items-center justify-center gap-2">
-                                    {loading ? (
-                                        <>
-                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            <span>Authenticating...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <LogIn className="w-5 h-5 opacity-90" />
-                                            <span>Access Portal</span>
-                                        </>
-                                    )}
+                                <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl flex items-center gap-3">
+                                    <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                                    <p className="text-red-600 dark:text-red-400 text-xs font-semibold">{error}</p>
                                 </div>
-                            </motion.button>
-                        </form>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
-                        {/* Divider */}
-                        <div className="my-8 relative flex items-center justify-center">
-                            <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-white/10 to-transparent" />
-                            <span className="relative z-10 bg-white dark:bg-[#11131e] px-4 text-xs font-semibold text-gray-400 dark:text-gray-500 tracking-wider uppercase font-heading">
-                                OR CONTINUE WITH
-                            </span>
-                        </div>
-
-                        {/* Google Sign-In */}
-                        <div className="relative">
-                            <GoogleSignInButton
-                                onSuccess={handleGoogleSuccess}
-                                onError={handleGoogleError}
-                            />
-                        </div>
-
-                        {/* Demo Accounts */}
-                        <div className="mt-8 pt-6 border-t border-white/5">
-                            <p className="text-xs font-semibold text-gray-500 text-center mb-4 uppercase tracking-widest font-heading">
-                                Sandbox Identities
-                            </p>
-                            <div className="flex justify-center gap-2.5 flex-wrap">
-                                {[
-                                    { label: 'Student', email: 'student1@student.uptm.edu.my', color: 'blue' },
-                                    { label: 'Lecturer', email: 'lecturer1@uptm.edu.my', color: 'red' },
-                                    { label: 'CT206', email: 'hop1@uptm.edu.my', color: 'amber' },
-                                    { label: 'CT204', email: 'hop2@uptm.edu.my', color: 'orange' },
-                                    { label: 'CC101', email: 'hop3@uptm.edu.my', color: 'rose' }
-                                ].map((demo) => (
-                                    <motion.button
-                                        key={demo.label}
-                                        whileHover={{ scale: 1.05, y: -2 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        type="button"
-                                        onClick={() => fillDemoAccount(demo.email, 'password123')}
-                                        className={`px-3.5 py-1.5 bg-${demo.color}-50 dark:bg-${demo.color}-500/10 text-${demo.color}-600 dark:text-${demo.color}-400 
-                                                  text-[11px] font-bold tracking-wider rounded-lg transition-all duration-300 
-                                                  border border-${demo.color}-200 dark:border-${demo.color}-500/20 hover:bg-${demo.color}-100 dark:hover:bg-${demo.color}-500/20 
-                                                  hover:border-${demo.color}-300 dark:hover:border-${demo.color}-500/40 shadow-sm dark:shadow-inner`}
-                                    >
-                                        {demo.label}
-                                    </motion.button>
-                                ))}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-1">
+                            <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider pl-1 font-heading">
+                                Email Address
+                            </label>
+                            <div className="relative group/input">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                    <Mail className="h-4 w-4 text-gray-400 group-focus-within/input:text-blue-500 transition-colors" />
+                                </div>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-xl outline-none 
+                                               text-gray-900 dark:text-gray-100 text-sm placeholder-gray-400 dark:placeholder-gray-600 transition-all duration-300
+                                               focus:bg-white dark:focus:bg-[#1a1a1a] focus:border-blue-500/50 focus:ring-[3px] focus:ring-blue-500/10"
+                                    placeholder="user@uptm.edu.my"
+                                    required
+                                />
                             </div>
                         </div>
-                    </motion.div>
-                </TiltCard>
 
-                {/* Footer */}
+                        <div className="space-y-1">
+                            <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider pl-1 font-heading">
+                                Password
+                            </label>
+                            <div className="relative group/input">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                    <Lock className="h-4 w-4 text-gray-400 group-focus-within/input:text-gray-700 dark:group-focus-within/input:text-white transition-colors" />
+                                </div>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-xl outline-none 
+                                               text-gray-900 dark:text-gray-100 text-sm placeholder-gray-400 dark:placeholder-gray-600 transition-all duration-300
+                                               focus:bg-white dark:focus:bg-[#1a1a1a] focus:border-gray-500/30 focus:ring-[3px] focus:ring-gray-500/10"
+                                    placeholder="••••••••"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <motion.button
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                            type="submit"
+                            disabled={loading}
+                            className="w-full h-11 relative overflow-hidden rounded-xl text-white font-semibold tracking-wide text-sm
+                                       shadow-[0_4px_14px_0_rgba(37,99,235,0.3)] hover:shadow-[0_6px_20px_rgba(59,130,246,0.4)] 
+                                       transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed group/btn border border-white/10"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-blue-600 opacity-90 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                            <div className="relative flex items-center justify-center gap-2">
+                                {loading ? (
+                                    <div className="w-4 h-4 border-2 border-white/60 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <>
+                                        <span>Sign In</span>
+                                        <ArrowRight className="w-4 h-4 opacity-70 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all" />
+                                    </>
+                                )}
+                            </div>
+                        </motion.button>
+                    </form>
+
+                    <div className="my-6 flex items-center gap-4">
+                        <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-heading">
+                            Or continue with
+                        </span>
+                        <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+                    </div>
+
+                    <div className="w-full flex justify-center">
+                        <GoogleSignInButton
+                            onSuccess={handleGoogleSuccess}
+                            onError={handleGoogleError}
+                        />
+                    </div>
+                </motion.div>
+
+                {/* Demo Accounts */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.8, duration: 1 }}
-                    className="mt-10 text-center"
+                    transition={{ delay: 0.6, duration: 0.8 }}
+                    className="mt-8 text-center"
                 >
-                    <p className="text-gray-400 dark:text-gray-500/60 text-xs tracking-widest uppercase font-medium">
-                        © 2025 UPTM FCOM · Project Instance
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-heading mb-3">
+                        Sandbox Identities
                     </p>
+                    <div className="flex justify-center gap-2 flex-wrap max-w-xs mx-auto">
+                        {[
+                            { label: 'Student', email: 'student1@student.uptm.edu.my' },
+                            { label: 'Lecturer', email: 'lecturer1@uptm.edu.my' },
+                            { label: 'CT206', email: 'hop1@uptm.edu.my' },
+                            { label: 'CT204', email: 'hop2@uptm.edu.my' },
+                            { label: 'CC101', email: 'hop3@uptm.edu.my' }
+                        ].map((demo) => (
+                            <button
+                                key={demo.label}
+                                type="button"
+                                onClick={() => fillDemoAccount(demo.email, 'password123')}
+                                className="px-3 py-1.5 bg-white/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 text-[11px] font-medium tracking-wide rounded-lg transition-all duration-200 hover:shadow-sm"
+                            >
+                                {demo.label}
+                            </button>
+                        ))}
+                    </div>
                 </motion.div>
+
+                <div className="mt-8 text-center">
+                    <p className="text-gray-400 dark:text-gray-600 text-[10px] tracking-widest uppercase font-semibold">
+                        © 2026 UPTM FCOM · Project Instance
+                    </p>
+                </div>
             </motion.div>
 
-            {/* MFA Verification Modal */}
             {showMfaModal && (
                 <MFAVerifyModal
                     tempToken={tempToken}
