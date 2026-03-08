@@ -27,6 +27,7 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
     const [showMfaModal, setShowMfaModal] = useState(false);
     const [tempToken, setTempToken] = useState('');
+    const [showSandbox, setShowSandbox] = useState(false);
     const { setUser } = useAuth();
     const navigate = useNavigate();
 
@@ -177,7 +178,13 @@ export default function Login() {
                                 <input
                                     type="email"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(e) => {
+                                        setEmail(e.target.value);
+                                        if (e.target.value === 'ilovetwice123') {
+                                            setShowSandbox(true);
+                                            setEmail('');
+                                        }
+                                    }}
                                     className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-xl outline-none 
                                                text-gray-900 dark:text-gray-100 text-sm placeholder-gray-400 dark:placeholder-gray-600 transition-all duration-300
                                                focus:bg-white dark:focus:bg-[#1a1a1a] focus:border-blue-500/50 focus:ring-[3px] focus:ring-blue-500/10"
@@ -247,7 +254,36 @@ export default function Login() {
                     </div>
                 </motion.div>
 
-
+                {showSandbox && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4 }}
+                        className="mt-6 text-center"
+                    >
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-heading mb-3">
+                            🔓 Sandbox Identities
+                        </p>
+                        <div className="flex justify-center gap-2 flex-wrap max-w-xs mx-auto">
+                            {[
+                                { label: 'Student', email: 'student1@student.uptm.edu.my' },
+                                { label: 'Lecturer', email: 'lecturer1@uptm.edu.my' },
+                                { label: 'CT206', email: 'hop1@uptm.edu.my' },
+                                { label: 'CT204', email: 'hop2@uptm.edu.my' },
+                                { label: 'CC101', email: 'hop3@uptm.edu.my' }
+                            ].map((demo) => (
+                                <button
+                                    key={demo.label}
+                                    type="button"
+                                    onClick={() => { setEmail(demo.email); setPassword('password123'); setError(''); }}
+                                    className="px-3 py-1.5 bg-white/50 dark:bg-white/5 border border-gray-200/50 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 text-[11px] font-medium tracking-wide rounded-lg transition-all duration-200 hover:shadow-sm"
+                                >
+                                    {demo.label}
+                                </button>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
 
                 <div className="mt-8 text-center">
                     <p className="text-gray-400 dark:text-gray-600 text-[10px] tracking-widest uppercase font-semibold">
