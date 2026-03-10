@@ -117,7 +117,7 @@ export default function HOPDashboard() {
     const [editingSubject, setEditingSubject] = useState(null); // null means adding new
     const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
     const [editingSection, setEditingSection] = useState(null);
-    const [editSchedules, setEditSchedules] = useState([{ day: 'monday', start_time: '08:00', end_time: '10:00' }]);
+    const [editSchedules, setEditSchedules] = useState([{ day: 'monday', start_time: '08:00', end_time: '10:00', room: '' }]);
 
     const handleAddSubject = () => {
         setEditingSubject(null);
@@ -218,7 +218,7 @@ export default function HOPDashboard() {
 
     const handleAddSection = () => {
         setEditingSection(null);
-        setEditSchedules([{ day: 'monday', start_time: '08:00', end_time: '10:00' }]);
+        setEditSchedules([{ day: 'monday', start_time: '08:00', end_time: '10:00', room: '' }]);
         setIsSectionModalOpen(true);
     };
 
@@ -231,13 +231,15 @@ export default function HOPDashboard() {
                 setEditSchedules(section.schedules.map(sch => ({
                     day: sch.day,
                     start_time: sch.start_time,
-                    end_time: sch.end_time
+                    end_time: sch.end_time,
+                    room: sch.room || ''
                 })));
             } else {
                 setEditSchedules([{
                     day: section.day || 'monday',
                     start_time: section.start_time || '08:00',
-                    end_time: section.end_time || '10:00'
+                    end_time: section.end_time || '10:00',
+                    room: section.room || ''
                 }]);
             }
             setIsSectionModalOpen(true);
@@ -253,14 +255,14 @@ export default function HOPDashboard() {
                 // PUT /hop/sections/:id (editing) - send schedules array
                 const updateData = {
                     section_number: formData.get('section_number'),
-                    room: formData.get('room'),
                     building: formData.get('building') || '',
                     capacity: parseInt(formData.get('capacity')),
                     lecturer_id: formData.get('lecturer_id') || null,
                     schedules: editSchedules.map(sch => ({
                         day: sch.day,
                         start_time: sch.start_time,
-                        end_time: sch.end_time
+                        end_time: sch.end_time,
+                        room: sch.room || ''
                     }))
                 };
                 await api.put(`/hop/sections/${editingSection.id}`, updateData);
@@ -273,14 +275,14 @@ export default function HOPDashboard() {
                     throw new Error('Subject not found');
                 }
 
-                const firstSchedule = editSchedules[0] || { day: 'monday', start_time: '08:00', end_time: '10:00' };
+                const firstSchedule = editSchedules[0] || { day: 'monday', start_time: '08:00', end_time: '10:00', room: '' };
                 const createData = {
                     subjectId: subject.id,
                     sectionNumber: formData.get('section_number'),
                     day: firstSchedule.day,
                     startTime: firstSchedule.start_time,
                     endTime: firstSchedule.end_time,
-                    room: formData.get('room'),
+                    room: firstSchedule.room || '',
                     building: formData.get('building') || '',
                     capacity: parseInt(formData.get('capacity')),
                     lecturerId: formData.get('lecturer_id') || null
@@ -293,7 +295,8 @@ export default function HOPDashboard() {
                         schedules: editSchedules.map(sch => ({
                             day: sch.day,
                             start_time: sch.start_time,
-                            end_time: sch.end_time
+                            end_time: sch.end_time,
+                            room: sch.room || ''
                         }))
                     });
                 }
@@ -1045,7 +1048,7 @@ export default function HOPDashboard() {
                                     <label className="block text-sm font-medium text-white/60">Class Times</label>
                                     <button
                                         type="button"
-                                        onClick={() => setEditSchedules(prev => [...prev, { day: 'monday', start_time: '08:00', end_time: '10:00' }])}
+                                        onClick={() => setEditSchedules(prev => [...prev, { day: 'monday', start_time: '08:00', end_time: '10:00', room: '' }])}
                                         className="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
                                     >
                                         <Plus size={14} /> Add Time Slot
@@ -1053,65 +1056,69 @@ export default function HOPDashboard() {
                                 </div>
                                 <div className="space-y-3">
                                     {editSchedules.map((sch, idx) => (
-                                        <div key={idx} className="flex items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10">
-                                            <select
-                                                value={sch.day}
-                                                onChange={(e) => {
-                                                    const updated = [...editSchedules];
-                                                    updated[idx] = { ...updated[idx], day: e.target.value };
-                                                    setEditSchedules(updated);
-                                                }}
-                                                className="flex-1 rounded-lg bg-white/5 border border-white/10 text-white text-sm p-2 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
-                                            >
-                                                {['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].map(d => (
-                                                    <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
-                                                ))}
-                                            </select>
-                                            <input
-                                                type="time"
-                                                value={sch.start_time}
-                                                onChange={(e) => {
-                                                    const updated = [...editSchedules];
-                                                    updated[idx] = { ...updated[idx], start_time: e.target.value };
-                                                    setEditSchedules(updated);
-                                                }}
-                                                className="w-28 rounded-lg bg-white/5 border border-white/10 text-white text-sm p-2 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
-                                            />
-                                            <span className="text-white/40 text-xs">to</span>
-                                            <input
-                                                type="time"
-                                                value={sch.end_time}
-                                                onChange={(e) => {
-                                                    const updated = [...editSchedules];
-                                                    updated[idx] = { ...updated[idx], end_time: e.target.value };
-                                                    setEditSchedules(updated);
-                                                }}
-                                                className="w-28 rounded-lg bg-white/5 border border-white/10 text-white text-sm p-2 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
-                                            />
-                                            {editSchedules.length > 1 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setEditSchedules(prev => prev.filter((_, i) => i !== idx))}
-                                                    className="p-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
-                                                    title="Remove time slot"
+                                        <div key={idx} className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                                            <div className="flex items-center gap-2">
+                                                <select
+                                                    value={sch.day}
+                                                    onChange={(e) => {
+                                                        const updated = [...editSchedules];
+                                                        updated[idx] = { ...updated[idx], day: e.target.value };
+                                                        setEditSchedules(updated);
+                                                    }}
+                                                    className="flex-1 rounded-lg bg-white/5 border border-white/10 text-white text-sm p-2 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
                                                 >
-                                                    <X size={14} />
-                                                </button>
-                                            )}
+                                                    {['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].map(d => (
+                                                        <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
+                                                    ))}
+                                                </select>
+                                                <input
+                                                    type="time"
+                                                    value={sch.start_time}
+                                                    onChange={(e) => {
+                                                        const updated = [...editSchedules];
+                                                        updated[idx] = { ...updated[idx], start_time: e.target.value };
+                                                        setEditSchedules(updated);
+                                                    }}
+                                                    className="w-28 rounded-lg bg-white/5 border border-white/10 text-white text-sm p-2 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                                                />
+                                                <span className="text-white/40 text-xs">to</span>
+                                                <input
+                                                    type="time"
+                                                    value={sch.end_time}
+                                                    onChange={(e) => {
+                                                        const updated = [...editSchedules];
+                                                        updated[idx] = { ...updated[idx], end_time: e.target.value };
+                                                        setEditSchedules(updated);
+                                                    }}
+                                                    className="w-28 rounded-lg bg-white/5 border border-white/10 text-white text-sm p-2 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                                                />
+                                                {editSchedules.length > 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setEditSchedules(prev => prev.filter((_, i) => i !== idx))}
+                                                        className="p-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
+                                                        title="Remove time slot"
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <input
+                                                type="text"
+                                                value={sch.room || ''}
+                                                onChange={(e) => {
+                                                    const updated = [...editSchedules];
+                                                    updated[idx] = { ...updated[idx], room: e.target.value };
+                                                    setEditSchedules(updated);
+                                                }}
+                                                placeholder="Room / Venue (optional)"
+                                                className="w-full rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/30 text-sm p-2 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                                            />
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                            <div className="grid grid-cols-3 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-white/60 mb-1.5">Room</label>
-                                    <input
-                                        name="room"
-                                        defaultValue={editingSection?.room || ''}
-                                        required
-                                        className="mt-1 block w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-blue-500/50 focus:bg-white/10 focus:ring-1 focus:ring-blue-500/50 transition-all sm:text-sm p-3"
-                                    />
-                                </div>
+                            <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-white/60 mb-1.5">Building</label>
                                     <input
