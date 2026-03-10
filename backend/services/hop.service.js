@@ -204,12 +204,25 @@ const createSection = async (subjectId, sectionNumber, capacity, day, startTime,
 
 /**
  * Update section
+ * Supports updating schedules array (multiple time slots).
+ * When `updates.schedules` is provided, replaces all section_schedules rows.
  */
 const updateSection = async (sectionId, updates) => {
+    // Extract schedules before processing flat fields
+    const schedules = updates.schedules;
     const allowedFields = ['section_number', 'capacity', 'day', 'start_time', 'end_time', 'room', 'building', 'lecturer_id', 'is_active'];
     const fields = [];
     const values = [];
     let paramCount = 1;
+
+    // If schedules are provided, sync legacy columns with the first schedule
+    if (Array.isArray(schedules) && schedules.length > 0) {
+        const first = schedules[0];
+        updates.day = first.day;
+        updates.start_time = first.start_time;
+        updates.end_time = first.end_time;
+        if (first.room !== undefined) updates.room = first.room;
+    }
 
     Object.keys(updates).forEach(key => {
         if (allowedFields.includes(key)) {
@@ -219,24 +232,54 @@ const updateSection = async (sectionId, updates) => {
         }
     });
 
-    if (fields.length === 0) {
+    if (fields.length === 0 && !schedules) {
         throw new Error('No valid fields to update');
     }
 
-    fields.push(`updated_at = NOW()`);
-    values.push(sectionId);
+    // Update the sections table (flat fields)
+    let section;
+    if (fields.length > 0) {
+        fields.push(`updated_at = NOW()`);
+        values.push(sectionId);
 
-    const result = await query(`
-        UPDATE sections SET ${fields.join(', ')}
-        WHERE id = $${paramCount}
-        RETURNING *
-    `, values);
+        const result = await query(`
+            UPDATE sections SET ${fields.join(', ')}
+            WHERE id = $${paramCount}
+            RETURNING *
+        `, values);
 
-    if (result.rows.length === 0) {
-        throw new Error('Section not found');
+        if (result.rows.length === 0) {
+            throw new Error('Section not found');
+        }
+        section = result.rows[0];
+    } else {
+        // Only schedules changed, still update timestamp
+        const result = await query(
+            'UPDATE sections SET updated_at = NOW() WHERE id = $1 RETURNING *',
+            [sectionId]
+        );
+        if (result.rows.length === 0) {
+            throw new Error('Section not found');
+        }
+        section = result.rows[0];
     }
 
-    return result.rows[0];
+    // Replace section_schedules if schedules array is provided
+    if (Array.isArray(schedules) && schedules.length > 0) {
+        // Delete existing schedules
+        await query('DELETE FROM section_schedules WHERE section_id = $1', [sectionId]);
+
+        // Insert new schedules
+        for (const sch of schedules) {
+            await query(
+                `INSERT INTO section_schedules (section_id, day, start_time, end_time, room)
+                 VALUES ($1, $2, $3, $4, $5)`,
+                [sectionId, sch.day, sch.start_time, sch.end_time, sch.room || null]
+            );
+        }
+    }
+
+    return section;
 };
 
 /**
