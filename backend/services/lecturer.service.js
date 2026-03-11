@@ -27,7 +27,41 @@ const getLecturerSections = async (lecturerId) => {
         ORDER BY s.day, s.start_time
     `, [lecturerId]);
 
-    return result.rows;
+    const sections = result.rows;
+
+    // Fetch schedules from section_schedules table
+    if (sections.length > 0) {
+        const sectionIds = sections.map(s => s.id);
+        const schedulesResult = await query(
+            `SELECT * FROM section_schedules WHERE section_id = ANY($1) ORDER BY section_id, day, start_time`,
+            [sectionIds]
+        );
+
+        // Group schedules by section_id
+        const schedulesBySection = {};
+        for (const schedule of schedulesResult.rows) {
+            if (!schedulesBySection[schedule.section_id]) {
+                schedulesBySection[schedule.section_id] = [];
+            }
+            schedulesBySection[schedule.section_id].push(schedule);
+        }
+
+        // Attach schedules to each section
+        for (const section of sections) {
+            section.schedules = schedulesBySection[section.id] || [];
+
+            // Backward compat: populate legacy fields from first schedule
+            if (section.schedules.length > 0) {
+                const first = section.schedules[0];
+                section.day = first.day;
+                section.start_time = first.start_time;
+                section.end_time = first.end_time;
+                section.room = first.room;
+            }
+        }
+    }
+
+    return sections;
 };
 
 /**

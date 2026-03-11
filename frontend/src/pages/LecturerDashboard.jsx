@@ -284,10 +284,22 @@ export default function LecturerDashboard() {
                                                                                             {section.enrolled_count || 0}/{section.capacity}
                                                                                         </span>
                                                                                     </div>
-                                                                                    <div className="flex flex-wrap gap-3 text-sm text-gray-500 dark:text-gray-400">
-                                                                                        <span className="capitalize">{section.day}</span>
-                                                                                        <span>{section.start_time} - {section.end_time}</span>
-                                                                                        <span>Room: {section.room}</span>
+                                                                                    <div className="flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400">
+                                                                                        {section.schedules && section.schedules.length > 0 ? (
+                                                                                            section.schedules.map((sch, idx) => (
+                                                                                                <div key={idx} className="flex flex-wrap gap-3">
+                                                                                                    <span className="capitalize">{sch.day}</span>
+                                                                                                    <span>{sch.start_time} - {sch.end_time}</span>
+                                                                                                    {sch.room && <span>Room: {sch.room}</span>}
+                                                                                                </div>
+                                                                                            ))
+                                                                                        ) : (
+                                                                                            <div className="flex flex-wrap gap-3">
+                                                                                                <span className="capitalize">{section.day}</span>
+                                                                                                <span>{section.start_time} - {section.end_time}</span>
+                                                                                                {section.room && <span>Room: {section.room}</span>}
+                                                                                            </div>
+                                                                                        )}
                                                                                     </div>
                                                                                 </div>
 
@@ -455,34 +467,45 @@ function TimetableView({ sections, onPrint, onExport }) {
             }
         });
 
-        // 1. Map sections to event objects
+        // 1. Map sections to event objects — expand schedules
         sections.forEach(sec => {
-            if (!sec.day) return;
-            const dayName = sec.day.charAt(0).toUpperCase() + sec.day.slice(1).toLowerCase();
-            if (!grid[dayName]) return;
+            // Use schedules array if available, otherwise fall back to legacy fields
+            const scheduleList = (sec.schedules && sec.schedules.length > 0)
+                ? sec.schedules
+                : (sec.day ? [{ day: sec.day, start_time: sec.start_time, end_time: sec.end_time, room: sec.room }] : []);
 
-            const startH = parseInt(sec.start_time?.split(':')[0]) || 8;
-            const endH = parseInt(sec.end_time?.split(':')[0]) || startH + 1;
+            scheduleList.forEach(sch => {
+                if (!sch.day) return;
+                const dayName = sch.day.charAt(0).toUpperCase() + sch.day.slice(1).toLowerCase();
+                if (!grid[dayName]) return;
 
-            const startIndex = startH - startHour;
-            const duration = Math.max(1, endH - startH);
+                const startH = parseInt(sch.start_time?.split(':')[0]) || 8;
+                const endH = parseInt(sch.end_time?.split(':')[0]) || startH + 1;
 
-            if (startIndex < 0 || startIndex >= totalPeriods) return;
+                const startIndex = startH - startHour;
+                const duration = Math.max(1, endH - startH);
 
-            const event = {
-                ...sec,
-                startIndex,
-                duration,
-                trackIndex: 0,
-                totalTracks: 1
-            };
+                if (startIndex < 0 || startIndex >= totalPeriods) return;
 
-            for (let i = startIndex; i < startIndex + duration; i++) {
-                if (grid[dayName][i]) {
-                    grid[dayName][i].push(event);
+                const event = {
+                    ...sec,
+                    day: sch.day,
+                    start_time: sch.start_time,
+                    end_time: sch.end_time,
+                    room: sch.room || sec.room,
+                    startIndex,
+                    duration,
+                    trackIndex: 0,
+                    totalTracks: 1
+                };
+
+                for (let i = startIndex; i < startIndex + duration; i++) {
+                    if (grid[dayName][i]) {
+                        grid[dayName][i].push(event);
+                    }
                 }
-            }
-            eventsByDay[dayName].push(event);
+                eventsByDay[dayName].push(event);
+            });
         });
 
         // 2. Calculate Tracks (Collision Detection)
