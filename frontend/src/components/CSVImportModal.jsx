@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import {
     X,
     Upload,
@@ -43,42 +44,179 @@ const CSVImportModal = ({
     const handleFileSelect = (selectedFile) => {
         if (!selectedFile) return;
 
-        if (!selectedFile.name.endsWith('.csv')) {
-            setErrors(['Please select a CSV file']);
+        const ext = selectedFile.name.toLowerCase().split('.').pop();
+        if (!['csv', 'xlsx', 'xls'].includes(ext)) {
+            setErrors(['Please select a CSV or Excel (.xlsx, .xls) file']);
             return;
         }
 
         setFile(selectedFile);
         setErrors([]);
 
-        // Parse for preview
-        Papa.parse(selectedFile, {
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-                // Validate required columns
-                if (requiredColumns.length > 0) {
-                    const missingColumns = requiredColumns.filter(
-                        col => !results.meta.fields?.includes(col)
-                    );
-                    if (missingColumns.length > 0) {
-                        setErrors([`Missing required columns: ${missingColumns.join(', ')}`]);
-                        setPreview(null);
-                        return;
+        if (ext === 'xlsx' || ext === 'xls') {
+            // Parse Excel file
+            parseExcelFile(selectedFile);
+        } else {
+            // Parse CSV with PapaParse
+            Papa.parse(selectedFile, {
+                header: true,
+                skipEmptyLines: true,
+                complete: (results) => {
+                    if (requiredColumns.length > 0) {
+                        const missingColumns = requiredColumns.filter(
+                            col => !results.meta.fields?.includes(col)
+                        );
+                        if (missingColumns.length > 0) {
+                            setErrors([`Missing required columns: ${missingColumns.join(', ')}`]);
+                            setPreview(null);
+                            return;
+                        }
+                    }
+
+                    setPreview({
+                        columns: results.meta.fields || [],
+                        data: results.data.slice(0, 5),
+                        totalRows: results.data.length,
+                        allData: results.data
+                    });
+                },
+                error: (error) => {
+                    setErrors([`Failed to parse CSV: ${error.message}`]);
+                }
+            });
+        }
+    };
+
+    // Smart Excel parser — finds the header row automatically
+    const parseExcelFile = (selectedFile) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+
+                // Convert entire sheet to 2D array to find the header row
+                const rawRows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+                // Known header patterns for "course code" columns
+                const codePatterns = ['course code', 'subject code', 'code', 'course_code', 'subject_code', 'coursecode', 'subjectcode'];
+                const namePatterns = ['course name', 'subject name', 'name', 'course_name', 'subject_name', 'coursename', 'subjectname'];
+                const creditPatterns = ['credits', 'credit', 'credit hours', 'credit_hours', 'credithours', 'cr'];
+
+                // Scan rows 0-10 for the header row
+                let headerRowIdx = -1;
+                let headerCells = [];
+                for (let i = 0; i < Math.min(rawRows.length, 15); i++) {
+                    const row = rawRows[i];
+                    if (!row || row.length === 0) continue;
+                    const lowered = row.map(cell => String(cell || '').toLowerCase().trim());
+                    // Check if this row has a "code" column
+                    if (lowered.some(c => codePatterns.includes(c))) {
+                        headerRowIdx = i;
+                        headerCells = lowered;
+                        break;
                     }
                 }
 
+                if (headerRowIdx === -1) {
+                    // Fallback: try default xlsx parsing with header: 1 (first row as header)
+                    const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+                    if (jsonData.length === 0) {
+                        setErrors(['No data found in Excel file']);
+                        return;
+                    }
+                    // Try to map common column names to subject_code
+                    const mapped = mapExcelDataToSubjectCodes(jsonData);
+                    if (mapped) {
+                        setPreview(mapped);
+                    } else {
+                        setErrors(['Could not find a "Course Code" or "Subject Code" column in the Excel file. Please check the file format.']);
+                    }
+                    return;
+                }
+
+                // Map column indices
+                const codeIdx = headerCells.findIndex(c => codePatterns.includes(c));
+                const nameIdx = headerCells.findIndex(c => namePatterns.includes(c));
+                const creditIdx = headerCells.findIndex(c => creditPatterns.includes(c));
+
+                // Extract data rows (skip header row and any empty rows)
+                const dataRows = [];
+                for (let i = headerRowIdx + 1; i < rawRows.length; i++) {
+                    const row = rawRows[i];
+                    if (!row || row.length === 0) continue;
+                    const code = codeIdx >= 0 ? String(row[codeIdx] || '').trim() : '';
+                    if (!code) continue;
+                    // Skip summary rows like "Total Credits:"
+                    if (code.toLowerCase().includes('total')) continue;
+
+                    const item = { subject_code: code };
+                    if (nameIdx >= 0) item.course_name = String(row[nameIdx] || '').trim();
+                    if (creditIdx >= 0) item.credits = String(row[creditIdx] || '').trim();
+                    dataRows.push(item);
+                }
+
+                if (dataRows.length === 0) {
+                    setErrors(['No course data found in the Excel file after the header row.']);
+                    return;
+                }
+
+                const columns = ['subject_code'];
+                if (nameIdx >= 0) columns.push('course_name');
+                if (creditIdx >= 0) columns.push('credits');
+
                 setPreview({
-                    columns: results.meta.fields || [],
-                    data: results.data.slice(0, 5), // Show first 5 rows
-                    totalRows: results.data.length,
-                    allData: results.data
+                    columns,
+                    data: dataRows.slice(0, 5),
+                    totalRows: dataRows.length,
+                    allData: dataRows
                 });
-            },
-            error: (error) => {
-                setErrors([`Failed to parse CSV: ${error.message}`]);
+            } catch (err) {
+                console.error('Excel parse error:', err);
+                setErrors([`Failed to parse Excel file: ${err.message}`]);
             }
-        });
+        };
+        reader.onerror = () => {
+            setErrors(['Failed to read the file']);
+        };
+        reader.readAsArrayBuffer(selectedFile);
+    };
+
+    // Fallback mapper for standard xlsx (first row as header)
+    const mapExcelDataToSubjectCodes = (jsonData) => {
+        const firstRow = jsonData[0];
+        const keys = Object.keys(firstRow);
+        const codePatterns = ['course code', 'subject code', 'code', 'course_code', 'subject_code'];
+        const namePatterns = ['course name', 'subject name', 'name', 'course_name', 'subject_name'];
+
+        const codeKey = keys.find(k => codePatterns.includes(k.toLowerCase().trim()));
+        if (!codeKey) return null;
+        const nameKey = keys.find(k => namePatterns.includes(k.toLowerCase().trim()));
+
+        const dataRows = jsonData
+            .filter(row => {
+                const val = String(row[codeKey] || '').trim();
+                return val && !val.toLowerCase().includes('total');
+            })
+            .map(row => {
+                const item = { subject_code: String(row[codeKey]).trim() };
+                if (nameKey) item.course_name = String(row[nameKey] || '').trim();
+                return item;
+            });
+
+        if (dataRows.length === 0) return null;
+
+        const columns = ['subject_code'];
+        if (nameKey) columns.push('course_name');
+
+        return {
+            columns,
+            data: dataRows.slice(0, 5),
+            totalRows: dataRows.length,
+            allData: dataRows
+        };
     };
 
     const handleDrop = (e) => {
@@ -194,7 +332,7 @@ const CSVImportModal = ({
                                         >
                                             <input
                                                 type="file"
-                                                accept=".csv"
+                                                accept=".csv,.xlsx,.xls"
                                                 ref={fileInputRef}
                                                 onChange={(e) => handleFileSelect(e.target.files[0])}
                                                 className="hidden"
@@ -205,10 +343,10 @@ const CSVImportModal = ({
                                             </div>
 
                                             <h3 className="text-lg font-semibold text-white mb-2">
-                                                {dragOver ? 'Drop file here' : 'Upload CSV File'}
+                                                {dragOver ? 'Drop file here' : 'Upload CSV or Excel File'}
                                             </h3>
                                             <p className="text-white/40 text-sm mb-6 max-w-xs mx-auto">
-                                                Drag and drop your file here, or click the button below to browse
+                                                Drag and drop your CSV or Excel (.xlsx) file here, or click the button below
                                             </p>
 
                                             <button
