@@ -16,6 +16,9 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
     const [classSearch, setClassSearch] = useState('');
     const [isRegistering, setIsRegistering] = useState(false);
     const [draggedEvent, setDraggedEvent] = useState(null);
+    const [dropModal, setDropModal] = useState({ open: false, course: null });
+    const [dropReason, setDropReason] = useState('');
+    const [isDropping, setIsDropping] = useState(false);
 
     // Constants
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -369,9 +372,44 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
     };
 
     const removePlannedCourse = (courseId, subjectCode) => {
-        // Remove ALL sessions with the same subjectCode
+        // Check if any session of this subject is a registered course
+        const registeredCourse = plannedCourses.find(c => c.subjectCode === subjectCode && c.isRegistered);
+        if (registeredCourse) {
+            // Open drop request modal for registered courses
+            setDropModal({ open: true, course: registeredCourse });
+            setDropReason('');
+            return;
+        }
+        // Remove ALL sessions with the same subjectCode (unregistered only)
         setPlannedCourses(prev => prev.filter(c => c.subjectCode !== subjectCode));
         toast.success(`Removed all sessions for ${subjectCode}`);
+    };
+
+    const handleDropRequest = async () => {
+        if (!dropModal.course) return;
+        if (!dropReason.trim()) {
+            toast.error('Please provide a reason for dropping this course');
+            return;
+        }
+        setIsDropping(true);
+        try {
+            await api.post('/student/drop-request', {
+                registration_id: dropModal.course.registrationId,
+                reason: dropReason.trim()
+            });
+            // Remove all sessions for this subject from local state
+            const subjectCode = dropModal.course.subjectCode;
+            setPlannedCourses(prev => prev.filter(c => c.subjectCode !== subjectCode));
+            toast.success('Drop request submitted! Awaiting HOP approval.');
+            setDropModal({ open: false, course: null });
+            setDropReason('');
+            onRefresh?.();
+        } catch (error) {
+            console.error('Drop request failed:', error);
+            toast.error(error.response?.data?.message || 'Failed to submit drop request');
+        } finally {
+            setIsDropping(false);
+        }
     };
 
     // Quick add (click to add) - adds ALL sessions for this lesson
@@ -864,6 +902,77 @@ export default function TimetableBuilder({ ascData, user, onRefresh }) {
                     )}
                 </div>
             </div>
+
+            {/* Drop Request Modal */}
+            <AnimatePresence>
+                {dropModal.open && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+                    >
+                        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => !isDropping && setDropModal({ open: false, course: null })} />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="relative bg-white dark:bg-[#12141f] rounded-2xl border border-gray-200 dark:border-white/10 shadow-2xl w-full max-w-md p-6 space-y-4"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-red-500/10 rounded-xl border border-red-500/20">
+                                    <AlertTriangle className="w-5 h-5 text-red-500" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg text-gray-900 dark:text-white">Drop Course</h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        {dropModal.course?.subjectCode} — {dropModal.course?.subjectName || 'Registered Course'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                                This course is already registered. A drop request will be sent to your HOP for approval.
+                            </p>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Reason for dropping *</label>
+                                <textarea
+                                    value={dropReason}
+                                    onChange={(e) => setDropReason(e.target.value)}
+                                    placeholder="e.g. Time conflict with another required course..."
+                                    rows={3}
+                                    className="w-full px-4 py-3 text-sm bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 resize-none transition-all"
+                                />
+                            </div>
+
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={() => setDropModal({ open: false, course: null })}
+                                    disabled={isDropping}
+                                    className="flex-1 py-2.5 px-4 text-sm font-semibold bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 transition-colors disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleDropRequest}
+                                    disabled={isDropping || !dropReason.trim()}
+                                    className="flex-1 py-2.5 px-4 text-sm font-semibold bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isDropping ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Submitting...
+                                        </>
+                                    ) : (
+                                        'Submit Drop Request'
+                                    )}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 }

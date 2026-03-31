@@ -47,8 +47,9 @@ export function SessionProvider({ children }) {
             const activeSession = activeRes.data.data;
             setCurrentSession(activeSession);
 
-            // If no selected session, default to active
-            if (!selectedSessionId && activeSession) {
+            // If no selected session or stored ID no longer exists, default to active
+            const storedSessionExists = allSessions.some(s => s.id === selectedSessionId);
+            if ((!selectedSessionId || !storedSessionExists) && activeSession) {
                 setSelectedSessionId(activeSession.id);
                 localStorage.setItem('selectedSessionId', activeSession.id);
             }
