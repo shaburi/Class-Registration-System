@@ -34,7 +34,7 @@ const registerForSection = async (studentId, sectionId, registrationType = 'norm
 
         // 1. Check if student is valid
         const studentCheck = await client.query(
-            'SELECT id, semester, programme, student_id, student_name, email FROM users WHERE id = $1 AND role = $2 AND is_active = true',
+            'SELECT id, semester, programme, student_id, student_name, email, subject_filter FROM users WHERE id = $1 AND role = $2 AND is_active = true',
             [studentId, 'student']
         );
 
@@ -43,6 +43,18 @@ const registerForSection = async (studentId, sectionId, registrationType = 'norm
         }
 
         const student = studentCheck.rows[0];
+
+        // Parse student's imported subject filter (from CSV import)
+        let studentSubjectFilter = [];
+        if (student.subject_filter) {
+            try {
+                studentSubjectFilter = typeof student.subject_filter === 'string'
+                    ? JSON.parse(student.subject_filter)
+                    : student.subject_filter;
+            } catch (e) {
+                studentSubjectFilter = [];
+            }
+        }
 
         // 2. Get section details with subject info
         const sectionCheck = await client.query(`
@@ -61,25 +73,29 @@ const registerForSection = async (studentId, sectionId, registrationType = 'norm
         const section = sectionCheck.rows[0];
 
         // 3. Check if subject is for student's semester or below (students can take repeat subjects)
-        // Also check program_structure_courses - the CSV import may map a subject to a different semester
+        // Also check: student's imported subject filter (CSV) and program_structure_courses
         if (section.semester > student.semester) {
-            // Before rejecting, check if the subject exists in the student's program structure
-            // for their current semester or below (intake-based academic plan)
-            const structureCheck = await client.query(`
-                SELECT psc.semester as structure_semester
-                FROM program_structure_courses psc
-                JOIN program_structures ps ON psc.structure_id = ps.id
-                WHERE psc.subject_id = (SELECT subject_id FROM sections WHERE id = $1)
-                  AND ps.programme = $2
-                  AND ps.is_active = true
-                  AND psc.semester <= $3
-                LIMIT 1
-            `, [sectionId, student.programme, student.semester]);
+            // First check: is the subject in the student's imported CSV filter?
+            const isInImportedFilter = studentSubjectFilter.includes(section.code);
 
-            if (structureCheck.rows.length === 0) {
-                throw new Error(`Cannot register for section. Subject is for semester ${section.semester}, but student is in semester ${student.semester}`);
+            if (!isInImportedFilter) {
+                // Second check: is the subject in the student's program structure?
+                const structureCheck = await client.query(`
+                    SELECT psc.semester as structure_semester
+                    FROM program_structure_courses psc
+                    JOIN program_structures ps ON psc.structure_id = ps.id
+                    WHERE psc.subject_id = (SELECT subject_id FROM sections WHERE id = $1)
+                      AND ps.programme = $2
+                      AND ps.is_active = true
+                      AND psc.semester <= $3
+                    LIMIT 1
+                `, [sectionId, student.programme, student.semester]);
+
+                if (structureCheck.rows.length === 0) {
+                    throw new Error(`Cannot register for section. Subject is for semester ${section.semester}, but student is in semester ${student.semester}`);
+                }
             }
-            // Subject is in student's program structure for their semester - allow registration
+            // Subject is in student's imported filter or program structure - allow registration
         }
 
         // 3b. Check if subject belongs to student's programme (allow shared subjects)
