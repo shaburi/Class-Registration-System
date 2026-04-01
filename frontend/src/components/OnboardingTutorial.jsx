@@ -119,12 +119,25 @@ const OnboardingTutorial = ({ onComplete, onTabChange }) => {
         };
     }, [measureTarget, currentStep]);
 
-    // Navigate to relevant tab for step context
+    // Navigate to relevant tab and scroll target into view
     useEffect(() => {
         if (step.id === 'register' && onTabChange) {
             // Don't change tab, just highlight nav
         }
-    }, [step.id, onTabChange]);
+
+        // Scroll the target element into view so it's never cut off
+        if (step.target) {
+            const el = document.querySelector(step.target);
+            if (el) {
+                // Use a slight delay to allow any layout shifts to complete
+                setTimeout(() => {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        } else {
+             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [step.id, step.target, onTabChange]);
 
     const handleNext = () => {
         if (isLastStep) {
@@ -230,11 +243,8 @@ const OnboardingTutorial = ({ onComplete, onTabChange }) => {
                         <div
                             className="fixed inset-0"
                             style={{
-                                // Create the spotlight cutout with an inset-shaped box-shadow
-                                boxShadow: `
-                                    0 0 0 4px rgba(59, 130, 246, 0.5),
-                                    0 0 0 99999px var(--tour-overlay-color, rgba(0, 0, 0, 0.6))
-                                `,
+                                // Create the spotlight cutout directly with a stark dark surround
+                                boxShadow: `0 0 0 99999px var(--tour-overlay-color, rgba(0, 0, 0, 0.75))`,
                                 position: 'fixed',
                                 top: targetRect.top - spotlightPadding,
                                 left: targetRect.left - spotlightPadding,
@@ -248,7 +258,7 @@ const OnboardingTutorial = ({ onComplete, onTabChange }) => {
                         />
                     ) : (
                         <div
-                            className="fixed inset-0 bg-black/60 dark:bg-black/70"
+                            className="fixed inset-0 bg-black/75 dark:bg-black/85 backdrop-blur-sm"
                             style={{ zIndex: 99998 }}
                         />
                     )}
@@ -259,27 +269,6 @@ const OnboardingTutorial = ({ onComplete, onTabChange }) => {
                         style={{ zIndex: 99998 }}
                         onClick={(e) => e.stopPropagation()}
                     />
-
-                    {/* Spotlight ring glow animation */}
-                    {targetRect && !isCenterStep && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            key={`spotlight-${currentStep}`}
-                            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                            className="fixed pointer-events-none"
-                            style={{
-                                top: targetRect.top - spotlightPadding - 2,
-                                left: targetRect.left - spotlightPadding - 2,
-                                width: targetRect.width + (spotlightPadding + 2) * 2,
-                                height: targetRect.height + (spotlightPadding + 2) * 2,
-                                borderRadius: `${spotlightBorderRadius + 2}px`,
-                                border: '2px solid rgba(59, 130, 246, 0.4)',
-                                zIndex: 99999,
-                                animation: 'tour-pulse 2s ease-in-out infinite',
-                            }}
-                        />
-                    )}
 
                     {/* Tooltip Card */}
                     <motion.div
@@ -296,20 +285,19 @@ const OnboardingTutorial = ({ onComplete, onTabChange }) => {
                         }}
                     >
                         <div className={`
-                            bg-white/95 dark:bg-[#14161f]/95 
-                            backdrop-blur-2xl 
-                            border border-gray-200/80 dark:border-white/10 
-                            rounded-2xl 
-                            shadow-[0_25px_60px_-12px_rgba(0,0,0,0.15)] dark:shadow-[0_25px_60px_-12px_rgba(0,0,0,0.6)]
+                            bg-white dark:bg-[#0b0c10]
+                            border border-gray-200 dark:border-gray-800
+                            rounded-xl
+                            shadow-2xl
                             overflow-hidden
                             ${isCenterStep ? 'text-center' : ''}
                         `}
                             style={isCenterStep ? { width: '90vw', maxWidth: '440px' } : {}}
                         >
                             {/* Progress bar at top */}
-                            <div className="h-1 bg-gray-100 dark:bg-white/5">
+                            <div className="h-1 bg-gray-100 dark:bg-gray-900">
                                 <motion.div
-                                    className="h-full bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500"
+                                    className="h-full bg-gray-900 dark:bg-white"
                                     initial={{ width: `${(currentStep / TUTORIAL_STEPS.length) * 100}%` }}
                                     animate={{ width: `${((currentStep + 1) / TUTORIAL_STEPS.length) * 100}%` }}
                                     transition={{ duration: 0.4 }}
@@ -319,15 +307,14 @@ const OnboardingTutorial = ({ onComplete, onTabChange }) => {
                             <div className={`p-6 ${isCenterStep ? 'py-8' : ''}`}>
                                 {/* Icon */}
                                 <div className={`
-                                    w-12 h-12 rounded-xl 
-                                    bg-gradient-to-br from-blue-500/10 to-blue-600/10 dark:from-blue-500/20 dark:to-blue-600/20
-                                    border border-blue-500/20 dark:border-blue-400/20
+                                    w-12 h-12 rounded-lg
+                                    bg-gray-100 dark:bg-gray-900
                                     flex items-center justify-center 
-                                    text-blue-600 dark:text-blue-400
-                                    mb-4
-                                    ${isCenterStep ? 'mx-auto w-16 h-16 rounded-2xl' : ''}
+                                    text-gray-900 dark:text-gray-100
+                                    mb-5
+                                    ${isCenterStep ? 'mx-auto w-16 h-16' : ''}
                                 `}>
-                                    {isCenterStep ? <PartyPopper size={32} /> : step.icon}
+                                    {isCenterStep ? <PartyPopper size={28} /> : step.icon}
                                 </div>
 
                                 {/* Title */}
@@ -341,11 +328,11 @@ const OnboardingTutorial = ({ onComplete, onTabChange }) => {
                                 </p>
 
                                 {/* Actions */}
-                                <div className={`flex items-center ${isCenterStep ? 'justify-center' : 'justify-between'} gap-3`}>
+                                <div className={`flex items-center ${isCenterStep ? 'justify-center' : 'justify-between'} gap-3 mt-8`}>
                                     {!isLastStep && (
                                         <button
                                             onClick={handleSkip}
-                                            className="text-sm font-medium text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5"
+                                            className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-500 dark:hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                                         >
                                             Skip tour
                                         </button>
@@ -354,11 +341,11 @@ const OnboardingTutorial = ({ onComplete, onTabChange }) => {
                                     <button
                                         onClick={handleNext}
                                         className={`
-                                            flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95
-                                            bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-500 dark:to-blue-600
-                                            text-white shadow-lg shadow-blue-500/25 dark:shadow-blue-500/20
-                                            hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5
-                                            ${isCenterStep ? 'px-8 py-3 text-base' : ''}
+                                            flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all active:scale-95
+                                            bg-gray-900 text-white hover:bg-black
+                                            dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100
+                                            border-none outline-none
+                                            ${isCenterStep ? 'px-8 py-3 text-base w-full' : ''}
                                         `}
                                     >
                                         {isLastStep ? (
@@ -377,17 +364,17 @@ const OnboardingTutorial = ({ onComplete, onTabChange }) => {
 
                                 {/* Step counter */}
                                 {!isCenterStep && (
-                                    <div className="flex items-center justify-center gap-1.5 mt-5">
+                                    <div className="flex items-center justify-center gap-1.5 mt-6 pt-5 border-t border-gray-100 dark:border-gray-900/50">
                                         {TUTORIAL_STEPS.map((_, idx) => (
                                             <div
                                                 key={idx}
                                                 className={`
                                                     h-1.5 rounded-full transition-all duration-300
                                                     ${idx === currentStep
-                                                        ? 'w-6 bg-blue-500 dark:bg-blue-400'
+                                                        ? 'w-6 bg-gray-900 dark:bg-white'
                                                         : idx < currentStep
-                                                            ? 'w-1.5 bg-blue-300 dark:bg-blue-600'
-                                                            : 'w-1.5 bg-gray-200 dark:bg-white/10'
+                                                            ? 'w-1.5 bg-gray-600 dark:bg-gray-300'
+                                                            : 'w-1.5 bg-gray-200 dark:bg-gray-800'
                                                     }
                                                 `}
                                             />
@@ -398,17 +385,13 @@ const OnboardingTutorial = ({ onComplete, onTabChange }) => {
                         </div>
                     </motion.div>
 
-                    {/* CSS for pulse animation and overlay color variable */}
+                    {/* CSS for overlay variable */}
                     <style>{`
-                        @keyframes tour-pulse {
-                            0%, 100% { opacity: 0.6; transform: scale(1); }
-                            50% { opacity: 1; transform: scale(1.02); }
-                        }
                         :root {
-                            --tour-overlay-color: rgba(0, 0, 0, 0.55);
+                            --tour-overlay-color: rgba(0, 0, 0, 0.65);
                         }
                         .dark {
-                            --tour-overlay-color: rgba(0, 0, 0, 0.7);
+                            --tour-overlay-color: rgba(0, 0, 0, 0.85);
                         }
                     `}</style>
                 </motion.div>

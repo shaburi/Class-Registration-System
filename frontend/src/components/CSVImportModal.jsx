@@ -274,8 +274,8 @@ const CSVImportModal = ({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={() => { resetState(); onClose(); }} // Modified to include resetState
-                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999]"
+                        onClick={() => { resetState(); onClose(); }}
+                        className="fixed inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-sm z-[9999]"
                     />
 
                     <div className="fixed inset-0 z-[10000] overflow-y-auto">
@@ -284,18 +284,18 @@ const CSVImportModal = ({
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                className="relative w-full max-w-2xl glass-card bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-blue-500/10"
+                                className="relative w-full max-w-2xl glass-card bg-white/95 dark:bg-[#0b0d14]/90 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl shadow-blue-500/10"
                                 onClick={e => e.stopPropagation()}
                             >
                                 {/* Header */}
-                                <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
+                                <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-white/10">
                                     <div>
-                                        <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>
-                                        <p className="text-sm text-white/50 mt-1">{description}</p>
+                                        <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">{title}</h2>
+                                        <p className="text-sm text-gray-500 dark:text-white/50 mt-1">{description}</p>
                                     </div>
                                     <button
-                                        onClick={() => { resetState(); onClose(); }} // Modified to include resetState
-                                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all"
+                                        onClick={() => { resetState(); onClose(); }}
+                                        className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white/50 dark:hover:text-white transition-all"
                                     >
                                         <X size={20} />
                                     </button>
@@ -304,7 +304,7 @@ const CSVImportModal = ({
                                 {/* Content */}
                                 <div className="p-6">
                                     {errors.length > 0 && (
-                                        <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3 text-red-400">
+                                        <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-start gap-3 text-red-600 dark:text-red-400">
                                             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                                             <div className="text-sm">
                                                 <p className="font-semibold">Import Error</p>
@@ -325,8 +325,8 @@ const CSVImportModal = ({
                                             className={`
                                                 relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200
                                                 ${dragOver
-                                                    ? 'border-blue-500 bg-blue-500/10'
-                                                    : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
+                                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
+                                                    : 'border-gray-300 dark:border-white/10 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 hover:border-gray-400 dark:hover:border-white/20'
                                                 }
                                             `}
                                         >
@@ -338,29 +338,29 @@ const CSVImportModal = ({
                                                 className="hidden"
                                             />
 
-                                            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                                                <Upload className={`w-8 h-8 ${dragOver ? 'text-blue-400' : 'text-white/40'}`} />
+                                            <div className="w-16 h-16 rounded-full bg-white dark:bg-white/5 shadow-sm border border-gray-100 dark:border-transparent flex items-center justify-center mx-auto mb-4">
+                                                <Upload className={`w-8 h-8 ${dragOver ? 'text-blue-500' : 'text-gray-400 dark:text-white/40'}`} />
                                             </div>
 
-                                            <h3 className="text-lg font-semibold text-white mb-2">
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                                 {dragOver ? 'Drop file here' : 'Upload CSV or Excel File'}
                                             </h3>
-                                            <p className="text-white/40 text-sm mb-6 max-w-xs mx-auto">
+                                            <p className="text-gray-500 dark:text-white/40 text-sm mb-6 max-w-xs mx-auto">
                                                 Drag and drop your CSV or Excel (.xlsx) file here, or click the button below
                                             </p>
 
                                             <button
                                                 onClick={() => fileInputRef.current?.click()}
-                                                className="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20"
+                                                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20"
                                             >
                                                 Browse Files
                                             </button>
 
-                                            <div className="mt-8 pt-6 border-t border-white/10">
-                                                <p className="text-xs text-white/40 mb-3">Don't have the template?</p>
+                                            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-white/10">
+                                                <p className="text-xs text-gray-500 dark:text-white/40 mb-3">Don't have the template?</p>
                                                 <button
                                                     onClick={downloadTemplate}
-                                                    className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                                                    className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                                                 >
                                                     <Download size={14} />
                                                     Download Sample Template
@@ -369,28 +369,28 @@ const CSVImportModal = ({
                                         </div>
                                     ) : (
                                         <div className="space-y-6">
-                                            <div className="flex items-center justify-between p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+                                            <div className="flex items-center justify-between p-4 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400">
+                                                    <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-500/20 flex items-center justify-center text-green-600 dark:text-green-400">
                                                         <FileSpreadsheet size={20} />
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-medium text-white">{file?.name}</p>
-                                                        <p className="text-xs text-green-400">{preview.totalRows} rows found</p>
+                                                        <p className="text-sm font-medium text-gray-900 dark:text-white">{file?.name}</p>
+                                                        <p className="text-xs text-green-600 dark:text-green-400">{preview.totalRows} rows found</p>
                                                     </div>
                                                 </div>
                                                 <button
                                                     onClick={() => { setFile(null); setPreview(null); }}
-                                                    className="p-2 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-colors"
+                                                    className="p-2 hover:bg-gray-200 dark:hover:bg-white/10 rounded-lg text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white transition-colors"
                                                 >
                                                     <X size={16} />
                                                 </button>
                                             </div>
 
-                                            <div className="rounded-xl border border-white/10 overflow-hidden">
+                                            <div className="rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
                                                 <div className="overflow-x-auto">
                                                     <table className="w-full text-sm text-left">
-                                                        <thead className="text-xs text-white/50 uppercase bg-white/5 border-b border-white/10">
+                                                        <thead className="text-xs text-gray-500 dark:text-white/50 uppercase bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10">
                                                             <tr>
                                                                 {preview.columns.map((col) => (
                                                                     <th key={col} className="px-4 py-3 font-medium whitespace-nowrap">
@@ -399,9 +399,9 @@ const CSVImportModal = ({
                                                                 ))}
                                                             </tr>
                                                         </thead>
-                                                        <tbody className="divide-y divide-white/5 text-white/70">
+                                                        <tbody className="divide-y divide-gray-200 dark:divide-white/5 text-gray-700 dark:text-white/70">
                                                             {preview.data.map((row, i) => (
-                                                                <tr key={i} className="bg-white/0 hover:bg-white/5 transition-colors">
+                                                                <tr key={i} className="bg-white dark:bg-white/0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                                                                     {Object.values(row).map((cell, j) => (
                                                                         <td key={j} className="px-4 py-3 whitespace-nowrap">
                                                                             {cell}
@@ -413,7 +413,7 @@ const CSVImportModal = ({
                                                     </table>
                                                 </div>
                                                 {preview.totalRows > 5 && (
-                                                    <div className="px-4 py-2 bg-white/5 border-t border-white/10 text-xs text-center text-white/40">
+                                                    <div className="px-4 py-2 bg-gray-50 dark:bg-white/5 border-t border-gray-200 dark:border-white/10 text-xs text-center text-gray-500 dark:text-white/40">
                                                         Showing first 5 of {preview.totalRows} rows
                                                     </div>
                                                 )}
@@ -422,14 +422,14 @@ const CSVImportModal = ({
                                             <div className="flex justify-end gap-3 pt-2">
                                                 <button
                                                     onClick={() => { setFile(null); setPreview(null); }}
-                                                    className="px-4 py-2 text-white/60 hover:text-white transition-colors"
+                                                    className="px-4 py-2 text-gray-600 hover:text-gray-900 dark:text-white/60 dark:hover:text-white transition-colors"
                                                 >
                                                     Cancel
                                                 </button>
                                                 <button
                                                     onClick={handleImport}
                                                     disabled={importing}
-                                                    className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                                 >
                                                     {importing ? (
                                                         <>

@@ -19,7 +19,8 @@ import {
     ShieldCheck,
     ShieldOff,
     Loader2,
-    KeyRound
+    KeyRound,
+    Hash
 } from 'lucide-react';
 import api from '../services/api';
 import DashboardLayout from '../components/DashboardLayout';
@@ -150,7 +151,7 @@ export default function StudentSettings() {
         return (
             <DashboardLayout role="student" title="Settings" activeTab="settings" onTabChange={() => { }}>
                 <div className="flex items-center justify-center py-20">
-                    <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-gray-900 dark:border-white border-t-transparent rounded-full animate-spin"></div>
                 </div>
             </DashboardLayout>
         );
@@ -163,16 +164,16 @@ export default function StudentSettings() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800"
+                    className="bg-white dark:bg-[#0b0c10] border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-8"
                 >
                     {/* Header */}
-                    <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
-                            <User className="w-8 h-8 text-white" />
+                    <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100 dark:border-gray-900">
+                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-900 rounded-xl flex items-center justify-center">
+                            <User className="w-8 h-8 text-gray-900 dark:text-white" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Profile Settings</h2>
-                            <p className="text-gray-500 dark:text-gray-400">Configure your academic information</p>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Profile Settings</h2>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Configure your academic information</p>
                         </div>
                     </div>
 
@@ -181,9 +182,9 @@ export default function StudentSettings() {
                         <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${message.type === 'success'
-                                ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                            className={`mb-6 p-4 rounded-lg flex items-center gap-3 border ${message.type === 'success'
+                                ? 'bg-green-50/50 border-green-200 text-green-700 dark:bg-green-900/10 dark:border-green-900/50 dark:text-green-400'
+                                : 'bg-red-50/50 border-red-200 text-red-700 dark:bg-red-900/10 dark:border-red-900/50 dark:text-red-400'
                                 }`}
                         >
                             {message.type === 'success' ? (
@@ -191,44 +192,52 @@ export default function StudentSettings() {
                             ) : (
                                 <AlertCircle className="w-5 h-5 flex-shrink-0" />
                             )}
-                            <span>{message.text}</span>
+                            <span className="text-sm font-medium">{message.text}</span>
                         </motion.div>
                     )}
 
                     {/* Form */}
                     <form onSubmit={handleSave} className="space-y-6">
-                        {/* Email (Read-only) */}
-                        <div>
-                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <Mail className="w-4 h-4" />
-                                Email Address
-                            </label>
-                            <input
-                                type="email"
-                                value={user?.email || ''}
-                                disabled
-                                className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                            />
-                        </div>
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {/* Student ID (Read-only) */}
+                                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
+                                    <label className="flex items-center gap-2 text-[10px] font-bold text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-2">
+                                        Student ID
+                                    </label>
+                                    <div className="flex items-center gap-3 text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        <Hash className="w-4 h-4 flex-shrink-0" />
+                                        <span className="truncate font-mono tracking-tight">{user?.student_id || user?.studentId || 'N/A'}</span>
+                                    </div>
+                                </div>
 
-                        {/* Student Name */}
-                        <div>
-                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <IdCard className="w-4 h-4" />
-                                Full Name
-                            </label>
-                            <input
-                                type="text"
-                                value={profile.student_name}
-                                onChange={(e) => setProfile({ ...profile, student_name: e.target.value })}
-                                placeholder="Enter your full name"
-                                className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition dark:text-white"
-                            />
+                                {/* Email (Read-only) */}
+                                <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
+                                    <label className="flex items-center gap-2 text-[10px] font-bold text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-2">
+                                        Email Address
+                                    </label>
+                                    <div className="flex items-center gap-3 text-sm font-medium text-gray-600 dark:text-gray-400 truncate">
+                                        <Mail className="w-4 h-4 flex-shrink-0" />
+                                        <span className="truncate">{user?.email || ''}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Student Name (Read-only) */}
+                            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
+                                <label className="flex items-center gap-2 text-[10px] font-bold text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-2">
+                                    Full Name
+                                </label>
+                                <div className="flex items-center gap-3 text-sm font-medium text-gray-900 dark:text-white truncate">
+                                    <IdCard className="w-4 h-4 flex-shrink-0" />
+                                    <span className="truncate">{profile.student_name || user?.studentName || ''}</span>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Programme */}
                         <div>
-                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-2">
                                 <GraduationCap className="w-4 h-4" />
                                 Programme
                             </label>
@@ -237,17 +246,17 @@ export default function StudentSettings() {
                                 onChange={(e) => {
                                     setProfile({ ...profile, programme: e.target.value, semester: '' });
                                 }}
-                                className="w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition dark:text-white"
+                                className="w-full px-4 py-3 bg-white dark:bg-[#0b0c10] border border-gray-300 dark:border-gray-700 rounded-xl outline-none text-gray-900 dark:text-white transition-colors focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white appearance-none"
                             >
-                                <option value="">Select your programme</option>
+                                <option value="" className="text-gray-500">Select your programme...</option>
                                 {PROGRAMMES.map(prog => (
-                                    <option key={prog.code} value={prog.code}>
+                                    <option key={prog.code} value={prog.code} className="text-black dark:text-white bg-white dark:bg-[#0b0c10]">
                                         {prog.code} - {prog.name}
                                     </option>
                                 ))}
                             </select>
                             {selectedProgramme && (
-                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
                                     {selectedProgramme.type === 'diploma' ? 'Diploma Programme (6 semesters)' : 'Degree Programme (8 semesters)'}
                                 </p>
                             )}
@@ -255,7 +264,7 @@ export default function StudentSettings() {
 
                         {/* Semester */}
                         <div>
-                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-2">
                                 <Calendar className="w-4 h-4" />
                                 Current Semester
                             </label>
@@ -263,50 +272,53 @@ export default function StudentSettings() {
                                 value={profile.semester}
                                 onChange={(e) => setProfile({ ...profile, semester: e.target.value })}
                                 disabled={!profile.programme}
-                                className={`w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition dark:text-white ${!profile.programme ? 'opacity-50 cursor-not-allowed' : ''
-                                    }`}
+                                className={`w-full px-4 py-3 bg-white dark:bg-[#0b0c10] border border-gray-300 dark:border-gray-700 rounded-xl outline-none text-gray-900 dark:text-white transition-colors focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white appearance-none ${!profile.programme ? 'opacity-50 cursor-not-allowed bg-gray-50 dark:bg-gray-900/50' : ''}`}
                             >
-                                <option value="">Select your semester</option>
+                                <option value="" className="text-gray-500">Select your semester...</option>
                                 {[...Array(maxSemester)].map((_, i) => (
-                                    <option key={i + 1} value={i + 1}>
+                                    <option key={i + 1} value={i + 1} className="text-black dark:text-white bg-white dark:bg-[#0b0c10]">
                                         Semester {i + 1}
                                     </option>
                                 ))}
                             </select>
                             {!profile.programme && (
-                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
                                     Please select a programme first
                                 </p>
                             )}
                         </div>
 
                         {/* Save Button */}
-                        <motion.button
-                            type="submit"
-                            disabled={saving}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className={`w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-red-600 hover:from-blue-700 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg flex items-center justify-center gap-2 transition ${saving ? 'opacity-70 cursor-not-allowed' : ''
-                                }`}
-                        >
-                            {saving ? (
-                                <>
-                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    Saving...
-                                </>
-                            ) : (
-                                <>
-                                    <Save className="w-5 h-5" />
-                                    Save Changes
-                                </>
-                            )}
-                        </motion.button>
+                        <div className="pt-2">
+                            <motion.button
+                                type="submit"
+                                disabled={saving}
+                                whileHover={{ scale: 1.01 }}
+                                whileTap={{ scale: 0.98 }}
+                                className={`w-full py-3.5 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-all border border-transparent 
+                                           bg-gray-900 text-white hover:bg-black 
+                                           dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200
+                                           ${saving ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            >
+                                {saving ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                        Saving...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="w-5 h-5" />
+                                        Save Changes
+                                    </>
+                                )}
+                            </motion.button>
+                        </div>
                     </form>
 
                     {/* Info Box */}
-                    <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                        <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2">Why is this important?</h4>
-                        <p className="text-sm text-blue-600 dark:text-blue-400">
+                    <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-800 rounded-xl">
+                        <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-1 tracking-wide uppercase">Why is this important?</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
                             Your programme and semester determine which subjects you can register for.
                             Make sure to select the correct information to see relevant courses.
                         </p>
@@ -318,49 +330,49 @@ export default function StudentSettings() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800"
+                    className="bg-white dark:bg-[#0b0c10] border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-8"
                 >
-                    <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
-                        <div className={`w-16 h-16 bg-gradient-to-br ${mfaEnabled ? 'from-emerald-500 to-teal-600' : 'from-gray-400 to-gray-500'} rounded-2xl flex items-center justify-center shadow-lg transition-all`}>
+                    <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100 dark:border-gray-900">
+                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-900 rounded-xl flex items-center justify-center">
                             {mfaEnabled ? (
-                                <ShieldCheck className="w-8 h-8 text-white" />
+                                <ShieldCheck className="w-8 h-8 text-gray-900 dark:text-white" />
                             ) : (
-                                <Shield className="w-8 h-8 text-white" />
+                                <Shield className="w-8 h-8 text-gray-900 dark:text-white" />
                             )}
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Security</h2>
-                            <p className="text-gray-500 dark:text-gray-400">Two-Factor Authentication (2FA)</p>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Security Settings</h2>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Two-Factor Authentication (2FA)</p>
                         </div>
                     </div>
 
                     {mfaLoading ? (
                         <div className="flex items-center justify-center py-8">
-                            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                            <Loader2 className="w-8 h-8 text-gray-900 dark:text-white animate-spin" />
                         </div>
                     ) : mfaEnabled ? (
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-700">
-                                <ShieldCheck className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-900/30 rounded-xl border border-gray-200 dark:border-gray-800">
+                                <ShieldCheck className="w-6 h-6 text-gray-900 dark:text-white flex-shrink-0" />
                                 <div>
-                                    <p className="font-medium text-emerald-800 dark:text-emerald-300">2FA is Enabled</p>
-                                    <p className="text-sm text-emerald-600 dark:text-emerald-400">Your account is protected with two-factor authentication.</p>
+                                    <p className="text-sm font-bold text-gray-900 dark:text-white">2FA is Enabled</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Your account is protected with an authenticator app.</p>
                                 </div>
                             </div>
 
                             {!showDisableForm ? (
                                 <button
                                     onClick={() => setShowDisableForm(true)}
-                                    className="px-5 py-2.5 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-700 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition font-medium text-sm"
+                                    className="px-5 py-2.5 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors font-bold text-sm"
                                 >
                                     Disable 2FA
                                 </button>
                             ) : (
-                                <form onSubmit={handleDisableMfa} className="space-y-3 p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-800">
-                                    <p className="text-sm text-red-700 dark:text-red-400 font-medium">Enter your authenticator code to disable 2FA:</p>
+                                <form onSubmit={handleDisableMfa} className="space-y-4 p-5 bg-gray-50 dark:bg-gray-900/30 rounded-xl border border-gray-200 dark:border-gray-800">
+                                    <p className="text-sm text-gray-900 dark:text-white font-bold">Enter your authenticator code to disable 2FA:</p>
                                     <div className="flex gap-2">
                                         <div className="relative flex-1">
-                                            <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                            <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                                             <input
                                                 type="text"
                                                 inputMode="numeric"
@@ -372,26 +384,26 @@ export default function StudentSettings() {
                                                     setDisableError('');
                                                 }}
                                                 placeholder="000000"
-                                                className="w-full pl-9 pr-4 py-2.5 text-center font-mono tracking-[0.3em] bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500"
+                                                className="w-full pl-9 pr-4 py-2.5 text-center font-mono tracking-[0.3em] bg-white dark:bg-[#0b0c10] border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white outline-none focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white transition-colors"
                                             />
                                         </div>
                                         <button
                                             type="submit"
                                             disabled={disabling || disableToken.length !== 6}
-                                            className="px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium disabled:opacity-50 hover:bg-red-700 transition text-sm"
+                                            className="px-5 py-2.5 bg-gray-900 text-white dark:bg-white dark:text-gray-900 hover:bg-black dark:hover:bg-gray-200 rounded-lg font-bold disabled:opacity-50 transition-colors text-sm"
                                         >
                                             {disabling ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirm'}
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => { setShowDisableForm(false); setDisableToken(''); setDisableError(''); }}
-                                            className="px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition text-sm"
+                                            className="px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors font-medium text-sm"
                                         >
                                             Cancel
                                         </button>
                                     </div>
                                     {disableError && (
-                                        <p className="text-sm text-red-600 flex items-center gap-1">
+                                        <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5 mt-2">
                                             <AlertCircle className="w-3.5 h-3.5" />
                                             {disableError}
                                         </p>
@@ -400,31 +412,31 @@ export default function StudentSettings() {
                             )}
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-700">
-                                <ShieldOff className="w-6 h-6 text-amber-600 flex-shrink-0" />
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-900/30 rounded-xl border border-gray-200 dark:border-gray-800">
+                                <ShieldOff className="w-6 h-6 text-gray-900 dark:text-white flex-shrink-0" />
                                 <div>
-                                    <p className="font-medium text-amber-800 dark:text-amber-300">2FA is Not Enabled</p>
-                                    <p className="text-sm text-amber-600 dark:text-amber-400">Add an extra layer of security to your account.</p>
+                                    <p className="text-sm font-bold text-gray-900 dark:text-white">2FA is Not Enabled</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Add an extra layer of structural security to your account.</p>
                                 </div>
                             </div>
 
                             <motion.button
                                 onClick={() => setShowMfaSetup(true)}
-                                whileHover={{ scale: 1.02 }}
+                                whileHover={{ scale: 1.01 }}
                                 whileTap={{ scale: 0.98 }}
-                                className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition"
+                                className="w-full py-3.5 bg-gray-900 text-white dark:bg-white dark:text-gray-900 hover:bg-black dark:hover:bg-gray-200 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors border border-transparent"
                             >
                                 <Shield className="w-5 h-5" />
                                 Enable Two-Factor Authentication
                             </motion.button>
 
-                            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                                <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-2">How it works</h4>
-                                <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                                    <li>1. Scan a QR code with Google Authenticator or Authy</li>
-                                    <li>2. Enter a 6-digit code to verify</li>
-                                    <li>3. Every login will require a code from your app</li>
+                            <div className="p-4 bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-800 rounded-xl">
+                                <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 tracking-wide uppercase">How it works</h4>
+                                <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1.5 list-disc pl-4 marker:text-gray-400">
+                                    <li>Scan a QR code with an Authenticator app (Google/Authy)</li>
+                                    <li>Enter the 6-digit code to verify</li>
+                                    <li>Every login will subsequently require a time-based code</li>
                                 </ul>
                             </div>
                         </div>
@@ -447,46 +459,46 @@ export default function StudentSettings() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-white rounded-2xl shadow-xl p-8 dark:bg-gray-800"
+                    className="bg-white dark:bg-[#0b0c10] border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm p-8"
                 >
                     {/* Header */}
-                    <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
-                        <div className={`w-16 h-16 bg-gradient-to-br ${accentColors[accentColor].gradient} rounded-2xl flex items-center justify-center shadow-lg`}>
-                            <Palette className="w-8 h-8 text-white" />
+                    <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100 dark:border-gray-900">
+                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-900 rounded-xl flex items-center justify-center">
+                            <Palette className="w-8 h-8 text-gray-900 dark:text-white" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Theme Customization</h2>
-                            <p className="text-gray-500 dark:text-gray-400">Personalize your dashboard appearance</p>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Theme Customization</h2>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Personalize your dashboard appearance</p>
                         </div>
                     </div>
 
                     {/* Dark Mode Toggle */}
                     <div className="mb-8">
-                        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+                        <label className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">
                             {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                             Display Mode
                         </label>
                         <div className="flex gap-3">
                             <button
                                 onClick={() => theme === 'dark' && toggleTheme()}
-                                className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-3 ${theme === 'light'
-                                    ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                                    : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300'
+                                className={`flex-1 py-3 px-4 rounded-xl border transition-all flex items-center justify-center gap-3 ${theme === 'light'
+                                    ? 'border-gray-900 bg-gray-50 text-gray-900 dark:border-white dark:bg-gray-800 dark:text-white'
+                                    : 'border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-500 hover:border-gray-300 dark:hover:border-gray-700'
                                     }`}
                             >
-                                <Sun className="w-5 h-5" />
-                                <span className="font-medium">Light</span>
+                                <Sun className="w-4 h-4" />
+                                <span className="text-sm font-bold">Light</span>
                                 {theme === 'light' && <Check className="w-4 h-4" />}
                             </button>
                             <button
                                 onClick={() => theme === 'light' && toggleTheme()}
-                                className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-3 ${theme === 'dark'
-                                    ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                                    : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300'
+                                className={`flex-1 py-3 px-4 rounded-xl border transition-all flex items-center justify-center gap-3 ${theme === 'dark'
+                                    ? 'border-gray-900 bg-gray-50 text-gray-900 dark:border-white dark:bg-[#1a1c23] dark:text-white'
+                                    : 'border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-500 hover:border-gray-300 dark:hover:border-gray-700'
                                     }`}
                             >
-                                <Moon className="w-5 h-5" />
-                                <span className="font-medium">Dark</span>
+                                <Moon className="w-4 h-4" />
+                                <span className="text-sm font-bold">Dark</span>
                                 {theme === 'dark' && <Check className="w-4 h-4" />}
                             </button>
                         </div>
@@ -494,52 +506,43 @@ export default function StudentSettings() {
 
                     {/* Accent Color Picker */}
                     <div>
-                        <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+                        <label className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">
                             <Palette className="w-4 h-4" />
-                            Accent Color
+                            Highlight Color
                         </label>
                         <div className="grid grid-cols-4 gap-3">
                             {Object.entries(accentColors).map(([key, color]) => (
-                                <motion.button
+                                <button
                                     key={key}
                                     onClick={() => setAccentColor(key)}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className={`relative p-4 rounded-xl border-2 transition-all ${accentColor === key
-                                        ? 'border-gray-900 dark:border-white shadow-lg'
-                                        : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+                                    className={`relative p-3 rounded-xl border transition-all active:scale-[0.98] ${accentColor === key
+                                        ? 'border-gray-900 dark:border-white'
+                                        : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
                                         }`}
                                 >
-                                    <div className={`w-full aspect-square rounded-lg bg-gradient-to-br ${color.gradient} shadow-md`} />
-                                    <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mt-2 text-center">
+                                    <div className={`w-full aspect-square rounded-lg ${color.bg}`} />
+                                    <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 mt-2 text-center">
                                         {color.name}
                                     </p>
                                     {accentColor === key && (
-                                        <motion.div
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            className="absolute top-2 right-2 w-5 h-5 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center shadow"
-                                        >
-                                            <Check className="w-3 h-3 text-gray-900 dark:text-white" />
-                                        </motion.div>
+                                        <div className="absolute top-1.5 right-1.5 w-4 h-4 bg-white dark:bg-[#0b0c10] border border-gray-200 dark:border-gray-700 rounded-full flex items-center justify-center">
+                                            <Check className="w-2.5 h-2.5 text-gray-900 dark:text-white" />
+                                        </div>
                                     )}
-                                </motion.button>
+                                </button>
                             ))}
                         </div>
                     </div>
 
                     {/* Preview */}
-                    <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Preview</p>
+                    <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-800 rounded-xl">
+                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-4 tracking-wider uppercase">Preview Match</p>
                         <div className="flex items-center gap-3">
-                            <div className={`px-4 py-2 bg-gradient-to-r ${accentColors[accentColor].gradient} text-white rounded-lg font-medium shadow-md`}>
-                                Primary Button
+                            <div className={`px-4 py-2 ${accentColors[accentColor].bg} text-white rounded-lg font-bold text-sm`}>
+                                Primary Box
                             </div>
-                            <div className={`px-4 py-2 ${accentColors[accentColor].bg} text-white rounded-lg font-medium`}>
-                                Accent
-                            </div>
-                            <div className={`px-4 py-2 border-2 border-current ${accentColors[accentColor].text} rounded-lg font-medium`}>
-                                Outline
+                            <div className={`px-4 py-2 bg-transparent text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg font-bold text-sm ${accentColors[accentColor].text}`}>
+                                Accent Text
                             </div>
                         </div>
                     </div>
@@ -548,4 +551,3 @@ export default function StudentSettings() {
         </DashboardLayout>
     );
 }
-
